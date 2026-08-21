@@ -424,22 +424,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f935a870b9e44720bf5a83b79c2e160e, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::CageEdgeGlowEffect
+  auraIntensity: 0.24
+  auraSizePixels: 52
+  particleCount: 9
   glowColor: {r: 1, g: 0.86, b: 0.48, a: 0.5}
-  minGlowIntensity: 0.08
-  maxGlowIntensity: 0.24
   glowPulseDuration: 4.8
-  glowWidthPixels: 52
   alphaThreshold: 0.2
   glowSortingOffset: 1
   particleColor: {r: 1, g: 0.9, b: 0.55, a: 0.42}
-  particleRate: 9
   particleSampleStepPixels: 24
   particleSizeRange: {x: 0.01, y: 0.026}
   particleLifetimeRange: {x: 1.2, y: 2.4}
   particleDriftSpeed: 0.025
   particleJitter: 0.01
   particleSortingOffset: 2
-  maxParticles: 140
 --- !u!1 &1395144884
 GameObject:
   m_ObjectHideFlags: 0

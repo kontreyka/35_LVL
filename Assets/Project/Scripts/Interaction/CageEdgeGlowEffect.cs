@@ -1,29 +1,41 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(SpriteRenderer))]
 public sealed class CageEdgeGlowEffect : MonoBehaviour
 {
-	[Header("Soft Edge Glow")]
+	[Header("Aura Main Controls")]
+	[FormerlySerializedAs("maxGlowIntensity")]
+	[Tooltip("Основная интенсивность желтоватой ауры. Чем больше значение, тем ярче свечение.")]
+	[Range(0f, 1f)]
+	[SerializeField] private float auraIntensity = 0.24f;
+
+	[FormerlySerializedAs("glowWidthPixels")]
+	[Tooltip("Размер ареола в пикселях вокруг края PNG/спрайта.")]
+	[Range(1f, 160f)]
+	[SerializeField] private float auraSizePixels = 52f;
+
+	[FormerlySerializedAs("particleRate")]
+	[Tooltip("Количество частиц, появляющихся по краям за секунду.")]
+	[Range(0f, 60f)]
+	[SerializeField] private float particleCount = 9f;
+
+	[Header("Aura Details")]
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
-	[SerializeField] private float minGlowIntensity = 0.08f;
-	[SerializeField] private float maxGlowIntensity = 0.24f;
 	[SerializeField] private float glowPulseDuration = 4.8f;
-	[SerializeField] private float glowWidthPixels = 52f;
 	[SerializeField] private float alphaThreshold = 0.2f;
 	[SerializeField] private int glowSortingOffset = 1;
 
 	[Header("Edge Particles")]
 	[SerializeField] private Color particleColor = new Color(1f, 0.9f, 0.55f, 0.42f);
-	[SerializeField] private float particleRate = 9f;
 	[SerializeField] private int particleSampleStepPixels = 24;
 	[SerializeField] private Vector2 particleSizeRange = new Vector2(0.01f, 0.026f);
 	[SerializeField] private Vector2 particleLifetimeRange = new Vector2(1.2f, 2.4f);
 	[SerializeField] private float particleDriftSpeed = 0.025f;
 	[SerializeField] private float particleJitter = 0.01f;
 	[SerializeField] private int particleSortingOffset = 2;
-	[SerializeField] private int maxParticles = 140;
 
 	private readonly List<Vector3> contourLocalPositions = new List<Vector3>();
 
@@ -32,6 +44,10 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	private ParticleSystem edgeParticles;
 	private Material particleMaterial;
 	private Sprite cachedSprite;
+	private Color cachedGlowColor;
+	private float cachedAuraSizePixels;
+	private float cachedAlphaThreshold;
+	private int cachedParticleSampleStepPixels;
 	private Texture2D generatedGlowTexture;
 	private Sprite generatedGlowSprite;
 	private float particleEmitAccumulator;
@@ -71,6 +87,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		EnsureGlowRenderer();
 		EnsureParticleSystem();
+		UpdateParticleSystemCapacity();
 		RefreshContourIfNeeded();
 	}
 
@@ -101,7 +118,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		main.loop = false;
 		main.playOnAwake = true;
 		main.simulationSpace = ParticleSystemSimulationSpace.World;
-		main.maxParticles = Mathf.Max(1, maxParticles);
+		main.maxParticles = GetParticleCapacity();
 		main.startSpeed = 0f;
 		main.startSize = new ParticleSystem.MinMaxCurve(particleSizeRange.x, particleSizeRange.y);
 		main.startLifetime = new ParticleSystem.MinMaxCurve(particleLifetimeRange.x, particleLifetimeRange.y);
@@ -129,6 +146,15 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		}
 	}
 
+	private void UpdateParticleSystemCapacity()
+	{
+		if (edgeParticles == null)
+			return;
+
+		ParticleSystem.MainModule main = edgeParticles.main;
+		main.maxParticles = GetParticleCapacity();
+	}
+
 	private void SyncGlowRenderer()
 	{
 		if (glowRenderer == null || sourceRenderer == null)
@@ -149,7 +175,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		float pulse = GetSlowPulse();
 		Color color = Color.white;
-		color.a = Mathf.Lerp(minGlowIntensity, maxGlowIntensity, pulse);
+		color.a = Mathf.Lerp(auraIntensity * 0.35f, auraIntensity, pulse);
 		glowRenderer.color = color;
 	}
 
@@ -157,10 +183,14 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	{
 		Sprite sprite = sourceRenderer != null ? sourceRenderer.sprite : null;
 
-		if (sprite == cachedSprite)
+		if (sprite == cachedSprite && IsGlowCacheValid())
 			return;
 
 		cachedSprite = sprite;
+		cachedGlowColor = glowColor;
+		cachedAuraSizePixels = auraSizePixels;
+		cachedAlphaThreshold = alphaThreshold;
+		cachedParticleSampleStepPixels = particleSampleStepPixels;
 		contourLocalPositions.Clear();
 
 		if (sprite == null)
@@ -196,10 +226,18 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		SyncGlowRenderer();
 	}
 
+	private bool IsGlowCacheValid()
+	{
+		return cachedGlowColor == glowColor
+			&& Mathf.Approximately(cachedAuraSizePixels, auraSizePixels)
+			&& Mathf.Approximately(cachedAlphaThreshold, alphaThreshold)
+			&& cachedParticleSampleStepPixels == particleSampleStepPixels;
+	}
+
 	private void RebuildGlowSprite(Sprite sprite)
 	{
 		ClearGlowSprite();
-		int glowRadius = Mathf.Max(1, Mathf.RoundToInt(glowWidthPixels));
+		int glowRadius = Mathf.Max(1, Mathf.RoundToInt(auraSizePixels));
 
 		generatedGlowTexture = SpriteContourGlowTextureBuilder.BuildGlowTexture(
 			sprite.texture,
@@ -239,11 +277,11 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private void EmitEdgeParticles()
 	{
-		if (edgeParticles == null || contourLocalPositions.Count == 0 || particleRate <= 0f)
+		if (edgeParticles == null || contourLocalPositions.Count == 0 || particleCount <= 0f)
 			return;
 
 		float pulse = GetSlowPulse();
-		particleEmitAccumulator += Time.deltaTime * particleRate * Mathf.Lerp(0.45f, 1f, pulse);
+		particleEmitAccumulator += Time.deltaTime * particleCount * Mathf.Lerp(0.45f, 1f, pulse);
 
 		while (particleEmitAccumulator >= 1f)
 		{
@@ -280,6 +318,12 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	{
 		float duration = Mathf.Max(0.01f, glowPulseDuration);
 		return (Mathf.Sin(Time.time * Mathf.PI * 2f / duration) + 1f) * 0.5f;
+	}
+
+	private int GetParticleCapacity()
+	{
+		float longestLifetime = Mathf.Max(particleLifetimeRange.x, particleLifetimeRange.y, 1f);
+		return Mathf.Max(16, Mathf.CeilToInt(particleCount * longestLifetime * 2f));
 	}
 
 	private static Vector3 TexturePixelToLocalPosition(Sprite sprite, Vector2Int pixel)
