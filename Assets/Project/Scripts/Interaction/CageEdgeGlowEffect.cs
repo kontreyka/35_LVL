@@ -6,23 +6,22 @@ using UnityEngine;
 public sealed class CageEdgeGlowEffect : MonoBehaviour
 {
 	[Header("Soft Edge Glow")]
-	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.62f);
-	[SerializeField] private float minGlowIntensity = 0.18f;
-	[SerializeField] private float maxGlowIntensity = 0.62f;
+	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
+	[SerializeField] private float minGlowIntensity = 0.08f;
+	[SerializeField] private float maxGlowIntensity = 0.24f;
 	[SerializeField] private float glowPulseDuration = 4.8f;
-	[SerializeField] private float glowWidthPixels = 14f;
-	[SerializeField] private float luminanceEdgeThreshold = 0.16f;
+	[SerializeField] private float glowWidthPixels = 52f;
 	[SerializeField] private float alphaThreshold = 0.2f;
 	[SerializeField] private int glowSortingOffset = 1;
 
 	[Header("Edge Particles")]
-	[SerializeField] private Color particleColor = new Color(1f, 0.9f, 0.55f, 0.58f);
-	[SerializeField] private float particleRate = 16f;
-	[SerializeField] private int particleSampleStepPixels = 16;
-	[SerializeField] private Vector2 particleSizeRange = new Vector2(0.015f, 0.038f);
+	[SerializeField] private Color particleColor = new Color(1f, 0.9f, 0.55f, 0.42f);
+	[SerializeField] private float particleRate = 9f;
+	[SerializeField] private int particleSampleStepPixels = 24;
+	[SerializeField] private Vector2 particleSizeRange = new Vector2(0.01f, 0.026f);
 	[SerializeField] private Vector2 particleLifetimeRange = new Vector2(1.2f, 2.4f);
-	[SerializeField] private float particleDriftSpeed = 0.035f;
-	[SerializeField] private float particleJitter = 0.018f;
+	[SerializeField] private float particleDriftSpeed = 0.025f;
+	[SerializeField] private float particleJitter = 0.01f;
 	[SerializeField] private int particleSortingOffset = 2;
 	[SerializeField] private int maxParticles = 140;
 
@@ -175,8 +174,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 				sprite.texture,
 				sprite.textureRect,
 				particleSampleStepPixels,
-				alphaThreshold,
-				luminanceEdgeThreshold
+				alphaThreshold
 			);
 
 			for (int i = 0; i < contourPixels.Count; i++)
@@ -201,6 +199,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	private void RebuildGlowSprite(Sprite sprite)
 	{
 		ClearGlowSprite();
+		int glowRadius = Mathf.Max(1, Mathf.RoundToInt(glowWidthPixels));
 
 		generatedGlowTexture = SpriteContourGlowTextureBuilder.BuildGlowTexture(
 			sprite.texture,
@@ -208,14 +207,16 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 			glowColor,
 			particleSampleStepPixels,
 			alphaThreshold,
-			luminanceEdgeThreshold,
-			Mathf.RoundToInt(glowWidthPixels),
+			glowRadius,
 			1f
 		);
 		generatedGlowSprite = Sprite.Create(
 			generatedGlowTexture,
 			new Rect(0f, 0f, generatedGlowTexture.width, generatedGlowTexture.height),
-			new Vector2(sprite.pivot.x / sprite.rect.width, sprite.pivot.y / sprite.rect.height),
+			new Vector2(
+				(sprite.pivot.x + glowRadius) / generatedGlowTexture.width,
+				(sprite.pivot.y + glowRadius) / generatedGlowTexture.height
+			),
 			sprite.pixelsPerUnit
 		);
 		generatedGlowSprite.name = "Generated_CageContourGlowSprite";

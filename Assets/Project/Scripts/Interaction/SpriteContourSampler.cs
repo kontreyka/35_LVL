@@ -7,8 +7,7 @@ public static class SpriteContourSampler
 		Texture2D texture,
 		Rect textureRect,
 		int sampleStepPixels,
-		float alphaThreshold,
-		float luminanceEdgeThreshold
+		float alphaThreshold
 	)
 	{
 		List<Vector2Int> contourPixels = new List<Vector2Int>();
@@ -23,20 +22,19 @@ public static class SpriteContourSampler
 		int yMax = Mathf.Clamp(Mathf.CeilToInt(textureRect.yMax) - 1, 0, texture.height - 1);
 		Color32[] pixels = texture.GetPixels32();
 		byte alphaLimit = FloatToByte(alphaThreshold);
-		bool hasTransparentPixels = HasTransparentPixels(pixels, texture.width, xMin, yMin, xMax, yMax, step, alphaLimit);
+		bool hasTransparentPixels = HasTransparentPixels(pixels, texture.width, xMin, yMin, xMax, yMax, alphaLimit);
+
+		if (!hasTransparentPixels)
+		{
+			AddPerimeterPixels(contourPixels, xMin, yMin, xMax, yMax, step);
+			return contourPixels;
+		}
 
 		for (int y = yMin; y <= yMax; y += step)
 		{
 			for (int x = xMin; x <= xMax; x += step)
 			{
-				if (hasTransparentPixels)
-				{
-					if (IsAlphaContourPixel(pixels, texture.width, texture.height, x, y, alphaLimit))
-					{
-						contourPixels.Add(new Vector2Int(x, y));
-					}
-				}
-				else if (IsLuminanceContourPixel(pixels, texture.width, texture.height, x, y, luminanceEdgeThreshold))
+				if (IsAlphaContourPixel(pixels, texture.width, texture.height, x, y, alphaLimit))
 				{
 					contourPixels.Add(new Vector2Int(x, y));
 				}
@@ -53,13 +51,12 @@ public static class SpriteContourSampler
 		int yMin,
 		int xMax,
 		int yMax,
-		int step,
 		byte alphaLimit
 	)
 	{
-		for (int y = yMin; y <= yMax; y += step)
+		for (int y = yMin; y <= yMax; y++)
 		{
-			for (int x = xMin; x <= xMax; x += step)
+			for (int x = xMin; x <= xMax; x++)
 			{
 				if (pixels[ToIndex(x, y, width)].a < alphaLimit)
 					return true;
@@ -67,6 +64,39 @@ public static class SpriteContourSampler
 		}
 
 		return false;
+	}
+
+	private static void AddPerimeterPixels(List<Vector2Int> contourPixels, int xMin, int yMin, int xMax, int yMax, int step)
+	{
+		for (int x = xMin; x <= xMax; x += step)
+		{
+			contourPixels.Add(new Vector2Int(x, yMin));
+
+			if (yMax != yMin)
+			{
+				contourPixels.Add(new Vector2Int(x, yMax));
+			}
+		}
+
+		if ((xMax - xMin) % step != 0)
+		{
+			contourPixels.Add(new Vector2Int(xMax, yMin));
+
+			if (yMax != yMin)
+			{
+				contourPixels.Add(new Vector2Int(xMax, yMax));
+			}
+		}
+
+		for (int y = yMin + step; y < yMax; y += step)
+		{
+			contourPixels.Add(new Vector2Int(xMin, y));
+
+			if (xMax != xMin)
+			{
+				contourPixels.Add(new Vector2Int(xMax, y));
+			}
+		}
 	}
 
 	private static bool IsAlphaContourPixel(Color32[] pixels, int width, int height, int x, int y, byte alphaLimit)
@@ -93,40 +123,6 @@ public static class SpriteContourSampler
 		}
 
 		return false;
-	}
-
-	private static bool IsLuminanceContourPixel(
-		Color32[] pixels,
-		int width,
-		int height,
-		int x,
-		int y,
-		float luminanceEdgeThreshold
-	)
-	{
-		float center = GetLuminance(pixels[ToIndex(x, y, width)]);
-		float strongestDifference = 0f;
-
-		for (int oy = -1; oy <= 1; oy++)
-		{
-			for (int ox = -1; ox <= 1; ox++)
-			{
-				if (ox == 0 && oy == 0)
-					continue;
-
-				int nx = Mathf.Clamp(x + ox, 0, width - 1);
-				int ny = Mathf.Clamp(y + oy, 0, height - 1);
-				float neighbor = GetLuminance(pixels[ToIndex(nx, ny, width)]);
-				strongestDifference = Mathf.Max(strongestDifference, Mathf.Abs(center - neighbor));
-			}
-		}
-
-		return strongestDifference >= luminanceEdgeThreshold;
-	}
-
-	private static float GetLuminance(Color32 color)
-	{
-		return (0.2126f * color.r + 0.7152f * color.g + 0.0722f * color.b) / 255f;
 	}
 
 	private static byte FloatToByte(float value)

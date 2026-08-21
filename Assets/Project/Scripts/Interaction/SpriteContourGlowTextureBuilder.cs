@@ -9,13 +9,15 @@ public static class SpriteContourGlowTextureBuilder
 		Color glowColor,
 		int sampleStepPixels,
 		float alphaThreshold,
-		float luminanceEdgeThreshold,
 		int glowRadiusPixels,
 		float intensity
 	)
 	{
-		int width = Mathf.Max(1, Mathf.RoundToInt(textureRect.width));
-		int height = Mathf.Max(1, Mathf.RoundToInt(textureRect.height));
+		int sourceWidth = Mathf.Max(1, Mathf.RoundToInt(textureRect.width));
+		int sourceHeight = Mathf.Max(1, Mathf.RoundToInt(textureRect.height));
+		int radius = Mathf.Max(1, glowRadiusPixels);
+		int width = sourceWidth + radius * 2;
+		int height = sourceHeight + radius * 2;
 		Texture2D glowTexture = new Texture2D(width, height, TextureFormat.RGBA32, false)
 		{
 			name = "Generated_CageContourGlow",
@@ -28,20 +30,18 @@ public static class SpriteContourGlowTextureBuilder
 			sourceTexture,
 			textureRect,
 			sampleStepPixels,
-			alphaThreshold,
-			luminanceEdgeThreshold
+			alphaThreshold
 		);
 
 		int xOffset = Mathf.RoundToInt(textureRect.xMin);
 		int yOffset = Mathf.RoundToInt(textureRect.yMin);
-		int radius = Mathf.Max(1, glowRadiusPixels);
 		float clampedIntensity = Mathf.Clamp01(intensity);
 
 		for (int i = 0; i < contourPixels.Count; i++)
 		{
 			Vector2Int sourcePixel = contourPixels[i];
-			int centerX = sourcePixel.x - xOffset;
-			int centerY = sourcePixel.y - yOffset;
+			int centerX = sourcePixel.x - xOffset + radius;
+			int centerY = sourcePixel.y - yOffset + radius;
 			PaintGlowBlob(alphaMap, width, height, centerX, centerY, radius, clampedIntensity);
 		}
 

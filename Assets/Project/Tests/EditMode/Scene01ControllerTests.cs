@@ -23,8 +23,7 @@ public sealed class SpriteContourSamplerTests
 			texture,
 			new Rect(0f, 0f, 5f, 5f),
 			1,
-			0.5f,
-			0.35f
+			0.5f
 		).ToArray();
 
 		Assert.That(contour, Has.Member(new Vector2Int(1, 1)));
@@ -34,7 +33,7 @@ public sealed class SpriteContourSamplerTests
 	}
 
 	[Test]
-	public void FindContourPixels_FallsBackToLuminanceEdgesWhenAlphaIsOpaque()
+	public void FindContourPixels_UsesSpritePerimeterWhenAlphaIsOpaque()
 	{
 		Texture2D texture = CreateTexture(5, 5, Color.black);
 
@@ -52,14 +51,38 @@ public sealed class SpriteContourSamplerTests
 			texture,
 			new Rect(0f, 0f, 5f, 5f),
 			1,
-			0.5f,
-			0.35f
+			0.5f
 		).ToArray();
 
-		Assert.That(contour, Has.Member(new Vector2Int(1, 1)));
+		Assert.That(contour, Has.Member(new Vector2Int(0, 0)));
 		Assert.That(contour, Has.Member(new Vector2Int(0, 2)));
+		Assert.That(contour, Has.Member(new Vector2Int(4, 4)));
+		Assert.That(contour, Has.No.Member(new Vector2Int(1, 1)));
 		Assert.That(contour, Has.No.Member(new Vector2Int(2, 2)));
-		Assert.That(contour.Length, Is.GreaterThan(0));
+		Assert.That(contour, Has.Length.EqualTo(16));
+	}
+
+	[Test]
+	public void BuildGlowTexture_AddsPaddingSoOpaqueSpriteAuraCanExtendPastEdges()
+	{
+		Texture2D texture = CreateTexture(7, 7, Color.black);
+
+		texture.Apply();
+
+		Texture2D glowTexture = SpriteContourGlowTextureBuilder.BuildGlowTexture(
+			texture,
+			new Rect(0f, 0f, 7f, 7f),
+			new Color(1f, 0.86f, 0.48f, 1f),
+			1,
+			0.5f,
+			1,
+			1f
+		);
+
+		Assert.That(glowTexture.width, Is.EqualTo(9));
+		Assert.That(glowTexture.height, Is.EqualTo(9));
+		Assert.That(glowTexture.GetPixel(4, 4).a, Is.EqualTo(0f).Within(0.001f));
+		Assert.That(glowTexture.GetPixel(4, 8).a, Is.GreaterThan(0f));
 	}
 
 	[Test]
@@ -83,14 +106,13 @@ public sealed class SpriteContourSamplerTests
 			new Color(1f, 0.86f, 0.48f, 1f),
 			1,
 			0.5f,
-			0.35f,
 			1,
 			1f
 		);
 
 		Assert.That(glowTexture.GetPixel(0, 0).a, Is.EqualTo(0f).Within(0.001f));
-		Assert.That(glowTexture.GetPixel(1, 3).a, Is.GreaterThan(0f));
-		Assert.That(glowTexture.GetPixel(3, 3).a, Is.GreaterThan(0f));
+		Assert.That(glowTexture.GetPixel(2, 4).a, Is.GreaterThan(0f));
+		Assert.That(glowTexture.GetPixel(4, 4).a, Is.GreaterThan(0f));
 	}
 
 	private static Texture2D CreateTexture(int width, int height, Color color)
