@@ -1,0 +1,299 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+[DisallowMultipleComponent]
+[RequireComponent(typeof(SpriteRenderer))]
+public sealed class CageEdgeGlowEffect : MonoBehaviour
+{
+	private static readonly int GlowColorProperty = Shader.PropertyToID("_GlowColor");
+	private static readonly int GlowIntensityProperty = Shader.PropertyToID("_GlowIntensity");
+	private static readonly int GlowWidthProperty = Shader.PropertyToID("_GlowWidth");
+	private static readonly int LuminanceThresholdProperty = Shader.PropertyToID("_LuminanceThreshold");
+	private static readonly int AlphaThresholdProperty = Shader.PropertyToID("_AlphaThreshold");
+
+	[Header("Soft Edge Glow")]
+	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.62f);
+	[SerializeField] private float minGlowIntensity = 0.18f;
+	[SerializeField] private float maxGlowIntensity = 0.62f;
+	[SerializeField] private float glowPulseDuration = 4.8f;
+	[SerializeField] private float glowWidthPixels = 14f;
+	[SerializeField] private float luminanceEdgeThreshold = 0.16f;
+	[SerializeField] private float alphaThreshold = 0.2f;
+	[SerializeField] private int glowSortingOffset = 1;
+
+	[Header("Edge Particles")]
+	[SerializeField] private Color particleColor = new Color(1f, 0.9f, 0.55f, 0.58f);
+	[SerializeField] private float particleRate = 16f;
+	[SerializeField] private int particleSampleStepPixels = 16;
+	[SerializeField] private Vector2 particleSizeRange = new Vector2(0.015f, 0.038f);
+	[SerializeField] private Vector2 particleLifetimeRange = new Vector2(1.2f, 2.4f);
+	[SerializeField] private float particleDriftSpeed = 0.035f;
+	[SerializeField] private float particleJitter = 0.018f;
+	[SerializeField] private int particleSortingOffset = 2;
+	[SerializeField] private int maxParticles = 140;
+
+	private readonly List<Vector3> contourLocalPositions = new List<Vector3>();
+
+	private SpriteRenderer sourceRenderer;
+	private SpriteRenderer glowRenderer;
+	private ParticleSystem edgeParticles;
+	private Material glowMaterial;
+	private Material particleMaterial;
+	private Sprite cachedSprite;
+	private float particleEmitAccumulator;
+
+	private void Awake()
+	{
+		Setup();
+	}
+
+	private void OnEnable()
+	{
+		Setup();
+
+		if (edgeParticles != null)
+		{
+			edgeParticles.Play();
+		}
+	}
+
+	private void Update()
+	{
+		if (sourceRenderer == null)
+			return;
+
+		Setup();
+		SyncGlowRenderer();
+		UpdateGlowMaterial();
+		EmitEdgeParticles();
+	}
+
+	private void Setup()
+	{
+		if (sourceRenderer == null)
+		{
+			sourceRenderer = GetComponent<SpriteRenderer>();
+		}
+
+		EnsureGlowRenderer();
+		EnsureParticleSystem();
+		RefreshContourIfNeeded();
+	}
+
+	private void EnsureGlowRenderer()
+	{
+		if (glowRenderer != null || sourceRenderer == null)
+			return;
+
+		Shader shader = Shader.Find("Sprites/SoftContourGlow");
+
+		if (shader == null)
+		{
+			Debug.LogWarning("CageEdgeGlowEffect: не найден shader Sprites/SoftContourGlow.");
+			return;
+		}
+
+		GameObject glowObject = new GameObject("Cage_SoftEdgeGlow");
+		glowObject.transform.SetParent(transform, false);
+		glowObject.transform.localPosition = Vector3.zero;
+
+		glowRenderer = glowObject.AddComponent<SpriteRenderer>();
+		glowMaterial = new Material(shader)
+		{
+			name = "Cage_SoftEdgeGlow_Runtime"
+		};
+		glowRenderer.sharedMaterial = glowMaterial;
+		SyncGlowRenderer();
+	}
+
+	private void EnsureParticleSystem()
+	{
+		if (edgeParticles != null)
+			return;
+
+		GameObject particleObject = new GameObject("Cage_EdgeParticles");
+		particleObject.transform.SetParent(transform, false);
+		particleObject.transform.localPosition = Vector3.zero;
+		edgeParticles = particleObject.AddComponent<ParticleSystem>();
+
+		ParticleSystem.MainModule main = edgeParticles.main;
+		main.loop = false;
+		main.playOnAwake = true;
+		main.simulationSpace = ParticleSystemSimulationSpace.World;
+		main.maxParticles = Mathf.Max(1, maxParticles);
+		main.startSpeed = 0f;
+		main.startSize = new ParticleSystem.MinMaxCurve(particleSizeRange.x, particleSizeRange.y);
+		main.startLifetime = new ParticleSystem.MinMaxCurve(particleLifetimeRange.x, particleLifetimeRange.y);
+		main.startColor = particleColor;
+
+		ParticleSystem.EmissionModule emission = edgeParticles.emission;
+		emission.enabled = false;
+
+		ParticleSystem.ShapeModule shape = edgeParticles.shape;
+		shape.enabled = false;
+
+		ParticleSystemRenderer particleRenderer = edgeParticles.GetComponent<ParticleSystemRenderer>();
+		particleRenderer.sortingLayerID = sourceRenderer != null ? sourceRenderer.sortingLayerID : 0;
+		particleRenderer.sortingOrder = sourceRenderer != null ? sourceRenderer.sortingOrder + particleSortingOffset : particleSortingOffset;
+
+		Shader particleShader = Shader.Find("Sprites/Default");
+
+		if (particleShader != null)
+		{
+			particleMaterial = new Material(particleShader)
+			{
+				name = "Cage_EdgeParticles_Runtime"
+			};
+			particleRenderer.sharedMaterial = particleMaterial;
+		}
+	}
+
+	private void SyncGlowRenderer()
+	{
+		if (glowRenderer == null || sourceRenderer == null)
+			return;
+
+		glowRenderer.sprite = sourceRenderer.sprite;
+		glowRenderer.color = Color.white;
+		glowRenderer.flipX = sourceRenderer.flipX;
+		glowRenderer.flipY = sourceRenderer.flipY;
+		glowRenderer.sortingLayerID = sourceRenderer.sortingLayerID;
+		glowRenderer.sortingOrder = sourceRenderer.sortingOrder + glowSortingOffset;
+	}
+
+	private void UpdateGlowMaterial()
+	{
+		if (glowMaterial == null)
+			return;
+
+		float pulse = GetSlowPulse();
+		glowMaterial.SetColor(GlowColorProperty, glowColor);
+		glowMaterial.SetFloat(GlowIntensityProperty, Mathf.Lerp(minGlowIntensity, maxGlowIntensity, pulse));
+		glowMaterial.SetFloat(GlowWidthProperty, glowWidthPixels);
+		glowMaterial.SetFloat(LuminanceThresholdProperty, luminanceEdgeThreshold);
+		glowMaterial.SetFloat(AlphaThresholdProperty, alphaThreshold);
+	}
+
+	private void RefreshContourIfNeeded()
+	{
+		Sprite sprite = sourceRenderer != null ? sourceRenderer.sprite : null;
+
+		if (sprite == cachedSprite)
+			return;
+
+		cachedSprite = sprite;
+		contourLocalPositions.Clear();
+
+		if (sprite == null)
+			return;
+
+		try
+		{
+			List<Vector2Int> contourPixels = SpriteContourSampler.FindContourPixels(
+				sprite.texture,
+				sprite.textureRect,
+				particleSampleStepPixels,
+				alphaThreshold,
+				luminanceEdgeThreshold
+			);
+
+			for (int i = 0; i < contourPixels.Count; i++)
+			{
+				contourLocalPositions.Add(TexturePixelToLocalPosition(sprite, contourPixels[i]));
+			}
+		}
+		catch (UnityException exception)
+		{
+			Debug.LogWarning($"CageEdgeGlowEffect: не удалось прочитать пиксели спрайта, использую края bounds. {exception.Message}");
+		}
+
+		if (contourLocalPositions.Count == 0)
+		{
+			AddBoundsContourPositions(sprite);
+		}
+	}
+
+	private void EmitEdgeParticles()
+	{
+		if (edgeParticles == null || contourLocalPositions.Count == 0 || particleRate <= 0f)
+			return;
+
+		float pulse = GetSlowPulse();
+		particleEmitAccumulator += Time.deltaTime * particleRate * Mathf.Lerp(0.45f, 1f, pulse);
+
+		while (particleEmitAccumulator >= 1f)
+		{
+			particleEmitAccumulator -= 1f;
+			EmitParticle(pulse);
+		}
+	}
+
+	private void EmitParticle(float pulse)
+	{
+		int index = Random.Range(0, contourLocalPositions.Count);
+		Vector3 localPosition = contourLocalPositions[index];
+		Vector2 jitter = Random.insideUnitCircle * particleJitter;
+		Vector2 drift = Random.insideUnitCircle.normalized * particleDriftSpeed;
+
+		ParticleSystem.EmitParams emitParams = new ParticleSystem.EmitParams
+		{
+			position = transform.TransformPoint(localPosition + new Vector3(jitter.x, jitter.y, 0f)),
+			velocity = new Vector3(drift.x, drift.y, 0f),
+			startSize = Random.Range(particleSizeRange.x, particleSizeRange.y),
+			startLifetime = Random.Range(particleLifetimeRange.x, particleLifetimeRange.y),
+			startColor = new Color(
+				particleColor.r,
+				particleColor.g,
+				particleColor.b,
+				particleColor.a * Mathf.Lerp(0.55f, 1f, pulse)
+			)
+		};
+
+		edgeParticles.Emit(emitParams, 1);
+	}
+
+	private float GetSlowPulse()
+	{
+		float duration = Mathf.Max(0.01f, glowPulseDuration);
+		return (Mathf.Sin(Time.time * Mathf.PI * 2f / duration) + 1f) * 0.5f;
+	}
+
+	private static Vector3 TexturePixelToLocalPosition(Sprite sprite, Vector2Int pixel)
+	{
+		Rect textureRect = sprite.textureRect;
+		Vector2 pivot = sprite.pivot;
+		float pixelsPerUnit = sprite.pixelsPerUnit;
+		float localX = (pixel.x + 0.5f - textureRect.xMin - pivot.x) / pixelsPerUnit;
+		float localY = (pixel.y + 0.5f - textureRect.yMin - pivot.y) / pixelsPerUnit;
+
+		return new Vector3(localX, localY, 0f);
+	}
+
+	private void AddBoundsContourPositions(Sprite sprite)
+	{
+		Bounds bounds = sprite.bounds;
+		int samplesPerSide = Mathf.Max(8, Mathf.CeilToInt(Mathf.Max(bounds.size.x, bounds.size.y) * 10f));
+
+		for (int i = 0; i < samplesPerSide; i++)
+		{
+			float t = samplesPerSide <= 1 ? 0f : i / (samplesPerSide - 1f);
+			contourLocalPositions.Add(new Vector3(Mathf.Lerp(bounds.min.x, bounds.max.x, t), bounds.min.y, 0f));
+			contourLocalPositions.Add(new Vector3(Mathf.Lerp(bounds.min.x, bounds.max.x, t), bounds.max.y, 0f));
+			contourLocalPositions.Add(new Vector3(bounds.min.x, Mathf.Lerp(bounds.min.y, bounds.max.y, t), 0f));
+			contourLocalPositions.Add(new Vector3(bounds.max.x, Mathf.Lerp(bounds.min.y, bounds.max.y, t), 0f));
+		}
+	}
+
+	private void OnDestroy()
+	{
+		if (glowMaterial != null)
+		{
+			Destroy(glowMaterial);
+		}
+
+		if (particleMaterial != null)
+		{
+			Destroy(particleMaterial);
+		}
+	}
+}
