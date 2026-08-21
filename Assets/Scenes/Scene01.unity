@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -346,8 +346,8 @@ Transform:
   m_GameObject: {fileID: 1350002292}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.1649, y: 0.6198, z: 0}
-  m_LocalScale: {x: 0.10411104, y: 0.12204233, z: 0.34}
+  m_LocalPosition: {x: 5.0493, y: 0.09, z: 0}
+  m_LocalScale: {x: 0.25911516, y: 0.29614356, z: 0.34}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1643853419}
@@ -422,12 +422,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f935a870b9e44720bf5a83b79c2e160e, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CageEdgeGlowEffect
-  auraIntensity: 0.24
-  auraSizePixels: 52
-  particleCount: 9
-  glowColor: {r: 1, g: 0.86, b: 0.48, a: 0.5}
+  auraIntensity: 0.25
+  auraSizePixels: 60
+  particleCount: 60
+  glowColor: {r: 0.33773577, g: 0.82383627, b: 1, a: 0.5}
   glowPulseDuration: 4.8
   alphaThreshold: 0.2
   glowSortingOffset: 1
@@ -480,7 +480,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c26c02b44a8366649ac4bd10fa1951a4, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scene01Controller
   sceneCamera: {fileID: 789448156}
   windowTarget: {fileID: 1350002293}
@@ -515,9 +515,9 @@ MonoBehaviour:
   vignetteMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
   vignetteDuration: 0.9
   openVignetteRadius: 1.15
-  vignetteCompressionRadius: 0.32
+  vignetteCompressionRadius: 0.161
   vignetteSoftness: 0.08
-  vignetteSortingOrder: 50
+  vignetteSortingOrder: 19
   vignetteCurve:
     serializedVersion: 2
     m_Curve:
@@ -585,7 +585,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 34c3d2681cd0c144db3da9d47d3dc1fd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClickableHotspot
   onClick:
     m_PersistentCalls:
@@ -599,7 +599,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument:
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!61 &1643853421
