@@ -5,12 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public sealed class CageEdgeGlowEffect : MonoBehaviour
 {
-	private static readonly int GlowColorProperty = Shader.PropertyToID("_GlowColor");
-	private static readonly int GlowIntensityProperty = Shader.PropertyToID("_GlowIntensity");
-	private static readonly int GlowWidthProperty = Shader.PropertyToID("_GlowWidth");
-	private static readonly int LuminanceThresholdProperty = Shader.PropertyToID("_LuminanceThreshold");
-	private static readonly int AlphaThresholdProperty = Shader.PropertyToID("_AlphaThreshold");
-
 	[Header("Soft Edge Glow")]
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.62f);
 	[SerializeField] private float minGlowIntensity = 0.18f;
@@ -37,9 +31,10 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	private SpriteRenderer sourceRenderer;
 	private SpriteRenderer glowRenderer;
 	private ParticleSystem edgeParticles;
-	private Material glowMaterial;
 	private Material particleMaterial;
 	private Sprite cachedSprite;
+	private Texture2D generatedGlowTexture;
+	private Sprite generatedGlowSprite;
 	private float particleEmitAccumulator;
 
 	private void Awake()
@@ -64,7 +59,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		Setup();
 		SyncGlowRenderer();
-		UpdateGlowMaterial();
+		UpdateGlowVisual();
 		EmitEdgeParticles();
 	}
 
@@ -85,24 +80,11 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		if (glowRenderer != null || sourceRenderer == null)
 			return;
 
-		Shader shader = Shader.Find("Sprites/SoftContourGlow");
-
-		if (shader == null)
-		{
-			Debug.LogWarning("CageEdgeGlowEffect: не найден shader Sprites/SoftContourGlow.");
-			return;
-		}
-
 		GameObject glowObject = new GameObject("Cage_SoftEdgeGlow");
 		glowObject.transform.SetParent(transform, false);
 		glowObject.transform.localPosition = Vector3.zero;
 
 		glowRenderer = glowObject.AddComponent<SpriteRenderer>();
-		glowMaterial = new Material(shader)
-		{
-			name = "Cage_SoftEdgeGlow_Runtime"
-		};
-		glowRenderer.sharedMaterial = glowMaterial;
 		SyncGlowRenderer();
 	}
 
@@ -153,25 +135,23 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		if (glowRenderer == null || sourceRenderer == null)
 			return;
 
-		glowRenderer.sprite = sourceRenderer.sprite;
-		glowRenderer.color = Color.white;
+		glowRenderer.sprite = generatedGlowSprite;
+		glowRenderer.enabled = generatedGlowSprite != null;
 		glowRenderer.flipX = sourceRenderer.flipX;
 		glowRenderer.flipY = sourceRenderer.flipY;
 		glowRenderer.sortingLayerID = sourceRenderer.sortingLayerID;
 		glowRenderer.sortingOrder = sourceRenderer.sortingOrder + glowSortingOffset;
 	}
 
-	private void UpdateGlowMaterial()
+	private void UpdateGlowVisual()
 	{
-		if (glowMaterial == null)
+		if (glowRenderer == null)
 			return;
 
 		float pulse = GetSlowPulse();
-		glowMaterial.SetColor(GlowColorProperty, glowColor);
-		glowMaterial.SetFloat(GlowIntensityProperty, Mathf.Lerp(minGlowIntensity, maxGlowIntensity, pulse));
-		glowMaterial.SetFloat(GlowWidthProperty, glowWidthPixels);
-		glowMaterial.SetFloat(LuminanceThresholdProperty, luminanceEdgeThreshold);
-		glowMaterial.SetFloat(AlphaThresholdProperty, alphaThreshold);
+		Color color = Color.white;
+		color.a = Mathf.Lerp(minGlowIntensity, maxGlowIntensity, pulse);
+		glowRenderer.color = color;
 	}
 
 	private void RefreshContourIfNeeded()
@@ -189,6 +169,8 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		try
 		{
+			RebuildGlowSprite(sprite);
+
 			List<Vector2Int> contourPixels = SpriteContourSampler.FindContourPixels(
 				sprite.texture,
 				sprite.textureRect,
@@ -205,11 +187,52 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		catch (UnityException exception)
 		{
 			Debug.LogWarning($"CageEdgeGlowEffect: не удалось прочитать пиксели спрайта, использую края bounds. {exception.Message}");
+			ClearGlowSprite();
 		}
 
 		if (contourLocalPositions.Count == 0)
 		{
 			AddBoundsContourPositions(sprite);
+		}
+
+		SyncGlowRenderer();
+	}
+
+	private void RebuildGlowSprite(Sprite sprite)
+	{
+		ClearGlowSprite();
+
+		generatedGlowTexture = SpriteContourGlowTextureBuilder.BuildGlowTexture(
+			sprite.texture,
+			sprite.textureRect,
+			glowColor,
+			particleSampleStepPixels,
+			alphaThreshold,
+			luminanceEdgeThreshold,
+			Mathf.RoundToInt(glowWidthPixels),
+			1f
+		);
+		generatedGlowSprite = Sprite.Create(
+			generatedGlowTexture,
+			new Rect(0f, 0f, generatedGlowTexture.width, generatedGlowTexture.height),
+			new Vector2(sprite.pivot.x / sprite.rect.width, sprite.pivot.y / sprite.rect.height),
+			sprite.pixelsPerUnit
+		);
+		generatedGlowSprite.name = "Generated_CageContourGlowSprite";
+	}
+
+	private void ClearGlowSprite()
+	{
+		if (generatedGlowSprite != null)
+		{
+			Destroy(generatedGlowSprite);
+			generatedGlowSprite = null;
+		}
+
+		if (generatedGlowTexture != null)
+		{
+			Destroy(generatedGlowTexture);
+			generatedGlowTexture = null;
 		}
 	}
 
@@ -286,10 +309,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (glowMaterial != null)
-		{
-			Destroy(glowMaterial);
-		}
+		ClearGlowSprite();
 
 		if (particleMaterial != null)
 		{

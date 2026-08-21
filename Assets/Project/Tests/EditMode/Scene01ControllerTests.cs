@@ -62,6 +62,37 @@ public sealed class SpriteContourSamplerTests
 		Assert.That(contour.Length, Is.GreaterThan(0));
 	}
 
+	[Test]
+	public void BuildGlowTexture_KeepsEmptyPixelsTransparent()
+	{
+		Texture2D texture = CreateTexture(7, 7, Color.clear);
+
+		for (int y = 2; y <= 4; y++)
+		{
+			for (int x = 2; x <= 4; x++)
+			{
+				texture.SetPixel(x, y, Color.white);
+			}
+		}
+
+		texture.Apply();
+
+		Texture2D glowTexture = SpriteContourGlowTextureBuilder.BuildGlowTexture(
+			texture,
+			new Rect(0f, 0f, 7f, 7f),
+			new Color(1f, 0.86f, 0.48f, 1f),
+			1,
+			0.5f,
+			0.35f,
+			1,
+			1f
+		);
+
+		Assert.That(glowTexture.GetPixel(0, 0).a, Is.EqualTo(0f).Within(0.001f));
+		Assert.That(glowTexture.GetPixel(1, 3).a, Is.GreaterThan(0f));
+		Assert.That(glowTexture.GetPixel(3, 3).a, Is.GreaterThan(0f));
+	}
+
 	private static Texture2D CreateTexture(int width, int height, Color color)
 	{
 		Texture2D texture = new Texture2D(width, height, TextureFormat.RGBA32, false);
