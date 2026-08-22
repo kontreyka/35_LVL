@@ -1,0 +1,3627 @@
+fileFormatVersion: 2
+guid: 7b7d952dfb7d24347b529b6ae9f96826
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 408006834061838866
+    second: Paninilogo_0
+  - first:
+      213: -1172593010697933497
+    second: Paninilogo_1
+  - first:
+      213: 7183762993339845154
+    second: Paninilogo_2
+  - first:
+      213: -2102380139694667293
+    second: Paninilogo_3
+  - first:
+      213: -4043827676395013132
+    second: Paninilogo_4
+  - first:
+      213: 8239304968673188022
+    second: Paninilogo_5
+  - first:
+      213: 6349028143838863815
+    second: Paninilogo_6
+  - first:
+      213: -5676983008544194227
+    second: Paninilogo_7
+  - first:
+      213: -803452984721938142
+    second: Paninilogo_8
+  - first:
+      213: 6543203921822415527
+    second: Paninilogo_9
+  - first:
+      213: 1486508157766233395
+    second: Paninilogo_10
+  - first:
+      213: -4708650648105014394
+    second: Paninilogo_11
+  - first:
+      213: -4897690081318199654
+    second: Paninilogo_12
+  - first:
+      213: -2613290554612287974
+    second: Paninilogo_13
+  - first:
+      213: 933152624010917656
+    second: Paninilogo_14
+  - first:
+      213: -7611145072923849627
+    second: Paninilogo_15
+  - first:
+      213: -5331618295353556649
+    second: Paninilogo_16
+  - first:
+      213: -7471977957606134940
+    second: Paninilogo_17
+  - first:
+      213: 6949096628407320991
+    second: Paninilogo_18
+  - first:
+      213: -4218397551879757364
+    second: Paninilogo_19
+  - first:
+      213: 7970472343363309211
+    second: Paninilogo_20
+  - first:
+      213: 4018987594397034914
+    second: Paninilogo_21
+  - first:
+      213: -53555466681934254
+    second: Paninilogo_22
+  - first:
+      213: 7308440734600162839
+    second: Paninilogo_23
+  - first:
+      213: -1877984684389291266
+    second: Paninilogo_24
+  - first:
+      213: -8870021401291573510
+    second: Paninilogo_25
+  - first:
+      213: -1114558167507187630
+    second: Paninilogo_26
+  - first:
+      213: 8195747129664822071
+    second: Paninilogo_27
+  - first:
+      213: 4495637344998960238
+    second: Paninilogo_28
+  - first:
+      213: 8031057691716717170
+    second: Paninilogo_29
+  - first:
+      213: 658464369591779803
+    second: Paninilogo_30
+  - first:
+      213: 6886122173991663641
+    second: Paninilogo_31
+  - first:
+      213: -6331214276518402309
+    second: Paninilogo_32
+  - first:
+      213: -656031140153004995
+    second: Paninilogo_33
+  - first:
+      213: 8518860574617538338
+    second: Paninilogo_34
+  - first:
+      213: -1495034701156309916
+    second: Paninilogo_35
+  - first:
+      213: 340160928065667944
+    second: Paninilogo_36
+  - first:
+      213: 6497905297516405777
+    second: Paninilogo_37
+  - first:
+      213: -2177222775722579605
+    second: Paninilogo_38
+  - first:
+      213: -1795922485567790683
+    second: Paninilogo_39
+  - first:
+      213: 1484559568924015254
+    second: Paninilogo_40
+  - first:
+      213: -6788574607384130524
+    second: Paninilogo_41
+  - first:
+      213: 8709923451307612274
+    second: Paninilogo_42
+  - first:
+      213: 65456234958125043
+    second: Paninilogo_43
+  - first:
+      213: 2871391248703222354
+    second: Paninilogo_44
+  - first:
+      213: -1158274300837494228
+    second: Paninilogo_45
+  - first:
+      213: -7836620033732196008
+    second: Paninilogo_46
+  - first:
+      213: -3392255696681860630
+    second: Paninilogo_47
+  - first:
+      213: -467961374235532188
+    second: Paninilogo_48
+  - first:
+      213: 9016657404206182099
+    second: Paninilogo_49
+  - first:
+      213: 6397147960571426731
+    second: Paninilogo_50
+  - first:
+      213: -8365031719684009307
+    second: Paninilogo_51
+  - first:
+      213: -1723288940480705573
+    second: Paninilogo_52
+  - first:
+      213: -3682167723818603435
+    second: Paninilogo_53
+  - first:
+      213: 8567813893859069431
+    second: Paninilogo_54
+  - first:
+      213: -2339389748053940061
+    second: Paninilogo_55
+  - first:
+      213: 7899485020119188123
+    second: Paninilogo_56
+  - first:
+      213: 1534509481795700411
+    second: Paninilogo_57
+  - first:
+      213: -7065431480225310555
+    second: Paninilogo_58
+  - first:
+      213: 6795500936205621211
+    second: Paninilogo_59
+  - first:
+      213: -2995413630182515573
+    second: Paninilogo_60
+  - first:
+      213: -3131370216571773151
+    second: Paninilogo_61
+  - first:
+      213: 2563606944991109330
+    second: Paninilogo_62
+  - first:
+      213: 464179216602252138
+    second: Paninilogo_63
+  - first:
+      213: 3279622085755049158
+    second: Paninilogo_64
+  - first:
+      213: -2197500598732264766
+    second: Paninilogo_65
+  - first:
+      213: 268664622783372880
+    second: Paninilogo_66
+  - first:
+      213: -39970758872385036
+    second: Paninilogo_67
+  - first:
+      213: -1742305901670851544
+    second: Paninilogo_68
+  - first:
+      213: -5006482256812412861
+    second: Paninilogo_69
+  - first:
+      213: 680915588765026280
+    second: Paninilogo_70
+  - first:
+      213: -6794912413793729330
+    second: Paninilogo_71
+  - first:
+      213: 2812342132672805839
+    second: Paninilogo_72
+  - first:
+      213: -3471074464001076660
+    second: Paninilogo_73
+  - first:
+      213: 3379756322202129770
+    second: Paninilogo_74
+  - first:
+      213: -6491747848208410018
+    second: Paninilogo_75
+  - first:
+      213: 6882297532668997197
+    second: Paninilogo_76
+  - first:
+      213: 3485487805193347830
+    second: Paninilogo_77
+  - first:
+      213: 5188290217349125106
+    second: Paninilogo_78
+  - first:
+      213: 2936452328380908613
+    second: Paninilogo_79
+  - first:
+      213: -3572627236751572971
+    second: Paninilogo_80
+  - first:
+      213: 3566940321640572959
+    second: Paninilogo_81
+  - first:
+      213: 6273128790653918586
+    second: Paninilogo_82
+  - first:
+      213: 7569947021629925143
+    second: Paninilogo_83
+  - first:
+      213: 1374596662033510802
+    second: Paninilogo_84
+  - first:
+      213: -4882951189793903716
+    second: Paninilogo_85
+  - first:
+      213: 7891161716170841064
+    second: Paninilogo_86
+  - first:
+      213: -3661159616550577298
+    second: Paninilogo_87
+  - first:
+      213: -3659041483161444159
+    second: Paninilogo_88
+  - first:
+      213: 2822216762677629460
+    second: Paninilogo_89
+  - first:
+      213: 5701066366756019398
+    second: Paninilogo_90
+  - first:
+      213: 2246187515968089321
+    second: Paninilogo_91
+  - first:
+      213: -113630142153875238
+    second: Paninilogo_92
+  - first:
+      213: 1159187920638413874
+    second: Paninilogo_93
+  - first:
+      213: 8999665452913643455
+    second: Paninilogo_94
+  - first:
+      213: -4981951419102552572
+    second: Paninilogo_95
+  - first:
+      213: -8665729887531172282
+    second: Paninilogo_96
+  - first:
+      213: -2660854235083834206
+    second: Paninilogo_97
+  - first:
+      213: 6094314042055203041
+    second: Paninilogo_98
+  - first:
+      213: 7326954547369889880
+    second: Paninilogo_99
+  - first:
+      213: -4345591991694416192
+    second: Paninilogo_100
+  - first:
+      213: -8854712493040909713
+    second: Paninilogo_101
+  - first:
+      213: -4544088886416540021
+    second: Paninilogo_102
+  - first:
+      213: 8242758632392299729
+    second: Paninilogo_103
+  - first:
+      213: -178023921262148129
+    second: Paninilogo_104
+  - first:
+      213: 8030765181814123642
+    second: Paninilogo_105
+  - first:
+      213: 4225077018225414432
+    second: Paninilogo_106
+  - first:
+      213: 7911708286716006673
+    second: Paninilogo_107
+  - first:
+      213: 3503801407170355937
+    second: Paninilogo_108
+  - first:
+      213: 1616297999635981880
+    second: Paninilogo_109
+  - first:
+      213: 5861154211681480600
+    second: Paninilogo_110
+  - first:
+      213: 2076104265289304867
+    second: Paninilogo_111
+  - first:
+      213: -5877752291842564068
+    second: Paninilogo_112
+  - first:
+      213: -5954976633296667490
+    second: Paninilogo_113
+  - first:
+      213: 5951250423868609808
+    second: Paninilogo_114
+  - first:
+      213: -996404450188131020
+    second: Paninilogo_115
+  - first:
+      213: 6085986994844250541
+    second: Paninilogo_116
+  - first:
+      213: 8410347585379886092
+    second: Paninilogo_117
+  - first:
+      213: 3990186431115149248
+    second: Paninilogo_118
+  - first:
+      213: -1474039658722368102
+    second: Paninilogo_119
+  - first:
+      213: -5622197754756393313
+    second: Paninilogo_120
+  - first:
+      213: 8257565830898168833
+    second: Paninilogo_121
+  - first:
+      213: -903586053736351160
+    second: Paninilogo_122
+  - first:
+      213: -5508088385949512062
+    second: Paninilogo_123
+  - first:
+      213: -4097917100839292080
+    second: Paninilogo_124
+  - first:
+      213: -7169052467084545983
+    second: Paninilogo_125
+  - first:
+      213: -833263486094661145
+    second: Paninilogo_126
+  - first:
+      213: -4479755275729150638
+    second: Paninilogo_127
+  - first:
+      213: -3382805472241641198
+    second: Paninilogo_128
+  - first:
+      213: -8302379634731004183
+    second: Paninilogo_129
+  - first:
+      213: -1506430004081842516
+    second: Paninilogo_130
+  - first:
+      213: -2815111550746022055
+    second: Paninilogo_131
+  - first:
+      213: 7161393191394281630
+    second: Paninilogo_132
+  - first:
+      213: -797461233130753858
+    second: Paninilogo_133
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Paninilogo_0
+      rect:
+        serializedVersion: 2
+        x: 281
+        y: 60
+        width: 6422
+        height: 4187
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21a003acd0889a500800000000000000
+      internalID: 408006834061838866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_1
+      rect:
+        serializedVersion: 2
+        x: 2000
+        y: 4029
+        width: 369
+        height: 321
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74d6e339edc1abfe0800000000000000
+      internalID: -1172593010697933497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_2
+      rect:
+        serializedVersion: 2
+        x: 6704
+        y: 4101
+        width: 27
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22a4e98916ad1b360800000000000000
+      internalID: 7183762993339845154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_3
+      rect:
+        serializedVersion: 2
+        x: 6753
+        y: 4050
+        width: 30
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e9c9aed668d2d2e0800000000000000
+      internalID: -2102380139694667293
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_4
+      rect:
+        serializedVersion: 2
+        x: 6697
+        y: 3994
+        width: 41
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fbf497472071e7c0800000000000000
+      internalID: -4043827676395013132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_5
+      rect:
+        serializedVersion: 2
+        x: 6802
+        y: 3999
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b850ed1734e75270800000000000000
+      internalID: 8239304968673188022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_6
+      rect:
+        serializedVersion: 2
+        x: 6746
+        y: 3943
+        width: 43
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c1297e45774c1850800000000000000
+      internalID: 6349028143838863815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_7
+      rect:
+        serializedVersion: 2
+        x: 6852
+        y: 3949
+        width: 32
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d418bcb180e4731b0800000000000000
+      internalID: -5676983008544194227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_8
+      rect:
+        serializedVersion: 2
+        x: 6692
+        y: 3889
+        width: 51
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 229ebeb64cf89d4f0800000000000000
+      internalID: -803452984721938142
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_9
+      rect:
+        serializedVersion: 2
+        x: 6796
+        y: 3893
+        width: 43
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7aafa2dac412eca50800000000000000
+      internalID: 6543203921822415527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_10
+      rect:
+        serializedVersion: 2
+        x: 6902
+        y: 3899
+        width: 31
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33d606b2b4321a410800000000000000
+      internalID: 1486508157766233395
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_11
+      rect:
+        serializedVersion: 2
+        x: 6742
+        y: 3839
+        width: 51
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68ba94cde2387aeb0800000000000000
+      internalID: -4708650648105014394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_12
+      rect:
+        serializedVersion: 2
+        x: 6847
+        y: 3844
+        width: 42
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9e1313f1d8e70cb0800000000000000
+      internalID: -4897690081318199654
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_13
+      rect:
+        serializedVersion: 2
+        x: 6953
+        y: 3851
+        width: 29
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a16737d161abbbbd0800000000000000
+      internalID: -2613290554612287974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_14
+      rect:
+        serializedVersion: 2
+        x: 6688
+        y: 3786
+        width: 59
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 817f4631e5933fc00800000000000000
+      internalID: 933152624010917656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_15
+      rect:
+        serializedVersion: 2
+        x: 6793
+        y: 3789
+        width: 50
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56cc86ab1e7cf5690800000000000000
+      internalID: -7611145072923849627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_16
+      rect:
+        serializedVersion: 2
+        x: 6898
+        y: 3795
+        width: 40
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7514a7398694206b0800000000000000
+      internalID: -5331618295353556649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_17
+      rect:
+        serializedVersion: 2
+        x: 7006
+        y: 3803
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46b6653c2a33e4890800000000000000
+      internalID: -7471977957606134940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_18
+      rect:
+        serializedVersion: 2
+        x: 6739
+        y: 3736
+        width: 57
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f91451ec096207060800000000000000
+      internalID: 6949096628407320991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_19
+      rect:
+        serializedVersion: 2
+        x: 6844
+        y: 3741
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc164dec6cd3575c0800000000000000
+      internalID: -4218397551879757364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_20
+      rect:
+        serializedVersion: 2
+        x: 6949
+        y: 3746
+        width: 37
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9ece3eed5ecc9e60800000000000000
+      internalID: 7970472343363309211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_21
+      rect:
+        serializedVersion: 2
+        x: 7058
+        y: 3755
+        width: 16
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a9acb07cef46c730800000000000000
+      internalID: 4018987594397034914
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_22
+      rect:
+        serializedVersion: 2
+        x: 6686
+        y: 3683
+        width: 63
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25e94a8369bb14ff0800000000000000
+      internalID: -53555466681934254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_23
+      rect:
+        serializedVersion: 2
+        x: 6790
+        y: 3687
+        width: 55
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71e66d7502ccc6560800000000000000
+      internalID: 7308440734600162839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_24
+      rect:
+        serializedVersion: 2
+        x: 6895
+        y: 3692
+        width: 45
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efa2a5921ee00f5e0800000000000000
+      internalID: -1877984684389291266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_25
+      rect:
+        serializedVersion: 2
+        x: 7002
+        y: 3699
+        width: 31
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af637e9e78a57e480800000000000000
+      internalID: -8870021401291573510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_26
+      rect:
+        serializedVersion: 2
+        x: 6737
+        y: 3634
+        width: 61
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2584938704b4880f0800000000000000
+      internalID: -1114558167507187630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_27
+      rect:
+        serializedVersion: 2
+        x: 6841
+        y: 3638
+        width: 53
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73b599c67942db170800000000000000
+      internalID: 8195747129664822071
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_28
+      rect:
+        serializedVersion: 2
+        x: 6947
+        y: 3644
+        width: 41
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6ca4aba856b36e30800000000000000
+      internalID: 4495637344998960238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_29
+      rect:
+        serializedVersion: 2
+        x: 7056
+        y: 3653
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 27a81759b6c047f60800000000000000
+      internalID: 8031057691716717170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_30
+      rect:
+        serializedVersion: 2
+        x: 6685
+        y: 3581
+        width: 66
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd105cefad5532900800000000000000
+      internalID: 658464369591779803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_31
+      rect:
+        serializedVersion: 2
+        x: 6736
+        y: 3533
+        width: 63
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 918b6bc02ab609f50800000000000000
+      internalID: 6886122173991663641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_32
+      rect:
+        serializedVersion: 2
+        x: 6788
+        y: 3586
+        width: 59
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf62d33e8220328a0800000000000000
+      internalID: -6331214276518402309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_33
+      rect:
+        serializedVersion: 2
+        x: 6894
+        y: 3591
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3ce591672f45e6f0800000000000000
+      internalID: -656031140153004995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_34
+      rect:
+        serializedVersion: 2
+        x: 7000
+        y: 3597
+        width: 35
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22f8829ce82193670800000000000000
+      internalID: 8518860574617538338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_35
+      rect:
+        serializedVersion: 2
+        x: 6841
+        y: 3538
+        width: 53
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46422be3cd1904be0800000000000000
+      internalID: -1495034701156309916
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_36
+      rect:
+        serializedVersion: 2
+        x: 6946
+        y: 3543
+        width: 43
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86342d3df8e78b400800000000000000
+      internalID: 340160928065667944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_37
+      rect:
+        serializedVersion: 2
+        x: 7055
+        y: 3552
+        width: 24
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1142892d0723d2a50800000000000000
+      internalID: 6497905297516405777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_38
+      rect:
+        serializedVersion: 2
+        x: 6684
+        y: 3481
+        width: 67
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b696a20cb63f8c1e0800000000000000
+      internalID: -2177222775722579605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_39
+      rect:
+        serializedVersion: 2
+        x: 6788
+        y: 3485
+        width: 59
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a1689bb30a9317e0800000000000000
+      internalID: -1795922485567790683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_40
+      rect:
+        serializedVersion: 2
+        x: 6893
+        y: 3490
+        width: 49
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69a7f99ff073a9410800000000000000
+      internalID: 1484559568924015254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_41
+      rect:
+        serializedVersion: 2
+        x: 7000
+        y: 3497
+        width: 35
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42cc1abac532ac1a0800000000000000
+      internalID: -6788574607384130524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_42
+      rect:
+        serializedVersion: 2
+        x: 6737
+        y: 3433
+        width: 62
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 278d8085b3ddfd870800000000000000
+      internalID: 8709923451307612274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_43
+      rect:
+        serializedVersion: 2
+        x: 6841
+        y: 3438
+        width: 53
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f77301591c88e000800000000000000
+      internalID: 65456234958125043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_44
+      rect:
+        serializedVersion: 2
+        x: 6947
+        y: 3444
+        width: 42
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 252fe1e902b39d720800000000000000
+      internalID: 2871391248703222354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_45
+      rect:
+        serializedVersion: 2
+        x: 7055
+        y: 3452
+        width: 24
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c220e1209abfcefe0800000000000000
+      internalID: -1158274300837494228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_46
+      rect:
+        serializedVersion: 2
+        x: 6685
+        y: 3382
+        width: 65
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 859cea9799bbe3390800000000000000
+      internalID: -7836620033732196008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_47
+      rect:
+        serializedVersion: 2
+        x: 6789
+        y: 3386
+        width: 57
+        height: 58
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae18bf3ba694ce0d0800000000000000
+      internalID: -3392255696681860630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_48
+      rect:
+        serializedVersion: 2
+        x: 6894
+        y: 3391
+        width: 47
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46466180c977189f0800000000000000
+      internalID: -467961374235532188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_49
+      rect:
+        serializedVersion: 2
+        x: 7001
+        y: 3398
+        width: 33
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3deea17032a912d70800000000000000
+      internalID: 9016657404206182099
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_50
+      rect:
+        serializedVersion: 2
+        x: 6738
+        y: 3335
+        width: 59
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba779753d2c37c850800000000000000
+      internalID: 6397147960571426731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_51
+      rect:
+        serializedVersion: 2
+        x: 6842
+        y: 3339
+        width: 51
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a21c5588ff69eb80800000000000000
+      internalID: -8365031719684009307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_52
+      rect:
+        serializedVersion: 2
+        x: 6948
+        y: 3345
+        width: 39
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdbc949c6d5a518e0800000000000000
+      internalID: -1723288940480705573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_53
+      rect:
+        serializedVersion: 2
+        x: 7057
+        y: 3354
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55c2262d6ff46ecc0800000000000000
+      internalID: -3682167723818603435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_54
+      rect:
+        serializedVersion: 2
+        x: 6687
+        y: 3284
+        width: 61
+        height: 62
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fd402d975df6e670800000000000000
+      internalID: 8567813893859069431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_55
+      rect:
+        serializedVersion: 2
+        x: 6791
+        y: 3288
+        width: 53
+        height: 54
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a8ed043b61d88fd0800000000000000
+      internalID: -2339389748053940061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_56
+      rect:
+        serializedVersion: 2
+        x: 6896
+        y: 3293
+        width: 43
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9249b4c5cb90ad60800000000000000
+      internalID: 7899485020119188123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_57
+      rect:
+        serializedVersion: 2
+        x: 7003
+        y: 3301
+        width: 29
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb6c6e65e3cab4510800000000000000
+      internalID: 1534509481795700411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_58
+      rect:
+        serializedVersion: 2
+        x: 6741
+        y: 3237
+        width: 54
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a8de44c08b82fd90800000000000000
+      internalID: -7065431480225310555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_59
+      rect:
+        serializedVersion: 2
+        x: 6845
+        y: 3242
+        width: 45
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd7de5de8187e4e50800000000000000
+      internalID: 6795500936205621211
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_60
+      rect:
+        serializedVersion: 2
+        x: 6951
+        y: 3248
+        width: 33
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8c9b997c272e66d0800000000000000
+      internalID: -2995413630182515573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_61
+      rect:
+        serializedVersion: 2
+        x: 6690
+        y: 3187
+        width: 55
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12f5005f0632b84d0800000000000000
+      internalID: -3131370216571773151
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_62
+      rect:
+        serializedVersion: 2
+        x: 6794
+        y: 3191
+        width: 47
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d06be31fe2c39320800000000000000
+      internalID: 2563606944991109330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_63
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 3196
+        width: 36
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6342b5c988117600800000000000000
+      internalID: 464179216602252138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_64
+      rect:
+        serializedVersion: 2
+        x: 7008
+        y: 3205
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c494fa29ee838d20800000000000000
+      internalID: 3279622085755049158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_65
+      rect:
+        serializedVersion: 2
+        x: 6744
+        y: 3141
+        width: 47
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2caeada29d8e081e0800000000000000
+      internalID: -2197500598732264766
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_66
+      rect:
+        serializedVersion: 2
+        x: 6848
+        y: 3146
+        width: 39
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05e97bc0d0d7ab300800000000000000
+      internalID: 268664622783372880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_67
+      rect:
+        serializedVersion: 2
+        x: 6956
+        y: 3153
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f9320c7ecef17ff0800000000000000
+      internalID: -39970758872385036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_68
+      rect:
+        serializedVersion: 2
+        x: 6694
+        y: 3091
+        width: 47
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82c97d8730612d7e0800000000000000
+      internalID: -1742305901670851544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_69
+      rect:
+        serializedVersion: 2
+        x: 6798
+        y: 3096
+        width: 39
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3407664b9e6658ab0800000000000000
+      internalID: -5006482256812412861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_70
+      rect:
+        serializedVersion: 2
+        x: 6905
+        y: 3102
+        width: 25
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e78d5ece19137900800000000000000
+      internalID: 680915588765026280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_71
+      rect:
+        serializedVersion: 2
+        x: 6749
+        y: 3046
+        width: 37
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec4ceef192f93b1a0800000000000000
+      internalID: -6794912413793729330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_72
+      rect:
+        serializedVersion: 2
+        x: 6855
+        y: 3052
+        width: 25
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcbb3dce442770720800000000000000
+      internalID: 2812342132672805839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_73
+      rect:
+        serializedVersion: 2
+        x: 6700
+        y: 2997
+        width: 35
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4259406a2444dfc0800000000000000
+      internalID: -3471074464001076660
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_74
+      rect:
+        serializedVersion: 2
+        x: 6805
+        y: 3003
+        width: 25
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a651d34e77e47ee20800000000000000
+      internalID: 3379756322202129770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_75
+      rect:
+        serializedVersion: 2
+        x: 6757
+        y: 2954
+        width: 21
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5a91201abda8e5a0800000000000000
+      internalID: -6491747848208410018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_76
+      rect:
+        serializedVersion: 2
+        x: 155
+        y: 1151
+        width: 16
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4e68495425d28f50800000000000000
+      internalID: 6882297532668997197
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_77
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 1143
+        width: 32
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f2618121b0fe5030800000000000000
+      internalID: 3485487805193347830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_78
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 1093
+        width: 32
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f39ab4c672800840800000000000000
+      internalID: 5188290217349125106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_79
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 1044
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 544430da5df50c820800000000000000
+      internalID: 2936452328380908613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_80
+      rect:
+        serializedVersion: 2
+        x: 241
+        y: 1038
+        width: 43
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 510898ee47a7b6ec0800000000000000
+      internalID: -3572627236751572971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_81
+      rect:
+        serializedVersion: 2
+        x: 98
+        y: 995
+        width: 28
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f186766f251508130800000000000000
+      internalID: 3566940321640572959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_82
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 988
+        width: 42
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7dd33d0661ae0750800000000000000
+      internalID: 6273128790653918586
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_83
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 948
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71727c875badd0960800000000000000
+      internalID: 7569947021629925143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_84
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 939
+        width: 40
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 291f1f5916c831310800000000000000
+      internalID: 1374596662033510802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_85
+      rect:
+        serializedVersion: 2
+        x: 237
+        y: 934
+        width: 50
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9b63cc83c54c3cb0800000000000000
+      internalID: -4882951189793903716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_86
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 900
+        width: 16
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8eb568d85c9038d60800000000000000
+      internalID: 7891161716170841064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_87
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 891
+        width: 37
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6b5f75f9b2f03dc0800000000000000
+      internalID: -3661159616550577298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_88
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 885
+        width: 48
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c06eb15829783dc0800000000000000
+      internalID: -3659041483161444159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_89
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 844
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4129d8261378a2720800000000000000
+      internalID: 2822216762677629460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_90
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 837
+        width: 45
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cc5b6fa7a14e1f40800000000000000
+      internalID: 5701066366756019398
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_91
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 832
+        width: 55
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ece13c15af0c2f10800000000000000
+      internalID: 2246187515968089321
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_92
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 798
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad0242ddcfd4c6ef0800000000000000
+      internalID: -113630142153875238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_93
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 789
+        width: 41
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23c839da543461010800000000000000
+      internalID: 1159187920638413874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_94
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 783
+        width: 52
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbfc5421c0c35ec70800000000000000
+      internalID: 8999665452913643455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_95
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 742
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40e9320749d8cdab0800000000000000
+      internalID: -4981951419102552572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_96
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 735
+        width: 48
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64ef73e84942db780800000000000000
+      internalID: -8665729887531172282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_97
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 730
+        width: 58
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2acfbb6cb2fb21bd0800000000000000
+      internalID: -2660854235083834206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_98
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 696
+        width: 25
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e8106a055a539450800000000000000
+      internalID: 6094314042055203041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_99
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 688
+        width: 43
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8505a6947529ea560800000000000000
+      internalID: 7326954547369889880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_100
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 682
+        width: 54
+        height: 55
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c6a5448b1b51b3c0800000000000000
+      internalID: -4345591991694416192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_101
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 641
+        width: 35
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f624510e6edbd1580800000000000000
+      internalID: -8854712493040909713
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_102
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 635
+        width: 49
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8e7751cb3720f0c0800000000000000
+      internalID: -4544088886416540021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_103
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 630
+        width: 58
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d4170ddd49246270800000000000000
+      internalID: 8242758632392299729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_104
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 597
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd5c5a3df28878df0800000000000000
+      internalID: -178023921262148129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_105
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 588
+        width: 42
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7c2b905262037f60800000000000000
+      internalID: 8030765181814123642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_106
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 583
+        width: 54
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0211ef3a92d72aa30800000000000000
+      internalID: 4225077018225414432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_107
+      rect:
+        serializedVersion: 2
+        x: 45
+        y: 543
+        width: 34
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 111d83cc4c80ccd60800000000000000
+      internalID: 7911708286716006673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_108
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 536
+        width: 47
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e227edd0d000a030800000000000000
+      internalID: 3503801407170355937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_109
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 531
+        width: 57
+        height: 57
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8362a77977e3e6610800000000000000
+      internalID: 1616297999635981880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_110
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 499
+        width: 21
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89f2f09a3b0075150800000000000000
+      internalID: 5861154211681480600
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_111
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 490
+        width: 40
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32b0e3164ddcfcc10800000000000000
+      internalID: 2076104265289304867
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_112
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 484
+        width: 52
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c106cf6ae670e6ea0800000000000000
+      internalID: -5877752291842564068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_113
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 445
+        width: 28
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9cb9968d4cab5da0800000000000000
+      internalID: -5954976633296667490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_114
+      rect:
+        serializedVersion: 2
+        x: 141
+        y: 438
+        width: 43
+        height: 43
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 015d41cbab6179250800000000000000
+      internalID: 5951250423868609808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_115
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 433
+        width: 54
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4350be58e6f0c22f0800000000000000
+      internalID: -996404450188131020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_116
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 393
+        width: 33
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da1b6574de4c57450800000000000000
+      internalID: 6085986994844250541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_117
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 386
+        width: 45
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c04e128a19e87b470800000000000000
+      internalID: 8410347585379886092
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_118
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 350
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0cfb33e0b6dff5730800000000000000
+      internalID: 3990186431115149248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_119
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 341
+        width: 36
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a95e30d7db82b8be0800000000000000
+      internalID: -1474039658722368102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_120
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 336
+        width: 47
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f961fb20ee0f9f1b0800000000000000
+      internalID: -5622197754756393313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_121
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 298
+        width: 23
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 104b61c6f54c89270800000000000000
+      internalID: 8257565830898168833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_122
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 290
+        width: 38
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84a3c038541d573f0800000000000000
+      internalID: -903586053736351160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_123
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 247
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28e460ccbc65f83b0800000000000000
+      internalID: -5508088385949512062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_124
+      rect:
+        serializedVersion: 2
+        x: 243
+        y: 240
+        width: 39
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 053b975cb164127c0800000000000000
+      internalID: -4097917100839292080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_125
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 197
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 140b943b3c8628c90800000000000000
+      internalID: -7169052467084545983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_126
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 147
+        width: 24
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e926033647af64f0800000000000000
+      internalID: -833263486094661145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_127
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 47
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25d5b7dbf46b4d1c0800000000000000
+      internalID: -4479755275729150638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_128
+      rect:
+        serializedVersion: 2
+        x: 547
+        y: 44
+        width: 30
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2191aca885cdd01d0800000000000000
+      internalID: -3382805472241641198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_129
+      rect:
+        serializedVersion: 2
+        x: 647
+        y: 44
+        width: 31
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9eecb69c5b508cc80800000000000000
+      internalID: -8302379634731004183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_130
+      rect:
+        serializedVersion: 2
+        x: 747
+        y: 44
+        width: 30
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca626b784e5181be0800000000000000
+      internalID: -1506430004081842516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_131
+      rect:
+        serializedVersion: 2
+        x: 850
+        y: 47
+        width: 25
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95f2faea5f6bee8d0800000000000000
+      internalID: -2815111550746022055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_132
+      rect:
+        serializedVersion: 2
+        x: 602
+        y: 0
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9805f53a21626360800000000000000
+      internalID: 7161393191394281630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Paninilogo_133
+      rect:
+        serializedVersion: 2
+        x: 702
+        y: 0
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb0b81dcb39dee4f0800000000000000
+      internalID: -797461233130753858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Paninilogo_0: 408006834061838866
+      Paninilogo_1: -1172593010697933497
+      Paninilogo_10: 1486508157766233395
+      Paninilogo_100: -4345591991694416192
+      Paninilogo_101: -8854712493040909713
+      Paninilogo_102: -4544088886416540021
+      Paninilogo_103: 8242758632392299729
+      Paninilogo_104: -178023921262148129
+      Paninilogo_105: 8030765181814123642
+      Paninilogo_106: 4225077018225414432
+      Paninilogo_107: 7911708286716006673
+      Paninilogo_108: 3503801407170355937
+      Paninilogo_109: 1616297999635981880
+      Paninilogo_11: -4708650648105014394
+      Paninilogo_110: 5861154211681480600
+      Paninilogo_111: 2076104265289304867
+      Paninilogo_112: -5877752291842564068
+      Paninilogo_113: -5954976633296667490
+      Paninilogo_114: 5951250423868609808
+      Paninilogo_115: -996404450188131020
+      Paninilogo_116: 6085986994844250541
+      Paninilogo_117: 8410347585379886092
+      Paninilogo_118: 3990186431115149248
+      Paninilogo_119: -1474039658722368102
+      Paninilogo_12: -4897690081318199654
+      Paninilogo_120: -5622197754756393313
+      Paninilogo_121: 8257565830898168833
+      Paninilogo_122: -903586053736351160
+      Paninilogo_123: -5508088385949512062
+      Paninilogo_124: -4097917100839292080
+      Paninilogo_125: -7169052467084545983
+      Paninilogo_126: -833263486094661145
+      Paninilogo_127: -4479755275729150638
+      Paninilogo_128: -3382805472241641198
+      Paninilogo_129: -8302379634731004183
+      Paninilogo_13: -2613290554612287974
+      Paninilogo_130: -1506430004081842516
+      Paninilogo_131: -2815111550746022055
+      Paninilogo_132: 7161393191394281630
+      Paninilogo_133: -797461233130753858
+      Paninilogo_14: 933152624010917656
+      Paninilogo_15: -7611145072923849627
+      Paninilogo_16: -5331618295353556649
+      Paninilogo_17: -7471977957606134940
+      Paninilogo_18: 6949096628407320991
+      Paninilogo_19: -4218397551879757364
+      Paninilogo_2: 7183762993339845154
+      Paninilogo_20: 7970472343363309211
+      Paninilogo_21: 4018987594397034914
+      Paninilogo_22: -53555466681934254
+      Paninilogo_23: 7308440734600162839
+      Paninilogo_24: -1877984684389291266
+      Paninilogo_25: -8870021401291573510
+      Paninilogo_26: -1114558167507187630
+      Paninilogo_27: 8195747129664822071
+      Paninilogo_28: 4495637344998960238
+      Paninilogo_29: 8031057691716717170
+      Paninilogo_3: -2102380139694667293
+      Paninilogo_30: 658464369591779803
+      Paninilogo_31: 6886122173991663641
+      Paninilogo_32: -6331214276518402309
+      Paninilogo_33: -656031140153004995
+      Paninilogo_34: 8518860574617538338
+      Paninilogo_35: -1495034701156309916
+      Paninilogo_36: 340160928065667944
+      Paninilogo_37: 6497905297516405777
+      Paninilogo_38: -2177222775722579605
+      Paninilogo_39: -1795922485567790683
+      Paninilogo_4: -4043827676395013132
+      Paninilogo_40: 1484559568924015254
+      Paninilogo_41: -6788574607384130524
+      Paninilogo_42: 8709923451307612274
+      Paninilogo_43: 65456234958125043
+      Paninilogo_44: 2871391248703222354
+      Paninilogo_45: -1158274300837494228
+      Paninilogo_46: -7836620033732196008
+      Paninilogo_47: -3392255696681860630
+      Paninilogo_48: -467961374235532188
+      Paninilogo_49: 9016657404206182099
+      Paninilogo_5: 8239304968673188022
+      Paninilogo_50: 6397147960571426731
+      Paninilogo_51: -8365031719684009307
+      Paninilogo_52: -1723288940480705573
+      Paninilogo_53: -3682167723818603435
+      Paninilogo_54: 8567813893859069431
+      Paninilogo_55: -2339389748053940061
+      Paninilogo_56: 7899485020119188123
+      Paninilogo_57: 1534509481795700411
+      Paninilogo_58: -7065431480225310555
+      Paninilogo_59: 6795500936205621211
+      Paninilogo_6: 6349028143838863815
+      Paninilogo_60: -2995413630182515573
+      Paninilogo_61: -3131370216571773151
+      Paninilogo_62: 2563606944991109330
+      Paninilogo_63: 464179216602252138
+      Paninilogo_64: 3279622085755049158
+      Paninilogo_65: -2197500598732264766
+      Paninilogo_66: 268664622783372880
+      Paninilogo_67: -39970758872385036
+      Paninilogo_68: -1742305901670851544
+      Paninilogo_69: -5006482256812412861
+      Paninilogo_7: -5676983008544194227
+      Paninilogo_70: 680915588765026280
+      Paninilogo_71: -6794912413793729330
+      Paninilogo_72: 2812342132672805839
+      Paninilogo_73: -3471074464001076660
+      Paninilogo_74: 3379756322202129770
+      Paninilogo_75: -6491747848208410018
+      Paninilogo_76: 6882297532668997197
+      Paninilogo_77: 3485487805193347830
+      Paninilogo_78: 5188290217349125106
+      Paninilogo_79: 2936452328380908613
+      Paninilogo_8: -803452984721938142
+      Paninilogo_80: -3572627236751572971
+      Paninilogo_81: 3566940321640572959
+      Paninilogo_82: 6273128790653918586
+      Paninilogo_83: 7569947021629925143
+      Paninilogo_84: 1374596662033510802
+      Paninilogo_85: -4882951189793903716
+      Paninilogo_86: 7891161716170841064
+      Paninilogo_87: -3661159616550577298
+      Paninilogo_88: -3659041483161444159
+      Paninilogo_89: 2822216762677629460
+      Paninilogo_9: 6543203921822415527
+      Paninilogo_90: 5701066366756019398
+      Paninilogo_91: 2246187515968089321
+      Paninilogo_92: -113630142153875238
+      Paninilogo_93: 1159187920638413874
+      Paninilogo_94: 8999665452913643455
+      Paninilogo_95: -4981951419102552572
+      Paninilogo_96: -8665729887531172282
+      Paninilogo_97: -2660854235083834206
+      Paninilogo_98: 6094314042055203041
+      Paninilogo_99: 7326954547369889880
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

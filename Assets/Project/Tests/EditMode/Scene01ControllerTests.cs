@@ -220,6 +220,69 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void LevelTwoWorldObject_UsesOneWorldPositionAcrossOverlappingPanels()
+	{
+		Vector2 sharedWorldPosition = new Vector2(1.75f, 1.5f);
+		Vector2 panelSize = new Vector2(400f, 400f);
+
+		Vector2 leftPanelPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			sharedWorldPosition,
+			panelSize,
+			new Rect(0f, 0f, 2f, 2f)
+		);
+		Vector2 rightPanelPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			sharedWorldPosition,
+			panelSize,
+			new Rect(1f, 0f, 2f, 2f)
+		);
+
+		Assert.That(leftPanelPosition, Is.EqualTo(new Vector2(150f, -100f)));
+		Assert.That(rightPanelPosition, Is.EqualTo(new Vector2(-50f, -100f)));
+		Assert.That(RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(
+			sharedWorldPosition,
+			new Rect(0f, 0f, 2f, 2f)
+		), Is.True);
+		Assert.That(RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(
+			sharedWorldPosition,
+			new Rect(2f, 0f, 2f, 2f)
+		), Is.False);
+	}
+
+	[Test]
+	public void LevelTwoClockPuzzle_RequiresPortraitDirectlyAboveCage()
+	{
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(
+			RoomPrototypeLevelTwoSlot.TopLeft,
+			RoomPrototypeLevelTwoSlot.BottomLeft
+		), Is.True);
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(
+			RoomPrototypeLevelTwoSlot.TopRight,
+			RoomPrototypeLevelTwoSlot.BottomRight
+		), Is.True);
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(
+			RoomPrototypeLevelTwoSlot.TopLeft,
+			RoomPrototypeLevelTwoSlot.BottomRight
+		), Is.False);
+	}
+
+	[Test]
+	public void LevelTwoKeyFall_AcceleratesAfterRelease()
+	{
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.GetAcceleratedFallProgress(0.5f), Is.EqualTo(0.25f).Within(0.001f));
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.GetAcceleratedFallProgress(1f), Is.EqualTo(1f).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelTwoKeyFallOverlay_DropsVerticallyOverTheBoard()
+	{
+		Vector2 start = new Vector2(120f, 260f);
+		Vector2 tablePosition = new Vector2(420f, -180f);
+
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.GetStraightDropTarget(start, tablePosition),
+			Is.EqualTo(new Vector2(120f, -180f)));
+	}
+
+	[Test]
 	public void CalculateSquareBoardSize_UsesShorterConfiguredSide()
 	{
 		Vector2 squareBoardSize = RoomPrototypeLevelOneController.CalculateSquareBoardSize(new Vector2(1320f, 742f));
@@ -556,5 +619,21 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(bottomLeftFromRightState.Viewport, Is.EqualTo(new RoomPrototypeViewport(1, 1, 1, 1)));
 		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(bottomRightState, RoomPrototypePanelDirection.Up, out RoomPrototypePanelState topRightFromBottomState), Is.True);
 		Assert.That(topRightFromBottomState.Viewport, Is.EqualTo(new RoomPrototypeViewport(2, 0, 1, 1)));
+	}
+
+	[Test]
+	public void LevelTwoDisplacement_UsesAnOrthogonalFreeSlotInsteadOfADiagonal()
+	{
+		int displacedSlot = RoomPrototypeLevelTwoLayoutModel.ChooseDisplacementSlot(
+			RoomPrototypeLevelTwoSlot.TopRight,
+			RoomPrototypeLevelTwoSlot.BottomLeft,
+			RoomPrototypeLevelTwoSlot.BottomRight
+		);
+
+		Assert.That(displacedSlot, Is.EqualTo(RoomPrototypeLevelTwoSlot.BottomRight));
+		Assert.That(RoomPrototypeLevelTwoLayoutModel.AreOrthogonallyAdjacent(
+			RoomPrototypeLevelTwoSlot.TopRight,
+			displacedSlot
+		), Is.True);
 	}
 }
