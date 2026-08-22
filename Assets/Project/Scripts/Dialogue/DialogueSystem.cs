@@ -97,7 +97,7 @@ public sealed class DialogueSystem : MonoBehaviour
 
 	private void Update()
 	{
-		if (!isRunning || !advanceWithKeyboard || !WasAdvancePressed())
+		if (!isRunning || !WasAdvancePressed())
 			return;
 
 		Advance();
@@ -374,7 +374,13 @@ public sealed class DialogueSystem : MonoBehaviour
 		return useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
 	}
 
-	private static bool WasAdvancePressed()
+	private bool WasAdvancePressed()
+	{
+		return WasLeftMousePressed() ||
+			(advanceWithKeyboard && WasKeyboardAdvancePressed());
+	}
+
+	private static bool WasKeyboardAdvancePressed()
 	{
 #if ENABLE_INPUT_SYSTEM
 		Keyboard keyboard = Keyboard.current;
@@ -387,6 +393,15 @@ public sealed class DialogueSystem : MonoBehaviour
 		return Input.GetKeyDown(KeyCode.Return) ||
 			Input.GetKeyDown(KeyCode.KeypadEnter) ||
 			Input.GetKeyDown(KeyCode.E);
+#endif
+	}
+
+	private static bool WasLeftMousePressed()
+	{
+#if ENABLE_INPUT_SYSTEM
+		return Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+#else
+		return Input.GetMouseButtonDown(0);
 #endif
 	}
 
@@ -515,7 +530,6 @@ public sealed class DialogueSystem : MonoBehaviour
 			return;
 
 		advanceButton.onClick.RemoveListener(Advance);
-		advanceButton.onClick.AddListener(Advance);
 	}
 
 	private static RectTransform CreateRectTransform(string objectName, RectTransform parent)
