@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4265349}
   - component: {fileID: 4265348}
+  - component: {fileID: 4265350}
   m_Layer: 0
   m_Name: bird 1
   m_TagString: Untagged
@@ -210,6 +211,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4265350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4265347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3712f6dddd74b3d95586d0d136339e9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BirdWalkController
+  birdRenderer: {fileID: 4265348}
+  walkFrames:
+  - {fileID: 21300000, guid: 7cacc74da3867674a9950259c9a83ae8, type: 3}
+  - {fileID: 21300000, guid: f81362fa07448ed418ffd2d3ea4f1c30, type: 3}
+  platformRenderer: {fileID: 1375057931}
+  moveSpeed: 2
+  birdFootHalfWidth: 0.35
+  platformEdgePadding: 0.05
+  stepFrameDelay: 0.5
 --- !u!1 &37883971
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +476,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1157534802
 SpriteRenderer:
   serializedVersion: 2
