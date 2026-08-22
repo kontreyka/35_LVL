@@ -220,6 +220,30 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void PrototypeMusic_ConfiguresAnImmediateSeamlessTwoDimensionalLoop()
+	{
+		GameObject musicObject = new GameObject("Prototype Music Test");
+		AudioSource musicSource = musicObject.AddComponent<AudioSource>();
+		AudioClip musicClip = AudioClip.Create("Loop", 256, 1, 44100, false);
+
+		try
+		{
+			RoomPrototypeLoopingMusic.ConfigureAndPlay(musicSource, musicClip, 0.4f);
+
+			Assert.That(musicSource.clip, Is.SameAs(musicClip));
+			Assert.That(musicSource.loop, Is.True);
+			Assert.That(musicSource.spatialBlend, Is.EqualTo(0f));
+			Assert.That(musicSource.volume, Is.EqualTo(0.4f));
+			Assert.That(musicSource.playOnAwake, Is.False);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(musicObject);
+			UnityEngine.Object.DestroyImmediate(musicClip);
+		}
+	}
+
+	[Test]
 	public void KeySpriteSizing_PreservesThePortraitKeyProportions()
 	{
 		Vector2 size = RoomPrototypeKeySpriteSizing.GetSizeForHeight(168f, 643f, 84f);

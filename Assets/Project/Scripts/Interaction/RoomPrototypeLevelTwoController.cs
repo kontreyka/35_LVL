@@ -17,6 +17,27 @@ public static class RoomPrototypeLevelTwoSlot
 	public const int BottomRight = 3;
 }
 
+public static class RoomPrototypeLoopingMusic
+{
+	public static void ConfigureAndPlay(AudioSource musicSource, AudioClip musicClip, float volume)
+	{
+		if (musicSource == null)
+		{
+			return;
+		}
+
+		musicSource.clip = musicClip;
+		musicSource.loop = true;
+		musicSource.spatialBlend = 0f;
+		musicSource.volume = Mathf.Clamp01(volume);
+		musicSource.playOnAwake = false;
+		if (musicClip != null)
+		{
+			musicSource.Play();
+		}
+	}
+}
+
 public static class RoomPrototypeLevelTwoLayoutModel
 {
 	public static bool AreOrthogonallyAdjacent(int firstSlot, int secondSlot)
@@ -109,6 +130,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private AudioClip levelMusic = null;
+	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -151,6 +174,11 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private bool keyReleased;
 	private bool keyLanded;
 
+	private void Awake()
+	{
+		StartLevelMusic();
+	}
+
 	private void Start()
 	{
 		ResolvePortraitSpritesForEditor();
@@ -173,6 +201,22 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		CreatePanel(2, RoomPrototypeLevelTwoSlot.BottomLeft, 1, 0);
 		CreateReleasedKeyOverlay();
 		RefreshClockPuzzleState();
+	}
+
+	private void StartLevelMusic()
+	{
+		if (levelMusic == null)
+		{
+			return;
+		}
+
+		AudioSource musicSource = GetComponent<AudioSource>();
+		if (musicSource == null)
+		{
+			musicSource = gameObject.AddComponent<AudioSource>();
+		}
+
+		RoomPrototypeLoopingMusic.ConfigureAndPlay(musicSource, levelMusic, levelMusicVolume);
 	}
 
 	private void ResolvePortraitSpritesForEditor()

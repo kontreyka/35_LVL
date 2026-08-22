@@ -76,6 +76,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Sprite roomSprite = null;
 	[SerializeField] private Sprite skySprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private AudioClip levelMusic = null;
+	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -110,6 +112,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private float flowerPointerStartY;
 	private float flowerPullProgress;
 
+	private void Awake()
+	{
+		StartLevelMusic();
+	}
+
 	private void Start()
 	{
 		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
@@ -127,6 +134,22 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		CreatePanel(2, PanelRole.Window, RoomPrototypeLevelTwoSlot.BottomLeft, 2, 0);
 		CreateTransitionOverlays();
 		RefreshAllVisuals();
+	}
+
+	private void StartLevelMusic()
+	{
+		if (levelMusic == null)
+		{
+			return;
+		}
+
+		AudioSource musicSource = GetComponent<AudioSource>();
+		if (musicSource == null)
+		{
+			musicSource = gameObject.AddComponent<AudioSource>();
+		}
+
+		RoomPrototypeLoopingMusic.ConfigureAndPlay(musicSource, levelMusic, levelMusicVolume);
 	}
 
 	public void OnPanelPointerDown(int panelId, PointerEventData eventData)
