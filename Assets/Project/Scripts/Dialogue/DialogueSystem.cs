@@ -64,6 +64,7 @@ public sealed class DialogueSystem : MonoBehaviour
 	private string fullCurrentText;
 
 	public bool IsRunning => isRunning;
+	public float HideFadeDuration => hideFadeDuration;
 
 	private void Awake()
 	{
@@ -104,6 +105,11 @@ public sealed class DialogueSystem : MonoBehaviour
 
 	public void StartDialogue(DialogueSequence sequence)
 	{
+		StartDialogue(sequence, false);
+	}
+
+	public void StartDialogue(DialogueSequence sequence, bool revealTextInstantly)
+	{
 		if (sequence == null || !sequence.HasLines)
 		{
 			Debug.LogWarning($"{nameof(DialogueSystem)} got empty dialogue sequence.", this);
@@ -118,6 +124,11 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		Show();
 		Advance();
+
+		if (revealTextInstantly && isTyping)
+		{
+			FinishTypewriter();
+		}
 	}
 
 	public void Advance()
@@ -353,13 +364,13 @@ public sealed class DialogueSystem : MonoBehaviour
 		Keyboard keyboard = Keyboard.current;
 
 		return keyboard != null &&
-			(keyboard.spaceKey.wasPressedThisFrame ||
-			keyboard.enterKey.wasPressedThisFrame ||
-			keyboard.numpadEnterKey.wasPressedThisFrame);
+			(keyboard.enterKey.wasPressedThisFrame ||
+			keyboard.numpadEnterKey.wasPressedThisFrame ||
+			keyboard.eKey.wasPressedThisFrame);
 #else
-		return Input.GetKeyDown(KeyCode.Space) ||
-			Input.GetKeyDown(KeyCode.Return) ||
-			Input.GetKeyDown(KeyCode.KeypadEnter);
+		return Input.GetKeyDown(KeyCode.Return) ||
+			Input.GetKeyDown(KeyCode.KeypadEnter) ||
+			Input.GetKeyDown(KeyCode.E);
 #endif
 	}
 

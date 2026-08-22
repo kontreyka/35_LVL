@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -8,6 +9,8 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public sealed class BirdWalkController : MonoBehaviour
 {
+	public event Action StepMade;
+
 	[SerializeField] private SpriteRenderer birdRenderer = null;
 	[SerializeField] private Sprite[] walkFrames = new Sprite[2];
 	[SerializeField] private SpriteRenderer platformRenderer = null;
@@ -90,16 +93,26 @@ public sealed class BirdWalkController : MonoBehaviour
 			return;
 
 		nextFrameTime = Time.time + Mathf.Max(0.01f, stepFrameDelay);
-		MoveOneStep(horizontalInput);
+
+		if (!MoveOneStep(horizontalInput))
+			return;
+
 		SetFrame(currentFrameIndex + 1);
+		StepMade?.Invoke();
 	}
 
-	private void MoveOneStep(float horizontalInput)
+	private bool MoveOneStep(float horizontalInput)
 	{
-		Vector3 position = transform.position;
+		Vector3 currentPosition = transform.position;
+		Vector3 position = currentPosition;
 		position.x += Mathf.Sign(horizontalInput) * Mathf.Max(0f, stepDistance);
 		position.x = ClampXToPlatform(position.x);
+
+		if (Mathf.Approximately(position.x, currentPosition.x))
+			return false;
+
 		transform.position = position;
+		return true;
 	}
 
 	private float ClampXToPlatform(float x)

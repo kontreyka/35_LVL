@@ -6,6 +6,13 @@ using UnityEngine.UI;
 public class LoadingSceneController : MonoBehaviour
 {
 	public static string TargetSceneName;
+	public static string TargetScenePath;
+
+	public static void SetTargetScene(string scenePath)
+	{
+		TargetScenePath = scenePath;
+		TargetSceneName = null;
+	}
 
 	[Header("Loading Images")]
 	[SerializeField] private Image firstImage;
@@ -21,9 +28,14 @@ public class LoadingSceneController : MonoBehaviour
 
 	private void Start()
 	{
-		string sceneToLoad = string.IsNullOrWhiteSpace(TargetSceneName)
-			? fallbackTargetSceneName
-			: TargetSceneName;
+		string sceneToLoad = !string.IsNullOrWhiteSpace(TargetScenePath)
+			? TargetScenePath
+			: string.IsNullOrWhiteSpace(TargetSceneName)
+				? fallbackTargetSceneName
+				: TargetSceneName;
+
+		TargetScenePath = null;
+		TargetSceneName = null;
 
 		StartCoroutine(LoadSceneRoutine(sceneToLoad));
 	}
