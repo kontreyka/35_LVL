@@ -351,7 +351,7 @@ public sealed class RoomPrototypeNavigationTests
 	[Test]
 	public void GetInitialViewport_ReturnsExpectedLevelOnePanels()
 	{
-		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.TopLeft), Is.EqualTo(new RoomPrototypeViewport(1, 0, 2, 2)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.TopLeft), Is.EqualTo(new RoomPrototypeViewport(0, 0, 2, 2)));
 		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.BottomLeft), Is.EqualTo(new RoomPrototypeViewport(1, 0, 2, 2)));
 		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.TopRight), Is.EqualTo(new RoomPrototypeViewport(2, 0, 2, 2)));
 		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.BottomRight), Is.EqualTo(new RoomPrototypeViewport(3, 1, 1, 1)));

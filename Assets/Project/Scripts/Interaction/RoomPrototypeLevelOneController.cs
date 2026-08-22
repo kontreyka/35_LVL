@@ -97,7 +97,7 @@ public static class RoomPrototypeLevelOnePanelModel
 		switch (slot)
 		{
 			case RoomPrototypePanelSlot.TopLeft:
-				return new RoomPrototypeViewport(1, 0, 2, 2);
+				return new RoomPrototypeViewport(0, 0, 2, 2);
 			case RoomPrototypePanelSlot.BottomLeft:
 				return new RoomPrototypeViewport(1, 0, 2, 2);
 			case RoomPrototypePanelSlot.TopRight:
