@@ -581,6 +581,73 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		truckMoveAnimation = StartCoroutine(AnimateTruckToNextCell());
 	}
 
+	private IEnumerator AnimateTruckToNextCell()
+	{
+		if (!panels.TryGetValue(RoomPrototypePanelSlot.BottomLeft, out PanelView truckPanel)
+			|| !RoomPrototypeLevelOnePanelModel.TryMoveTruckToNextCell(truckPanel.State, out RoomPrototypePanelState nextState))
+		{
+			truckMoveAnimation = null;
+			RefreshInteractionLock();
+			yield break;
+		}
+
+		MarkerView truckMarker = FindMarkerView(RoomPrototypePanelSlot.BottomLeft, "TRUCK");
+		if (truckMarker == null)
+		{
+			truckMoveAnimation = null;
+			RefreshInteractionLock();
+			yield break;
+		}
+
+		Vector2 startPosition = GetCanvasPosition(truckMarker.RectTransform);
+		float travelDistance = Mathf.Max(80f, truckPanel.Root.rect.width * 0.7f);
+		Vector2 targetPosition = startPosition + new Vector2(travelDistance, 0f);
+		Vector2 markerSize = truckMarker.RectTransform.rect.size;
+		truckIsDriving = true;
+		truckMarker.RectTransform.gameObject.SetActive(false);
+
+		Image movingTruck = CreateImage("Moving Truck", canvasRoot, truckMarker.Marker.Color);
+		RectTransform movingTruckRect = movingTruck.rectTransform;
+		movingTruckRect.anchorMin = new Vector2(0.5f, 0.5f);
+		movingTruckRect.anchorMax = new Vector2(0.5f, 0.5f);
+		movingTruckRect.pivot = new Vector2(0.5f, 0.5f);
+		movingTruckRect.sizeDelta = markerSize;
+		movingTruckRect.anchoredPosition = startPosition;
+
+		Text label = CreateText("Text", movingTruckRect, truckMarker.Marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
+		label.fontStyle = FontStyle.Bold;
+		label.raycastTarget = false;
+		RectTransform labelRect = label.rectTransform;
+		labelRect.anchorMin = Vector2.zero;
+		labelRect.anchorMax = Vector2.one;
+		labelRect.offsetMin = Vector2.zero;
+		labelRect.offsetMax = Vector2.zero;
+
+		const float duration = 0.5f;
+		float elapsed = 0f;
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			float progress = Mathf.Clamp01(elapsed / duration);
+			float eased = progress * progress * (3f - 2f * progress);
+			movingTruckRect.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, eased);
+			yield return null;
+		}
+
+		Destroy(movingTruck.gameObject);
+		truckIsDriving = false;
+		truckMovedToNextCell = true;
+		ApplyState(truckPanel, nextState, true);
+		while (truckPanel.Animation != null)
+		{
+			yield return null;
+		}
+
+		truckMoveAnimation = null;
+		RefreshInteractionLock();
+		RefreshKeyInteraction();
+	}
+
 	private Vector2 GetCanvasPosition(RectTransform rectTransform)
 	{
 		Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(null, rectTransform.position);
@@ -660,8 +727,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	{
 		foreach (MarkerView markerView in panel.MarkerViews)
 		{
-			RoomMarker marker = markerView.Marker;
+			RoomMarker marker = GetCurrentMarker(markerView.Marker);
 			bool visible = (marker.Label != "KEY" || (!keyIsFalling && !keyDeliveredToTruck))
+				&& (marker.Label != "TRUCK" || !truckIsDriving)
 				&& (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
 				&& MarkerIntersectsViewport(marker, viewport);
 			markerView.RectTransform.gameObject.SetActive(visible);
@@ -838,6 +906,16 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		}
 	}
 
+	private RoomMarker GetCurrentMarker(RoomMarker marker)
+	{
+		if (marker.Label == "TRUCK" && truckMovedToNextCell)
+		{
+			return marker.WithRoomPosition(new Vector2(2.44f, 1.63f));
+		}
+
+		return marker;
+	}
+
 	private Button CreateButton(string name, RectTransform parent, string text, Color background, Color foreground, Vector2 size)
 	{
 		Image image = CreateImage(name, parent, background);
@@ -956,6 +1034,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			RoomSize = roomSize;
 			Color = color;
 			DisplaySlot = displaySlot;
+		}
+
+		public RoomMarker WithRoomPosition(Vector2 roomPosition)
+		{
+			return new RoomMarker(Label, Shape, roomPosition, RoomSize, Color, DisplaySlot);
 		}
 	}
 
