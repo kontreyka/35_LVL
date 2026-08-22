@@ -30,8 +30,11 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 	[SerializeField] private Vector2 auraOffset = Vector2.zero;
 
 	[Header("Aura Fade")]
-	[Tooltip("Длительность плавного отключения ареола и частиц после первого клика по клетке.")]
+	[Tooltip("Длительность плавного исчезновения и возвращения ареола после клика по клетке.")]
 	[SerializeField] private float auraFadeOutDuration = 0.55f;
+
+	[Tooltip("Сколько секунд глоу остается полностью скрытым перед обратным фейдом.")]
+	[SerializeField] private float auraReturnDelay = 0.35f;
 
 	[Header("Aura Details")]
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
@@ -67,8 +70,9 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 	private Texture2D generatedGlowTexture;
 	private Sprite generatedGlowSprite;
 	private float particleEmitAccumulator;
-	private bool isPermanentlyDisabled;
-	private Coroutine fadeOutCoroutine;
+	private float auraVisibility = 1f;
+	private bool isAuraTemporarilyHidden;
+	private Coroutine auraFadeCoroutine;
 
 	private void Awake()
 	{
@@ -78,16 +82,10 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 
 	private void OnEnable()
 	{
-		if (isPermanentlyDisabled)
-		{
-			DisableAuraVisuals();
-			return;
-		}
-
 		ConvertLegacyPulseDuration();
 		Setup();
 
-		if (edgeParticles != null)
+		if (edgeParticles != null && !isAuraTemporarilyHidden)
 		{
 			edgeParticles.Play();
 		}
@@ -100,7 +98,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 
 	private void Update()
 	{
-		if (isPermanentlyDisabled || sourceRenderer == null)
+		if (sourceRenderer == null)
 			return;
 
 		Setup();
@@ -111,12 +109,6 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 
 	private void Setup()
 	{
-		if (isPermanentlyDisabled)
-		{
-			DisableAuraVisuals();
-			return;
-		}
-
 		if (sourceRenderer == null)
 		{
 			sourceRenderer = GetComponent<SpriteRenderer>();
@@ -129,26 +121,21 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 		RefreshContourIfNeeded();
 	}
 
-	public void FadeOutForever()
+	public void FadeOutAndReturn()
 	{
-		if (isPermanentlyDisabled)
-			return;
-
 		Setup();
-		isPermanentlyDisabled = true;
 
 		if (!isActiveAndEnabled)
 		{
-			DisableAuraVisuals();
 			return;
 		}
 
-		if (fadeOutCoroutine != null)
+		if (auraFadeCoroutine != null)
 		{
-			StopCoroutine(fadeOutCoroutine);
+			StopCoroutine(auraFadeCoroutine);
 		}
 
-		fadeOutCoroutine = StartCoroutine(FadeOutForeverRoutine());
+		auraFadeCoroutine = StartCoroutine(FadeOutAndReturnRoutine());
 	}
 
 	private void EnsureGlowRenderer()
@@ -222,7 +209,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 
 		glowRenderer.transform.localPosition = GetAuraOffsetPosition();
 		glowRenderer.sprite = generatedGlowSprite;
-		glowRenderer.enabled = generatedGlowSprite != null;
+		glowRenderer.enabled = generatedGlowSprite != null && !isAuraTemporarilyHidden;
 		glowRenderer.flipX = sourceRenderer.flipX;
 		glowRenderer.flipY = sourceRenderer.flipY;
 		glowRenderer.sortingLayerID = sourceRenderer.sortingLayerID;
@@ -251,24 +238,54 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 
 		float pulse = GetSlowPulse();
 		Color color = Color.white;
-		color.a = Mathf.Lerp(auraIntensity * 0.35f, auraIntensity, pulse);
+		color.a = Mathf.Lerp(auraIntensity * 0.35f, auraIntensity, pulse) * auraVisibility;
 		glowRenderer.color = color;
 	}
 
-	private IEnumerator FadeOutForeverRoutine()
+	private IEnumerator FadeOutAndReturnRoutine()
 	{
 		float duration = Mathf.Max(0f, auraFadeOutDuration);
-		float startGlowAlpha = glowRenderer != null ? glowRenderer.color.a : 0f;
 		Color startParticleMaterialColor = particleMaterial != null ? particleMaterial.color : Color.white;
+		startParticleMaterialColor.a = 1f;
 
 		if (edgeParticles != null)
 		{
 			edgeParticles.Stop(false, ParticleSystemStopBehavior.StopEmitting);
 		}
 
+		yield return FadeAuraVisibility(auraVisibility, 0f, duration, startParticleMaterialColor);
+		SetAuraHidden(true);
+
+		float delay = Mathf.Max(0f, auraReturnDelay);
+
+		if (delay > 0f)
+		{
+			yield return new WaitForSeconds(delay);
+		}
+
+		SetAuraHidden(false);
+		Setup();
+
+		if (edgeParticles != null)
+		{
+			edgeParticles.Play();
+		}
+
+		yield return FadeAuraVisibility(0f, 1f, duration, startParticleMaterialColor);
+		SetAuraVisibility(1f, startParticleMaterialColor);
+		auraFadeCoroutine = null;
+	}
+
+	private IEnumerator FadeAuraVisibility(
+		float from,
+		float to,
+		float duration,
+		Color baseParticleMaterialColor
+	)
+	{
 		if (duration <= 0f)
 		{
-			DisableAuraVisuals();
+			SetAuraVisibility(to, baseParticleMaterialColor);
 			yield break;
 		}
 
@@ -277,24 +294,24 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 		while (time < duration)
 		{
 			time += Time.deltaTime;
-			float fade = 1f - Mathf.Clamp01(time / duration);
-			ApplyFadeAlpha(startGlowAlpha * fade, startParticleMaterialColor, fade);
+			float t = Mathf.Clamp01(time / duration);
+			SetAuraVisibility(Mathf.Lerp(from, to, t), baseParticleMaterialColor);
 
 			yield return null;
 		}
 
-		DisableAuraVisuals();
+		SetAuraVisibility(to, baseParticleMaterialColor);
 	}
 
-	private void ApplyFadeAlpha(float glowAlpha, Color baseParticleMaterialColor, float particleAlphaScale)
+	private void SetAuraVisibility(float visibility, Color baseParticleMaterialColor)
 	{
-		if (glowRenderer != null)
-		{
-			Color color = glowRenderer.color;
-			color.a = glowAlpha;
-			glowRenderer.color = color;
-		}
+		auraVisibility = Mathf.Clamp01(visibility);
+		UpdateGlowVisual();
+		ApplyParticleMaterialAlpha(baseParticleMaterialColor, auraVisibility);
+	}
 
+	private void ApplyParticleMaterialAlpha(Color baseParticleMaterialColor, float particleAlphaScale)
+	{
 		if (particleMaterial != null)
 		{
 			Color color = baseParticleMaterialColor;
@@ -303,20 +320,25 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 		}
 	}
 
-	private void DisableAuraVisuals()
+	private void SetAuraHidden(bool hidden)
 	{
+		isAuraTemporarilyHidden = hidden;
+
 		if (glowRenderer != null)
 		{
-			Color color = glowRenderer.color;
-			color.a = 0f;
-			glowRenderer.color = color;
-			glowRenderer.enabled = false;
+			glowRenderer.enabled = !hidden && generatedGlowSprite != null;
 		}
 
 		if (edgeParticles != null)
 		{
-			edgeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-			edgeParticles.gameObject.SetActive(false);
+			if (hidden)
+			{
+				edgeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+			}
+			else
+			{
+				edgeParticles.gameObject.SetActive(true);
+			}
 		}
 	}
 
@@ -418,7 +440,11 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 
 	private void EmitEdgeParticles()
 	{
-		if (edgeParticles == null || contourLocalPositions.Count == 0 || particleCount <= 0f)
+		if (edgeParticles == null
+			|| contourLocalPositions.Count == 0
+			|| particleCount <= 0f
+			|| auraVisibility <= Mathf.Epsilon
+			|| isAuraTemporarilyHidden)
 			return;
 
 		float pulse = GetSlowPulse();
@@ -448,7 +474,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 				particleColor.r,
 				particleColor.g,
 				particleColor.b,
-				particleColor.a * Mathf.Lerp(0.55f, 1f, pulse)
+				particleColor.a * Mathf.Lerp(0.55f, 1f, pulse) * auraVisibility
 			)
 		};
 
