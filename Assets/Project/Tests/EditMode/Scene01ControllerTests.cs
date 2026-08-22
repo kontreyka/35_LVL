@@ -447,6 +447,14 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void GetAlignedHandoffX_PreservesTheRelativeHorizontalPositionBetweenPanels()
+	{
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetAlignedHandoffX(-50f, 200f, 300f), Is.EqualTo(-75f));
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetAlignedHandoffX(0f, 200f, 300f), Is.EqualTo(0f));
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetAlignedHandoffX(50f, 200f, 300f), Is.EqualTo(75f));
+	}
+
+	[Test]
 	public void TryNavigate_BottomLeftZoomMovesOneCellAtATimeInEveryValidDirection()
 	{
 		RoomPrototypePanelState topLeftState = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);

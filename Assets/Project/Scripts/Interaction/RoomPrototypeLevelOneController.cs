@@ -184,6 +184,11 @@ public static class RoomPrototypeLevelOnePanelModel
 		return true;
 	}
 
+	public static float GetAlignedHandoffX(float sourceX, float sourcePanelWidth, float targetPanelWidth)
+	{
+		return sourcePanelWidth <= 0f ? sourceX : sourceX * targetPanelWidth / sourcePanelWidth;
+	}
+
 	public static bool TryNavigate(
 		RoomPrototypePanelState state,
 		RoomPrototypePanelDirection direction,
@@ -642,7 +647,12 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		}
 
 		Destroy(fallingKey.gameObject);
-		Vector2 enterPosition = new Vector2(targetPosition.x, truckPanel.Content.rect.height * 0.5f + markerSize.y);
+		float alignedEntryX = RoomPrototypeLevelOnePanelModel.GetAlignedHandoffX(
+			startPosition.x,
+			keyPanel.Content.rect.width,
+			truckPanel.Content.rect.width
+		);
+		Vector2 enterPosition = new Vector2(alignedEntryX, truckPanel.Content.rect.height * 0.5f + markerSize.y);
 		Image arrivingKey = CreateMovingMarker("Arriving Key", truckPanel.Content, keyMarker, markerSize, enterPosition);
 		RectTransform arrivingKeyRect = arrivingKey.rectTransform;
 		elapsed = 0f;
@@ -665,7 +675,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private IEnumerator AnimateTruckToNextCell()
 	{
 		if (!panels.TryGetValue(RoomPrototypePanelSlot.BottomLeft, out PanelView truckPanel)
-			|| !RoomPrototypeLevelOnePanelModel.TryMoveTruckToNextCell(truckPanel.State, out RoomPrototypePanelState nextState))
+			|| !RoomPrototypeLevelOnePanelModel.TryMoveTruckToNextCell(truckPanel.State, out _))
 		{
 			truckMoveAnimation = null;
 			RefreshInteractionLock();
@@ -719,11 +729,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		Destroy(movingTruck.gameObject);
 		truckIsDriving = false;
 		truckMovedToNextCell = true;
-		ApplyState(truckPanel, nextState, true);
-		while (truckPanel.Animation != null)
-		{
-			yield return null;
-		}
+		ApplyViewport(truckPanel, ToFrame(truckPanel.State.Viewport));
 
 		truckMoveAnimation = null;
 		RefreshInteractionLock();
