@@ -87,8 +87,7 @@ Shader "UI/Grayscale Button Tint"
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 source = tex2D(_MainTex, i.texcoord);
-                fixed luminance = dot(source.rgb, fixed3(0.299, 0.587, 0.114));
-                fixed4 color = fixed4(luminance, luminance, luminance, source.a) * i.color;
+                fixed4 color = fixed4(i.color.rgb, source.a * i.color.a);
 
                 #ifdef UNITY_UI_CLIP_RECT
                 color.a *= UnityGet2DClipping(i.worldPosition.xy, _ClipRect);
