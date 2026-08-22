@@ -46,6 +46,20 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return keyCaught && cageZoomed && IsDirectlyAbove(cageSlot, flowerSlot);
 	}
 
+	public static float GetFlowerPullProgress(float startY, float currentY, float requiredDistance)
+	{
+		if (requiredDistance <= 0f)
+		{
+			return 0f;
+		}
+		return Mathf.Clamp01(Mathf.Max(0f, currentY - startY) / requiredDistance);
+	}
+
+	public static bool IsFlowerPullComplete(float progress, float completionThreshold)
+	{
+		return progress >= Mathf.Clamp01(completionThreshold);
+	}
+
 	private static bool IsDirectlyAbove(int upperSlot, int lowerSlot)
 	{
 		return (upperSlot == RoomPrototypeLevelTwoSlot.TopLeft && lowerSlot == RoomPrototypeLevelTwoSlot.BottomLeft)
@@ -68,6 +82,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private float dragStartDistance = 14f;
 	[SerializeField] private float keyFallDuration = 1.25f;
 	[SerializeField] private float flowerGrowDuration = 1.1f;
+	[SerializeField, Range(0.5f, 1f)] private float flowerPullCompletionThreshold = 0.82f;
+	[SerializeField] private float flowerReturnDuration = 0.28f;
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
 	[SerializeField] private Color flowerColor = new Color(0.36f, 0.78f, 0.26f, 0.95f);
 	[SerializeField] private Color keyColor = new Color(0.96f, 0.75f, 0.13f, 0.98f);
@@ -82,10 +98,16 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private bool interactionLocked;
 	private bool keyDropStarted;
 	private bool keyCaught;
-	private bool flowerGrowing;
+	private bool flowerPullActive;
+	private bool flowerPullAnimating;
 	private bool cageOpened;
 	private RectTransform keyOverlay;
 	private RectTransform growthOverlay;
+	private RectTransform flowerHeadOverlay;
+	private Vector2 flowerPullStart;
+	private Vector2 flowerPullTarget;
+	private float flowerPointerStartY;
+	private float flowerPullProgress;
 
 	private void Start()
 	{
@@ -108,7 +130,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	public void OnPanelPointerDown(int panelId, PointerEventData eventData)
 	{
-		if (interactionLocked || isDragging)
+		if (interactionLocked || isDragging || flowerPullAnimating || cageOpened)
 		{
 			return;
 		}
@@ -117,6 +139,10 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		if (pressedPanel != null)
 		{
 			pointerDownScreenPosition = eventData.position;
+			if (CanStartFlowerPull(pressedPanel, eventData.position))
+			{
+				BeginFlowerPull(pressedPanel, eventData.position);
+			}
 		}
 	}
 
@@ -124,6 +150,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		if (interactionLocked || pressedPanel == null || pressedPanel.Id != panelId)
 		{
+			return;
+		}
+
+		if (flowerPullActive)
+		{
+			UpdateFlowerPull(eventData.position);
 			return;
 		}
 
@@ -161,6 +193,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		PanelView panel = pressedPanel;
 		pressedPanel = null;
+		if (flowerPullActive)
+		{
+			flowerPullActive = false;
+			StartCoroutine(FinishFlowerPull());
+			return;
+		}
 
 		if (!isDragging)
 		{
@@ -187,14 +225,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 				ToggleCageZoom(panel);
 				break;
 			case PanelRole.Flower:
-				if (CanTapFlower(panel, screenPosition))
-				{
-					StartCoroutine(AnimateFlowerGrowth());
-				}
-				else
-				{
-					ToggleFlowerZoom(panel);
-				}
+				ToggleFlowerZoom(panel);
 				break;
 			case PanelRole.Window:
 				AdvanceWindow(panel);
@@ -467,6 +498,13 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		growth.rectTransform.pivot = new Vector2(0.5f, 0f);
 		growth.gameObject.SetActive(false);
 		growthOverlay = growth.rectTransform;
+
+		Image flowerHead = CreateImage("Pulled Flower", boardRoot, flowerColor);
+		flowerHead.rectTransform.sizeDelta = new Vector2(88f, 76f);
+		Text flowerLabel = CreateText("Pulled Flower Label", flowerHead.rectTransform, "FLOWER", 15, Color.white);
+		Stretch(flowerLabel.rectTransform);
+		flowerHead.gameObject.SetActive(false);
+		flowerHeadOverlay = flowerHead.rectTransform;
 	}
 
 	private void ApplyViewport(PanelView panel, Viewport viewport)
@@ -602,13 +640,14 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		flower.CaughtKey = key.rectTransform;
 	}
 
-	private bool CanTapFlower(PanelView flower, Vector2 screenPosition)
+	private bool CanStartFlowerPull(PanelView flower, Vector2 screenPosition)
 	{
+		PanelView cage = FindPanelByRole(PanelRole.Cage);
 		if (!RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
 			keyCaught,
 			flower.Slot,
-			IsCageZoomed(FindPanelByRole(PanelRole.Cage)),
-			FindPanelByRole(PanelRole.Cage).Slot))
+			IsCageZoomed(cage),
+			cage.Slot))
 		{
 			return false;
 		}
@@ -622,37 +661,95 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			&& Mathf.Abs(local.y - markerPosition.y) <= flower.Flower.sizeDelta.y * 0.8f;
 	}
 
-	private IEnumerator AnimateFlowerGrowth()
+	private void BeginFlowerPull(PanelView flower, Vector2 screenPosition)
 	{
-		if (flowerGrowing || cageOpened)
-		{
-			yield break;
-		}
-		flowerGrowing = true;
-		interactionLocked = true;
-		PanelView flower = FindPanelByRole(PanelRole.Flower);
 		PanelView cage = FindPanelByRole(PanelRole.Cage);
-		Vector2 start = GetBoardPositionForWorld(flower, new Vector2(1.55f, 0.42f));
-		Vector2 target = GetPanelContentBoardPosition(cage, new Vector2(0.5f, 0.66f));
-		growthOverlay.SetAsLastSibling();
-		growthOverlay.anchoredPosition = start;
-		growthOverlay.sizeDelta = new Vector2(34f, 0f);
-		growthOverlay.gameObject.SetActive(true);
+		flowerPullStart = GetBoardPositionForWorld(flower, new Vector2(1.55f, 0.42f));
+		flowerPullTarget = GetPanelContentBoardPosition(cage, new Vector2(0.5f, 0.66f));
+		if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 pointerPosition))
+		{
+			return;
+		}
 
-		float totalHeight = target.y - start.y;
+		flowerPointerStartY = pointerPosition.y;
+		flowerPullProgress = 0f;
+		flowerPullActive = true;
+		growthOverlay.SetAsLastSibling();
+		flowerHeadOverlay.SetAsLastSibling();
+		keyOverlay.SetAsLastSibling();
+		growthOverlay.gameObject.SetActive(true);
+		flowerHeadOverlay.gameObject.SetActive(true);
+		keyOverlay.gameObject.SetActive(true);
+		flower.Flower.gameObject.SetActive(false);
+		flower.CaughtKey.gameObject.SetActive(false);
+		UpdateFlowerPullVisuals(0f);
+	}
+
+	private void UpdateFlowerPull(Vector2 screenPosition)
+	{
+		if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 pointerPosition))
+		{
+			return;
+		}
+
+		float requiredDistance = Mathf.Max(1f, flowerPullTarget.y - flowerPullStart.y);
+		flowerPullProgress = RoomPrototypeLevelThreePuzzleModel.GetFlowerPullProgress(
+			flowerPointerStartY,
+			pointerPosition.y,
+			requiredDistance);
+		UpdateFlowerPullVisuals(flowerPullProgress);
+	}
+
+	private void UpdateFlowerPullVisuals(float progress)
+	{
+		float height = Mathf.Max(0f, flowerPullTarget.y - flowerPullStart.y) * Mathf.Clamp01(progress);
+		Vector2 tip = flowerPullStart + Vector2.up * height;
+		growthOverlay.anchoredPosition = flowerPullStart;
+		growthOverlay.localScale = Vector3.one;
+		growthOverlay.sizeDelta = new Vector2(34f, height);
+		flowerHeadOverlay.anchoredPosition = tip;
+		keyOverlay.anchoredPosition = tip + new Vector2(48f, -8f);
+		keyOverlay.localEulerAngles = Vector3.zero;
+	}
+
+	private IEnumerator FinishFlowerPull()
+	{
+		flowerPullAnimating = true;
+		interactionLocked = true;
+		bool completed = RoomPrototypeLevelThreePuzzleModel.IsFlowerPullComplete(
+			flowerPullProgress,
+			flowerPullCompletionThreshold);
+		float startProgress = flowerPullProgress;
+		float targetProgress = completed ? 1f : 0f;
+		float duration = completed ? Mathf.Min(0.24f, flowerGrowDuration) : flowerReturnDuration;
 		float elapsed = 0f;
-		while (elapsed < flowerGrowDuration)
+		while (elapsed < duration)
 		{
 			elapsed += Time.unscaledDeltaTime;
-			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / flowerGrowDuration));
-			growthOverlay.sizeDelta = new Vector2(34f, Mathf.Abs(totalHeight) * t);
-			growthOverlay.localScale = new Vector3(1f, Mathf.Sign(totalHeight), 1f);
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / Mathf.Max(0.01f, duration)));
+			flowerPullProgress = Mathf.Lerp(startProgress, targetProgress, t);
+			UpdateFlowerPullVisuals(flowerPullProgress);
 			yield return null;
 		}
 
-		cageOpened = true;
-		growthOverlay.gameObject.SetActive(false);
-		RefreshPanelVisuals(cage, cage.Viewport);
+		flowerPullProgress = targetProgress;
+		UpdateFlowerPullVisuals(targetProgress);
+		PanelView flower = FindPanelByRole(PanelRole.Flower);
+		PanelView cage = FindPanelByRole(PanelRole.Cage);
+		if (completed)
+		{
+			cageOpened = true;
+			RefreshPanelVisuals(cage, cage.Viewport);
+		}
+		else
+		{
+			growthOverlay.gameObject.SetActive(false);
+			flowerHeadOverlay.gameObject.SetActive(false);
+			keyOverlay.gameObject.SetActive(false);
+			RefreshPanelVisuals(flower, flower.Viewport);
+		}
+
+		flowerPullAnimating = false;
 		interactionLocked = false;
 	}
 

@@ -280,6 +280,16 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreeFlowerPull_OnlyUsesUpwardDistanceAndRequiresTheThreshold()
+	{
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetFlowerPullProgress(100f, 40f, 200f), Is.EqualTo(0f));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetFlowerPullProgress(100f, 200f, 200f), Is.EqualTo(0.5f).Within(0.001f));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetFlowerPullProgress(100f, 400f, 200f), Is.EqualTo(1f));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.IsFlowerPullComplete(0.79f, 0.8f), Is.False);
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.IsFlowerPullComplete(0.8f, 0.8f), Is.True);
+	}
+
+	[Test]
 	public void LevelTwoWorldObject_UsesOneWorldPositionAcrossOverlappingPanels()
 	{
 		Vector2 sharedWorldPosition = new Vector2(1.75f, 1.5f);
