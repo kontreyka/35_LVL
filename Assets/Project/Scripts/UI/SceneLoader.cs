@@ -1,11 +1,15 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
 	public void LoadScene(string sceneName)
 	{
 		LoadingSceneController.SetTargetScene(sceneName);
-		SceneManager.LoadScene("LoadingScene");
+		SceneTransitionOverlay.FadeOutAndLoad(
+			"LoadingScene",
+			0.35f,
+			0.35f,
+			Color.black
+		);
 	}
 }

@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -34,8 +31,9 @@ public sealed class LevelTransitionManager : MonoBehaviour
 	[SerializeField] private SceneReference loadingScene = new SceneReference();
 	[SerializeField] private SceneReference nextScene = new SceneReference();
 
-	[Header("Fade Out")]
+	[Header("Screen Fade")]
 	[SerializeField, Min(0f)] private float fadeOutDuration = 0.45f;
+	[SerializeField, Min(0f)] private float fadeInDuration = 0.35f;
 	[SerializeField] private Color fadeColor = Color.black;
 
 	private bool isTransitioning;
@@ -57,65 +55,13 @@ public sealed class LevelTransitionManager : MonoBehaviour
 		}
 
 		isTransitioning = true;
-		StartCoroutine(TransitionRoutine());
-	}
-
-	private IEnumerator TransitionRoutine()
-	{
-		CanvasGroup fadeGroup = CreateFadeOverlay();
-		float elapsed = 0f;
-
-		while (elapsed < fadeOutDuration)
-		{
-			elapsed += Time.unscaledDeltaTime;
-			fadeGroup.alpha = Mathf.Clamp01(elapsed / fadeOutDuration);
-			yield return null;
-		}
-
-		fadeGroup.alpha = 1f;
 		LoadingSceneController.SetTargetScene(nextScene.Path);
-		SceneManager.LoadScene(loadingScene.Path);
-	}
-
-	private CanvasGroup CreateFadeOverlay()
-	{
-		GameObject canvasObject = new GameObject(
-			"Scene Fade Canvas",
-			typeof(RectTransform),
-			typeof(Canvas),
-			typeof(CanvasScaler),
-			typeof(GraphicRaycaster),
-			typeof(CanvasGroup)
+		SceneTransitionOverlay.FadeOutAndLoad(
+			loadingScene.Path,
+			fadeOutDuration,
+			fadeInDuration,
+			fadeColor
 		);
-		canvasObject.transform.SetParent(transform, false);
-
-		Canvas canvas = canvasObject.GetComponent<Canvas>();
-		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-		canvas.sortingOrder = 1000;
-
-		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-		scaler.referenceResolution = new Vector2(1920f, 1080f);
-
-		CanvasGroup group = canvasObject.GetComponent<CanvasGroup>();
-		group.alpha = 0f;
-		group.blocksRaycasts = true;
-		group.interactable = true;
-
-		GameObject imageObject = new GameObject("Fade", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-		imageObject.transform.SetParent(canvasObject.transform, false);
-
-		RectTransform imageTransform = imageObject.GetComponent<RectTransform>();
-		imageTransform.anchorMin = Vector2.zero;
-		imageTransform.anchorMax = Vector2.one;
-		imageTransform.offsetMin = Vector2.zero;
-		imageTransform.offsetMax = Vector2.zero;
-
-		Image image = imageObject.GetComponent<Image>();
-		image.color = fadeColor;
-		image.raycastTarget = true;
-
-		return group;
 	}
 
 #if UNITY_EDITOR

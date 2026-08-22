@@ -27,6 +27,9 @@ public class LoadingSceneController : MonoBehaviour
 	[SerializeField] private float secondFrameTime = 0.6f;
 	[SerializeField] private float thirdFrameTime = 0.8f;
 	[SerializeField] private float transitionDuration = 0.4f;
+	[SerializeField, Min(0f)] private float sceneFadeOutDuration = 0.35f;
+	[SerializeField, Min(0f)] private float sceneFadeInDuration = 0.35f;
+	[SerializeField] private Color sceneFadeColor = Color.black;
 
 	private void Start()
 	{
@@ -74,6 +77,12 @@ public class LoadingSceneController : MonoBehaviour
 			yield return StartCoroutine(FadeBetween(thirdImage, firstImage, transitionDuration));
 			hasPlayedCycle = true;
 		}
+
+		yield return SceneTransitionOverlay.FadeOutForSceneChange(
+			sceneFadeOutDuration,
+			sceneFadeInDuration,
+			sceneFadeColor
+		);
 
 		loading.allowSceneActivation = true;
 	}
