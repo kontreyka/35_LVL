@@ -2698,6 +2698,9 @@ MonoBehaviour:
   showTitle: 0
   menuButtons: {fileID: 1441673500}
   rightVisual: {fileID: 327887081}
+  uiSfxSource: {fileID: 518781985}
+  hoverClip: {fileID: 8300000, guid: 2389ca41c52de584e880fb9128efb10a, type: 3}
+  confirmClip: {fileID: 8300000, guid: 5ee631df790640445bb331cdb57e102d, type: 3}
   irisMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
   introOverlay: {fileID: 222935478}
   blackScreenDelay: 0.4

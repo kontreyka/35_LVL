@@ -1,10 +1,11 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
+	private const string GrayscaleButtonShaderName = "UI/Grayscale Button Tint";
+	private static Material grayscaleButtonMaterial;
+
 	public static AudioManager Instance { get; private set; }
 
 	[SerializeField] private AudioSource uiSfxSource = null;
@@ -22,6 +23,8 @@ public class AudioManager : MonoBehaviour
 		}
 
 		Instance = this;
+		PreloadUiClip(hoverClip);
+		PreloadUiClip(confirmClip);
 
 		// Не уничтожать при смене сцены.
 		DontDestroyOnLoad(gameObject);
@@ -30,7 +33,6 @@ public class AudioManager : MonoBehaviour
 	private void Start()
 	{
 		ConfigureUiSfxSource(uiSfxSource);
-		ConfigureMainMenuButtons();
 	}
 
 	public static void ConfigureUiSfxSource(AudioSource audioSource)
@@ -45,45 +47,62 @@ public class AudioManager : MonoBehaviour
 		audioSource.spatialBlend = 0f;
 	}
 
-	private void ConfigureMainMenuButtons()
+	public static void ConfigureMainMenuButtonColors(Button button)
 	{
-		Button[] buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-		foreach (Button button in buttons)
+		if (button == null)
 		{
-			EventTrigger trigger = button.GetComponent<EventTrigger>();
-			if (trigger == null)
+			return;
+		}
+
+		ColorBlock colors = button.colors;
+		colors.normalColor = new Color(0.55f, 0.58f, 0.64f, 1f);
+		colors.highlightedColor = new Color(0.12f, 0.42f, 0.92f, 1f);
+		colors.pressedColor = new Color(0.05f, 0.17f, 0.48f, 1f);
+		colors.selectedColor = colors.normalColor;
+		colors.disabledColor = new Color(0.42f, 0.44f, 0.48f, 1f);
+		colors.fadeDuration = 0.04f;
+		button.colors = colors;
+		button.transition = Selectable.Transition.ColorTint;
+
+		if (button.targetGraphic != null)
+		{
+			Material material = GetGrayscaleButtonMaterial();
+			if (material != null)
 			{
-				trigger = button.gameObject.AddComponent<EventTrigger>();
+				button.targetGraphic.material = material;
 			}
 
-			if (trigger.triggers == null)
-			{
-				trigger.triggers = new List<EventTrigger.Entry>();
-			}
-
-			trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.PointerEnter);
-			EventTrigger.Entry hoverEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
-			hoverEntry.callback.AddListener(_ => PlayHover());
-			trigger.triggers.Add(hoverEntry);
-
-			button.onClick.RemoveListener(PlayConfirm);
-			button.onClick.AddListener(PlayConfirm);
+			button.targetGraphic.color = Color.white;
+			button.targetGraphic.CrossFadeColor(colors.normalColor, 0f, true, true);
 		}
 	}
 
-	private void PlayHover()
+	private static Material GetGrayscaleButtonMaterial()
 	{
-		if (uiSfxSource != null && hoverClip != null)
+		if (grayscaleButtonMaterial != null)
 		{
-			uiSfxSource.PlayOneShot(hoverClip);
+			return grayscaleButtonMaterial;
+		}
+
+		Shader shader = Shader.Find(GrayscaleButtonShaderName);
+		if (shader == null)
+		{
+			return null;
+		}
+
+		grayscaleButtonMaterial = new Material(shader)
+		{
+			hideFlags = HideFlags.DontSave
+		};
+		return grayscaleButtonMaterial;
+	}
+
+	private static void PreloadUiClip(AudioClip clip)
+	{
+		if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
+		{
+			clip.LoadAudioData();
 		}
 	}
 
-	private void PlayConfirm()
-	{
-		if (uiSfxSource != null && confirmClip != null)
-		{
-			uiSfxSource.PlayOneShot(confirmClip);
-		}
-	}
 }
