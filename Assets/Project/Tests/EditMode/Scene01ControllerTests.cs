@@ -165,6 +165,15 @@ public sealed class SpriteContourSamplerTests
 public sealed class Scene01ControllerBackgroundScaleTests
 {
 	[Test]
+	public void ShouldFadeCageAuraForClickStepIndex_FadesOnlyOnFirstClick()
+	{
+		Assert.That(Scene01Controller.ShouldFadeCageAuraForClickStepIndex(0), Is.True);
+		Assert.That(Scene01Controller.ShouldFadeCageAuraForClickStepIndex(1), Is.False);
+		Assert.That(Scene01Controller.ShouldFadeCageAuraForClickStepIndex(2), Is.False);
+		Assert.That(Scene01Controller.ShouldFadeCageAuraForClickStepIndex(3), Is.False);
+	}
+
+	[Test]
 	public void CalculateZoomResponsiveBackgroundScale_FullyCompensatesCameraZoom()
 	{
 		Vector3 scale = Scene01Controller.CalculateZoomResponsiveBackgroundScale(

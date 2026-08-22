@@ -1,10 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(SpriteRenderer))]
-public sealed class CageEdgeGlowEffect : MonoBehaviour
+public sealed class CageEdgeGlowEffect : MonoBehaviour, ICageAuraFadeTarget
 {
 	private const float DefaultAuraPulseSpeed = 0.20833334f;
 
@@ -27,6 +28,10 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	[Header("Aura Placement")]
 	[Tooltip("Локальное смещение ареола и частиц относительно спрайта клетки. X > 0 двигает вправо, Y > 0 двигает вверх.")]
 	[SerializeField] private Vector2 auraOffset = Vector2.zero;
+
+	[Header("Aura Fade")]
+	[Tooltip("Длительность плавного отключения ареола и частиц после первого клика по клетке.")]
+	[SerializeField] private float auraFadeOutDuration = 0.55f;
 
 	[Header("Aura Details")]
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
@@ -62,6 +67,8 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	private Texture2D generatedGlowTexture;
 	private Sprite generatedGlowSprite;
 	private float particleEmitAccumulator;
+	private bool isPermanentlyDisabled;
+	private Coroutine fadeOutCoroutine;
 
 	private void Awake()
 	{
@@ -71,6 +78,12 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private void OnEnable()
 	{
+		if (isPermanentlyDisabled)
+		{
+			DisableAuraVisuals();
+			return;
+		}
+
 		ConvertLegacyPulseDuration();
 		Setup();
 
@@ -87,7 +100,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private void Update()
 	{
-		if (sourceRenderer == null)
+		if (isPermanentlyDisabled || sourceRenderer == null)
 			return;
 
 		Setup();
@@ -98,6 +111,12 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private void Setup()
 	{
+		if (isPermanentlyDisabled)
+		{
+			DisableAuraVisuals();
+			return;
+		}
+
 		if (sourceRenderer == null)
 		{
 			sourceRenderer = GetComponent<SpriteRenderer>();
@@ -108,6 +127,28 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		SyncAuraTransforms();
 		UpdateParticleSystemCapacity();
 		RefreshContourIfNeeded();
+	}
+
+	public void FadeOutForever()
+	{
+		if (isPermanentlyDisabled)
+			return;
+
+		Setup();
+		isPermanentlyDisabled = true;
+
+		if (!isActiveAndEnabled)
+		{
+			DisableAuraVisuals();
+			return;
+		}
+
+		if (fadeOutCoroutine != null)
+		{
+			StopCoroutine(fadeOutCoroutine);
+		}
+
+		fadeOutCoroutine = StartCoroutine(FadeOutForeverRoutine());
 	}
 
 	private void EnsureGlowRenderer()
@@ -212,6 +253,71 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		Color color = Color.white;
 		color.a = Mathf.Lerp(auraIntensity * 0.35f, auraIntensity, pulse);
 		glowRenderer.color = color;
+	}
+
+	private IEnumerator FadeOutForeverRoutine()
+	{
+		float duration = Mathf.Max(0f, auraFadeOutDuration);
+		float startGlowAlpha = glowRenderer != null ? glowRenderer.color.a : 0f;
+		Color startParticleMaterialColor = particleMaterial != null ? particleMaterial.color : Color.white;
+
+		if (edgeParticles != null)
+		{
+			edgeParticles.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+		}
+
+		if (duration <= 0f)
+		{
+			DisableAuraVisuals();
+			yield break;
+		}
+
+		float time = 0f;
+
+		while (time < duration)
+		{
+			time += Time.deltaTime;
+			float fade = 1f - Mathf.Clamp01(time / duration);
+			ApplyFadeAlpha(startGlowAlpha * fade, startParticleMaterialColor, fade);
+
+			yield return null;
+		}
+
+		DisableAuraVisuals();
+	}
+
+	private void ApplyFadeAlpha(float glowAlpha, Color baseParticleMaterialColor, float particleAlphaScale)
+	{
+		if (glowRenderer != null)
+		{
+			Color color = glowRenderer.color;
+			color.a = glowAlpha;
+			glowRenderer.color = color;
+		}
+
+		if (particleMaterial != null)
+		{
+			Color color = baseParticleMaterialColor;
+			color.a = baseParticleMaterialColor.a * particleAlphaScale;
+			particleMaterial.color = color;
+		}
+	}
+
+	private void DisableAuraVisuals()
+	{
+		if (glowRenderer != null)
+		{
+			Color color = glowRenderer.color;
+			color.a = 0f;
+			glowRenderer.color = color;
+			glowRenderer.enabled = false;
+		}
+
+		if (edgeParticles != null)
+		{
+			edgeParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+			edgeParticles.gameObject.SetActive(false);
+		}
 	}
 
 	private void RefreshContourIfNeeded()

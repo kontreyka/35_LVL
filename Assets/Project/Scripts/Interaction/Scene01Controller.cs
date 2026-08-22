@@ -2,6 +2,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+public interface ICageAuraFadeTarget
+{
+	void FadeOutForever();
+}
+
 public class Scene01Controller : MonoBehaviour
 {
 	private enum ClickStep
@@ -21,6 +26,10 @@ public class Scene01Controller : MonoBehaviour
 
 	[Header("Window")]
 	[SerializeField] private Transform windowTarget = null;
+
+	[Header("Cage Aura")]
+	[Tooltip("Компонент ареола клетки. На первом клике по клетке будет плавно выключен навсегда.")]
+	[SerializeField] private MonoBehaviour cageAuraEffect = null;
 
 	[Header("Zoom")]
 	[SerializeField] private float zoomDuration = 1.2f;
@@ -83,6 +92,11 @@ public class Scene01Controller : MonoBehaviour
 		if (isTransitioning)
 			return;
 
+		if (ShouldFadeCageAuraForClickStepIndex((int)clickStep))
+		{
+			FadeCageAuraForever();
+		}
+
 		switch (clickStep)
 		{
 			case ClickStep.FocusWindow:
@@ -95,6 +109,37 @@ public class Scene01Controller : MonoBehaviour
 				StartCoroutine(ZoomOutRoutine());
 				break;
 		}
+	}
+
+	public static bool ShouldFadeCageAuraForClickStepIndex(int clickStepIndex)
+	{
+		return clickStepIndex == (int)ClickStep.FocusWindow;
+	}
+
+	private void FadeCageAuraForever()
+	{
+		if (TryFadeCageAura(cageAuraEffect))
+			return;
+
+		if (windowTarget == null)
+			return;
+
+		MonoBehaviour[] behaviours = windowTarget.GetComponents<MonoBehaviour>();
+
+		for (int i = 0; i < behaviours.Length; i++)
+		{
+			if (TryFadeCageAura(behaviours[i]))
+				return;
+		}
+	}
+
+	private static bool TryFadeCageAura(MonoBehaviour behaviour)
+	{
+		if (behaviour is not ICageAuraFadeTarget fadeTarget)
+			return false;
+
+		fadeTarget.FadeOutForever();
+		return true;
 	}
 
 	private IEnumerator FocusWindowRoutine()
