@@ -220,6 +220,35 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void LevelTwoWorldObject_UsesOneWorldPositionAcrossOverlappingPanels()
+	{
+		Vector2 sharedWorldPosition = new Vector2(1.75f, 1.5f);
+		Vector2 panelSize = new Vector2(400f, 400f);
+
+		Vector2 leftPanelPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			sharedWorldPosition,
+			panelSize,
+			new Rect(0f, 0f, 2f, 2f)
+		);
+		Vector2 rightPanelPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			sharedWorldPosition,
+			panelSize,
+			new Rect(1f, 0f, 2f, 2f)
+		);
+
+		Assert.That(leftPanelPosition, Is.EqualTo(new Vector2(150f, -100f)));
+		Assert.That(rightPanelPosition, Is.EqualTo(new Vector2(-50f, -100f)));
+		Assert.That(RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(
+			sharedWorldPosition,
+			new Rect(0f, 0f, 2f, 2f)
+		), Is.True);
+		Assert.That(RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(
+			sharedWorldPosition,
+			new Rect(2f, 0f, 2f, 2f)
+		), Is.False);
+	}
+
+	[Test]
 	public void CalculateSquareBoardSize_UsesShorterConfiguredSide()
 	{
 		Vector2 squareBoardSize = RoomPrototypeLevelOneController.CalculateSquareBoardSize(new Vector2(1320f, 742f));

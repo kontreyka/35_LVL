@@ -41,6 +41,35 @@ public static class RoomPrototypeLevelTwoLayoutModel
 	}
 }
 
+public static class RoomPrototypeLevelTwoWorldProjection
+{
+	public static Vector2 GetPanelAnchoredPosition(Vector2 worldPosition, Vector2 panelContentSize, Rect viewport)
+	{
+		float normalizedX = (worldPosition.x - viewport.xMin) / viewport.width;
+		float normalizedY = (worldPosition.y - viewport.yMin) / viewport.height;
+		return new Vector2(
+			(normalizedX - 0.5f) * panelContentSize.x,
+			(0.5f - normalizedY) * panelContentSize.y
+		);
+	}
+
+	public static Vector2 GetPanelSize(Vector2 worldSize, Vector2 panelContentSize, Rect viewport)
+	{
+		return new Vector2(
+			worldSize.x / viewport.width * panelContentSize.x,
+			worldSize.y / viewport.height * panelContentSize.y
+		);
+	}
+
+	public static bool IsVisibleInViewport(Vector2 worldPosition, Rect viewport)
+	{
+		return worldPosition.x >= viewport.xMin
+			&& worldPosition.x <= viewport.xMax
+			&& worldPosition.y >= viewport.yMin
+			&& worldPosition.y <= viewport.yMax;
+	}
+}
+
 public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 {
 	private const int RoomColumns = 4;
@@ -54,6 +83,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private float animationDuration = 0.28f;
 	[SerializeField] private float dragStartDistance = 14f;
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
+	[SerializeField] private Vector2 sharedTruckWorldPosition = new Vector2(1.75f, 1.5f);
+	[SerializeField] private Vector2 sharedTruckWorldSize = new Vector2(0.5f, 0.22f);
+	[SerializeField] private Color sharedTruckPlaceholderColor = new Color(0.08f, 0.42f, 0.92f, 0.92f);
+	[SerializeField] private float sharedTruckMoveDuration = 0.8f;
 
 	private readonly List<PanelView> panels = new List<PanelView>();
 	private Font interfaceFont;
@@ -63,6 +96,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private PanelView pressedPanel;
 	private Vector2 pointerDownScreenPosition;
 	private bool isDragging;
+	private SharedWorldObject sharedTruck;
+	private Coroutine sharedTruckAnimation;
 
 	private void Start()
 	{
@@ -77,6 +112,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 		float side = (squareBoardSize.x - panelGap) * 0.5f;
 		panelSize = new Vector2(side, side);
+		sharedTruck = new SharedWorldObject(sharedTruckWorldPosition, sharedTruckWorldSize);
 
 		CreatePanel(0, RoomPrototypeLevelTwoSlot.TopRight, 0, 0);
 		CreatePanel(1, RoomPrototypeLevelTwoSlot.TopLeft, 2, 0);
@@ -324,6 +360,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		RoomPrototypeLevelTwoPanelDrag dragHandler = root.gameObject.AddComponent<RoomPrototypeLevelTwoPanelDrag>();
 		dragHandler.Initialize(this, id);
 		ApplyViewport(panel, panel.Viewport);
+		CreateSharedTruckView(panel);
+		UpdateSharedTruckView(panel, panel.Viewport);
 	}
 
 	private void ApplyViewport(PanelView panel, Viewport viewport)
@@ -343,6 +381,87 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		Vector2 offset = new Vector2((centerX - 0.5f) * imageSize.x, (0.5f - centerY) * imageSize.y);
 		panel.Background.sizeDelta = imageSize;
 		panel.Background.anchoredPosition = -offset;
+		UpdateSharedTruckView(panel, viewport);
+	}
+
+	private void CreateSharedTruckView(PanelView panel)
+	{
+		Image placeholder = CreateImage("Shared Truck Placeholder", panel.Content, sharedTruckPlaceholderColor);
+		placeholder.raycastTarget = true;
+		Button button = placeholder.gameObject.AddComponent<Button>();
+		button.targetGraphic = placeholder;
+		button.onClick.AddListener(RunSharedTruckDemo);
+		panel.SharedTruckPlaceholder = placeholder.rectTransform;
+	}
+
+	private void UpdateSharedTruckView(PanelView panel, Viewport viewport)
+	{
+		if (sharedTruck == null || panel.SharedTruckPlaceholder == null)
+		{
+			return;
+		}
+
+		Vector2 contentSize = panel.Content.rect.size;
+		if (contentSize.x <= 0f || contentSize.y <= 0f)
+		{
+			contentSize = panel.Content.sizeDelta;
+		}
+
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		panel.SharedTruckPlaceholder.gameObject.SetActive(
+			RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(sharedTruck.Position, visibleWorldRect)
+		);
+		panel.SharedTruckPlaceholder.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(
+			sharedTruck.Size,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.SharedTruckPlaceholder.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			sharedTruck.Position,
+			contentSize,
+			visibleWorldRect
+		);
+	}
+
+	private void UpdateSharedTruckViews()
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			UpdateSharedTruckView(panels[i], panels[i].Viewport);
+		}
+	}
+
+	private void RunSharedTruckDemo()
+	{
+		if (interactionLocked || sharedTruckAnimation != null)
+		{
+			return;
+		}
+
+		Vector2 targetPosition = sharedTruck.Position.x < 2.5f
+			? new Vector2(2.75f, sharedTruck.Position.y)
+			: new Vector2(1.75f, sharedTruck.Position.y);
+		sharedTruckAnimation = StartCoroutine(AnimateSharedTruck(targetPosition));
+	}
+
+	private IEnumerator AnimateSharedTruck(Vector2 targetPosition)
+	{
+		interactionLocked = true;
+		Vector2 startPosition = sharedTruck.Position;
+		float elapsed = 0f;
+		while (elapsed < sharedTruckMoveDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / sharedTruckMoveDuration));
+			sharedTruck.Position = Vector2.LerpUnclamped(startPosition, targetPosition, t);
+			UpdateSharedTruckViews();
+			yield return null;
+		}
+
+		sharedTruck.Position = targetPosition;
+		UpdateSharedTruckViews();
+		sharedTruckAnimation = null;
+		interactionLocked = false;
 	}
 
 	private void RefreshControls(PanelView panel)
@@ -599,9 +718,22 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		public RectTransform Root;
 		public RectTransform Content;
 		public RectTransform Background;
+		public RectTransform SharedTruckPlaceholder;
 		public CanvasGroup CanvasGroup;
 		public Viewport Viewport;
 		public Coroutine Animation;
 		public readonly List<GameObject> Controls = new List<GameObject>();
+	}
+
+	private sealed class SharedWorldObject
+	{
+		public Vector2 Position;
+		public readonly Vector2 Size;
+
+		public SharedWorldObject(Vector2 position, Vector2 size)
+		{
+			Position = position;
+			Size = size;
+		}
 	}
 }
