@@ -163,7 +163,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.015, g: 0.014, b: 0.013, a: 1}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -306,7 +306,7 @@ MonoBehaviour:
   boardSize: {x: 1674, y: 942}
   panelGap: 8
   animationDuration: 0.28
-  frameColor: {r: 0.035, g: 0.033, b: 0.03, a: 1}
+  frameColor: {r: 1, g: 1, b: 1, a: 1}
   panelTint: {r: 1, g: 1, b: 1, a: 1}
   controlColor: {r: 0.08, g: 0.08, b: 0.075, a: 0.86}
   levelMusic: {fileID: 8300000, guid: 666e41fdbceef7f41b5718138cfa8d0b, type: 3}
