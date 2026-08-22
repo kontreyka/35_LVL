@@ -13,92 +13,37 @@ public class AudioSettingsController : MonoBehaviour
 
 	private const string MusicVolumeParameter = "MusicVolume";
 	private const string SFXVolumeParameter = "SFXVolume";
-	private const string MusicPrefKey = "MusicVolume";
-	private const string SfxPrefKey = "SFXVolume";
-
-	private bool isInitialized;
 
 	private void Start()
 	{
-		InitializeSliders();
-	}
+		musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 0.8f);
+		sfxSlider.value = PlayerPrefs.GetFloat("SFXVolume", 0.8f);
 
-	private void OnDestroy()
-	{
-		if (musicSlider != null)
-		{
-			musicSlider.onValueChanged.RemoveListener(SetMusicVolume);
-		}
-
-		if (sfxSlider != null)
-		{
-			sfxSlider.onValueChanged.RemoveListener(SetSFXVolume);
-		}
-	}
-
-	public void Initialize(AudioMixer mixer, Slider music, Slider sfx)
-	{
-		audioMixer = mixer;
-		musicSlider = music;
-		sfxSlider = sfx;
-
-		InitializeSliders();
-	}
-
-	private void InitializeSliders()
-	{
-		if (isInitialized)
-			return;
-
-		if (musicSlider == null || sfxSlider == null)
-		{
-			Debug.LogWarning("AudioSettingsController: не назначены слайдеры звука.");
-			return;
-		}
-
-		float musicValue = PlayerPrefs.GetFloat(MusicPrefKey, 0.8f);
-		float sfxValue = PlayerPrefs.GetFloat(SfxPrefKey, 0.8f);
-
-		musicSlider.SetValueWithoutNotify(musicValue);
-		sfxSlider.SetValueWithoutNotify(sfxValue);
-
-		SetMusicVolume(musicValue);
-		SetSFXVolume(sfxValue);
+		SetMusicVolume(musicSlider.value);
+		SetSFXVolume(sfxSlider.value);
 
 		musicSlider.onValueChanged.AddListener(SetMusicVolume);
 		sfxSlider.onValueChanged.AddListener(SetSFXVolume);
-
-		isInitialized = true;
 	}
 
 	public void SetMusicVolume(float value)
 	{
-		float clampedValue = Mathf.Clamp01(value);
+		audioMixer.SetFloat(
+			MusicVolumeParameter,
+			ConvertToDecibels(value)
+		);
 
-		if (audioMixer != null)
-		{
-			audioMixer.SetFloat(
-				MusicVolumeParameter,
-				ConvertToDecibels(clampedValue)
-			);
-		}
-
-		PlayerPrefs.SetFloat(MusicPrefKey, clampedValue);
+		PlayerPrefs.SetFloat("MusicVolume", value);
 	}
 
 	public void SetSFXVolume(float value)
 	{
-		float clampedValue = Mathf.Clamp01(value);
+		audioMixer.SetFloat(
+			SFXVolumeParameter,
+			ConvertToDecibels(value)
+		);
 
-		if (audioMixer != null)
-		{
-			audioMixer.SetFloat(
-				SFXVolumeParameter,
-				ConvertToDecibels(clampedValue)
-			);
-		}
-
-		PlayerPrefs.SetFloat(SfxPrefKey, clampedValue);
+		PlayerPrefs.SetFloat("SFXVolume", value);
 	}
 
 	private float ConvertToDecibels(float value)
