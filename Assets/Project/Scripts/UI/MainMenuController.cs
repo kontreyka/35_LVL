@@ -1,11 +1,24 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
+	[SerializeField] private LevelTransitionManager levelTransitionManager;
+
 	public void StartGame()
 	{
-		SceneManager.LoadScene("Scene01");
+		if (levelTransitionManager == null)
+		{
+			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
+		}
+
+		if (levelTransitionManager != null)
+		{
+			levelTransitionManager.LoadNextScene();
+		}
+		else
+		{
+			Debug.LogWarning($"{nameof(MainMenuController)} could not find a {nameof(LevelTransitionManager)}.", this);
+		}
 	}
 
 	public void ExitGame()

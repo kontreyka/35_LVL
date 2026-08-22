@@ -3829,6 +3829,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f8416c9a27ea854c8e28f4a39d9a875, type: 3}
+--- !u!1001 &3000000001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.sceneAsset
+      value:
+      objectReference: {fileID: 102900000, guid: 10ea5acfba1048eca40669c62efbd849, type: 3}
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.scenePath
+      value: Assets/Scenes/FirstCutscene.unity
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+--- !u!1 &3000000002 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+  m_PrefabInstance: {fileID: 3000000001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3000000003 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+  m_PrefabInstance: {fileID: 3000000001}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3837,3 +3868,4 @@ SceneRoots:
   - {fileID: 518781984}
   - {fileID: 702781895}
   - {fileID: 2132355867}
+  - {fileID: 3000000003}

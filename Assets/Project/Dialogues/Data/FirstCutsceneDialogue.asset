@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f5d49728e204b7dbf4e2cc273f1e0a9, type: 3}
+  m_Name: FirstCutsceneDialogue
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSequence
+  lines:
+  - speakerName:
+    text: "Птица и небо издавна знали друг друга: небо хранило для неё ветер, а птица отвечала ему взмахами крыльев."
+    portrait: {fileID: 0}
+    centerText: 0
+    fontSizeOverride: 0
+  - speakerName:
+    text: "Но однажды между ними появились прутья клетки.\nИ с тех пор небо лишь терпеливо ждет, когда птица вспомнит дорогу домой."
+    portrait: {fileID: 0}
+    centerText: 0
+    fontSizeOverride: 0
