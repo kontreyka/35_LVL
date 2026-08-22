@@ -8,6 +8,7 @@ public class TitleIntroController : MonoBehaviour
 	[SerializeField] private RectTransform title;
 	[SerializeField] private CanvasGroup titleGroup;
 	[SerializeField] private TMP_Text titleText;
+	[SerializeField] private bool showTitle = true;
 
 	[Header("Menu")]
 	[SerializeField] private CanvasGroup menuButtons;
@@ -58,6 +59,11 @@ public class TitleIntroController : MonoBehaviour
 
 	private void Start()
 	{
+		if (!showTitle)
+		{
+			title.gameObject.SetActive(false);
+		}
+
 		// Запоминаем исходное состояние названия
 		titleStartPosition = title.anchoredPosition;
 		titleStartScale = title.localScale;
@@ -128,9 +134,13 @@ public class TitleIntroController : MonoBehaviour
 		// 3. Название остаётся в центре
 		// ------------------------------------------------
 
-		yield return new WaitForSecondsRealtime(
-			titleHoldDuration
-		);
+		if (!showTitle)
+		{
+			RevealMenu();
+			yield break;
+		}
+
+		yield return new WaitForSecondsRealtime(titleHoldDuration);
 
 		// ------------------------------------------------
 		// 4. Название начинает "уносить ветром"
@@ -195,15 +205,14 @@ public class TitleIntroController : MonoBehaviour
 			yield return null;
 		}
 
-		// ------------------------------------------------
-		// 5. Финальное состояние
-		// ------------------------------------------------
+		RevealMenu();
+	}
 
+	private void RevealMenu()
+	{
 		titleGroup.alpha = 0f;
-
 		menuButtons.alpha = 1f;
 		rightVisual.alpha = 1f;
-
 		menuButtons.interactable = true;
 		menuButtons.blocksRaycasts = true;
 	}

@@ -710,6 +710,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a47ee961f07c3ec4d9872662785a992a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  uiSfxSource: {fileID: 518781985}
+  hoverClip: {fileID: 8300000, guid: 2389ca41c52de584e880fb9128efb10a, type: 3}
+  confirmClip: {fileID: 8300000, guid: 5ee631df790640445bb331cdb57e102d, type: 3}
 --- !u!1 &628918016
 GameObject:
   m_ObjectHideFlags: 0
@@ -2692,6 +2695,7 @@ MonoBehaviour:
   title: {fileID: 1789293180}
   titleGroup: {fileID: 1671004505}
   titleText: {fileID: 1789293181}
+  showTitle: 0
   menuButtons: {fileID: 1441673500}
   rightVisual: {fileID: 327887081}
   irisMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
