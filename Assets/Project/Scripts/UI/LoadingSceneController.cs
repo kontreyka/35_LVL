@@ -55,30 +55,33 @@ public class LoadingSceneController : MonoBehaviour
 		AsyncOperation loading = SceneManager.LoadSceneAsync(sceneName);
 		loading.allowSceneActivation = false;
 
-		while (loading.progress < 0.9f)
+		bool hasPlayedRequiredCycle = false;
+
+		while (!hasPlayedRequiredCycle || loading.progress < 0.9f)
 		{
 		// Кадр 1 — птица в клетке
 		yield return new WaitForSecondsRealtime(firstFrameTime / animationSpeedMultiplier);
-		if (loading.progress >= 0.9f)
+		if (hasPlayedRequiredCycle && loading.progress >= 0.9f)
 			break;
 
 		// Переход 1 -> 2
 		yield return StartCoroutine(FadeBetween(firstImage, secondImage, transitionDuration / animationSpeedMultiplier));
-		if (loading.progress >= 0.9f)
+		if (hasPlayedRequiredCycle && loading.progress >= 0.9f)
 			break;
 
 		// Кадр 2 — перья в клетке
 		yield return new WaitForSecondsRealtime(secondFrameTime / animationSpeedMultiplier);
-		if (loading.progress >= 0.9f)
+		if (hasPlayedRequiredCycle && loading.progress >= 0.9f)
 			break;
 
 		// Переход 2 -> 3
 		yield return StartCoroutine(FadeBetween(secondImage, thirdImage, transitionDuration / animationSpeedMultiplier));
-		if (loading.progress >= 0.9f)
+		if (hasPlayedRequiredCycle && loading.progress >= 0.9f)
 			break;
 
 		// Кадр 3 — перья упали
 		yield return new WaitForSecondsRealtime(thirdFrameTime / animationSpeedMultiplier);
+		hasPlayedRequiredCycle = true;
 		if (loading.progress >= 0.9f)
 			break;
 
