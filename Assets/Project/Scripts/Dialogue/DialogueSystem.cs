@@ -64,6 +64,7 @@ public sealed class DialogueSystem : MonoBehaviour
 	private string fullCurrentText;
 
 	public bool IsRunning => isRunning;
+	public float HideFadeDuration => hideFadeDuration;
 
 	private void Awake()
 	{
@@ -96,13 +97,18 @@ public sealed class DialogueSystem : MonoBehaviour
 
 	private void Update()
 	{
-		if (!isRunning || !advanceWithKeyboard || !WasAdvancePressed())
+		if (!isRunning || !WasAdvancePressed())
 			return;
 
 		Advance();
 	}
 
 	public void StartDialogue(DialogueSequence sequence)
+	{
+		StartDialogue(sequence, false);
+	}
+
+	public void StartDialogue(DialogueSequence sequence, bool revealTextInstantly)
 	{
 		if (sequence == null || !sequence.HasLines)
 		{
@@ -118,6 +124,11 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		Show();
 		Advance();
+
+		if (revealTextInstantly && isTyping)
+		{
+			FinishTypewriter();
+		}
 	}
 
 	public void Advance()
@@ -161,6 +172,7 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		SetSpeaker(line.SpeakerName);
 		SetPortrait(line.Portrait);
+		ApplyLineLayout(line);
 
 		fullCurrentText = line.Text ?? string.Empty;
 
@@ -334,6 +346,21 @@ public sealed class DialogueSystem : MonoBehaviour
 		portraitImage.sprite = portrait;
 	}
 
+	private void ApplyLineLayout(DialogueLine line)
+	{
+		if (bodyText == null)
+			return;
+
+		bool centerText = line != null && line.CenterText;
+		bodyText.alignment = centerText
+			? TextAlignmentOptions.Center
+			: TextAlignmentOptions.TopLeft;
+		bodyText.fontStyle = centerText ? FontStyles.Bold : FontStyles.Normal;
+		bodyText.fontSize = line != null && line.FontSizeOverride > 0f
+			? line.FontSizeOverride
+			: bodyFontSize;
+	}
+
 	private void SetCanvasActive(bool active)
 	{
 		if (canvas != null && canvas.gameObject.activeSelf != active)
@@ -347,19 +374,34 @@ public sealed class DialogueSystem : MonoBehaviour
 		return useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
 	}
 
-	private static bool WasAdvancePressed()
+	private bool WasAdvancePressed()
+	{
+		return WasLeftMousePressed() ||
+			(advanceWithKeyboard && WasKeyboardAdvancePressed());
+	}
+
+	private static bool WasKeyboardAdvancePressed()
 	{
 #if ENABLE_INPUT_SYSTEM
 		Keyboard keyboard = Keyboard.current;
 
 		return keyboard != null &&
-			(keyboard.spaceKey.wasPressedThisFrame ||
-			keyboard.enterKey.wasPressedThisFrame ||
-			keyboard.numpadEnterKey.wasPressedThisFrame);
+			(keyboard.enterKey.wasPressedThisFrame ||
+			keyboard.numpadEnterKey.wasPressedThisFrame ||
+			keyboard.eKey.wasPressedThisFrame);
 #else
-		return Input.GetKeyDown(KeyCode.Space) ||
-			Input.GetKeyDown(KeyCode.Return) ||
-			Input.GetKeyDown(KeyCode.KeypadEnter);
+		return Input.GetKeyDown(KeyCode.Return) ||
+			Input.GetKeyDown(KeyCode.KeypadEnter) ||
+			Input.GetKeyDown(KeyCode.E);
+#endif
+	}
+
+	private static bool WasLeftMousePressed()
+	{
+#if ENABLE_INPUT_SYSTEM
+		return Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+#else
+		return Input.GetMouseButtonDown(0);
 #endif
 	}
 
@@ -488,7 +530,6 @@ public sealed class DialogueSystem : MonoBehaviour
 			return;
 
 		advanceButton.onClick.RemoveListener(Advance);
-		advanceButton.onClick.AddListener(Advance);
 	}
 
 	private static RectTransform CreateRectTransform(string objectName, RectTransform parent)

@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 4265349}
   - component: {fileID: 4265348}
   - component: {fileID: 4265350}
+  - component: {fileID: 4265351}
   m_Layer: 0
   m_Name: bird 1
   m_TagString: Untagged
@@ -234,6 +235,24 @@ MonoBehaviour:
   platformWalkableWidth: 8
   platformWalkableCenterOffsetX: 0.235
   stepFrameDelay: 0.27
+--- !u!114 &4265351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4265347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cfec0d4abed40cbb83c6042d03ac3f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BirdWalkDialogueProgression
+  birdWalkController: {fileID: 4265350}
+  dialogueSystem: {fileID: 0}
+  levelTransitionManager: {fileID: 0}
+  ellipsisDialogue: {fileID: 11400000, guid: 79ddc4fb3c1946e5bfe30b7334370c5b, type: 2}
+  stepsPerDialogue: 3
+  dialoguesBeforeTransition: 3
 --- !u!1 &37883971
 GameObject:
   m_ObjectHideFlags: 0
@@ -820,12 +839,38 @@ Transform:
   m_GameObject: {fileID: 1629090425}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.26, y: 0.26, z: 0}
-  m_LocalScale: {x: 1.1786277, y: 1.0833695, z: 1}
+  m_LocalPosition: {x: -0.0201, y: 0.26, z: 0}
+  m_LocalScale: {x: 1.2036146, y: 1.0833695, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1900000001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
+--- !u!1001 &1900000011
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -837,3 +882,5 @@ SceneRoots:
   - {fileID: 389629561}
   - {fileID: 4265349}
   - {fileID: 1157534803}
+  - {fileID: 1900000001}
+  - {fileID: 1900000011}
