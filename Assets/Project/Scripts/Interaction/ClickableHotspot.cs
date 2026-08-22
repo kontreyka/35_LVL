@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
 #if ENABLE_INPUT_SYSTEM
@@ -37,6 +38,9 @@ public class ClickableHotspot : MonoBehaviour
 
 	private void TryClick(Vector2 screenPosition)
 	{
+		if (IsPointerOverUI())
+			return;
+
 		if (mainCamera == null)
 			return;
 
@@ -54,5 +58,11 @@ public class ClickableHotspot : MonoBehaviour
 		Debug.Log("Нажали на: " + gameObject.name);
 
 		onClick?.Invoke();
+	}
+
+	private static bool IsPointerOverUI()
+	{
+		return EventSystem.current != null &&
+			EventSystem.current.IsPointerOverGameObject();
 	}
 }
