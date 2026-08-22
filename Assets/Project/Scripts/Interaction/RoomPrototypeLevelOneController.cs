@@ -1,0 +1,746 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public enum RoomPrototypePanelSlot
+{
+	TopLeft,
+	TopRight,
+	BottomLeft,
+	BottomRight
+}
+
+public enum RoomPrototypePanelDirection
+{
+	Left,
+	Right,
+	Up,
+	Down
+}
+
+public readonly struct RoomPrototypeViewport : IEquatable<RoomPrototypeViewport>
+{
+	public readonly int X;
+	public readonly int Y;
+	public readonly int Width;
+	public readonly int Height;
+
+	public RoomPrototypeViewport(int x, int y, int width, int height)
+	{
+		X = x;
+		Y = y;
+		Width = width;
+		Height = height;
+	}
+
+	public bool Equals(RoomPrototypeViewport other)
+	{
+		return X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
+	}
+
+	public override bool Equals(object obj)
+	{
+		return obj is RoomPrototypeViewport other && Equals(other);
+	}
+
+	public override int GetHashCode()
+	{
+		unchecked
+		{
+			int hash = 17;
+			hash = hash * 31 + X;
+			hash = hash * 31 + Y;
+			hash = hash * 31 + Width;
+			hash = hash * 31 + Height;
+			return hash;
+		}
+	}
+
+	public override string ToString()
+	{
+		return RoomPrototypeLevelOnePanelModel.FormatViewport(this);
+	}
+}
+
+public readonly struct RoomPrototypePanelState
+{
+	public readonly RoomPrototypePanelSlot Slot;
+	public readonly RoomPrototypeViewport Viewport;
+	public readonly bool IsZoomed;
+	public readonly string Label;
+
+	public RoomPrototypePanelState(
+		RoomPrototypePanelSlot slot,
+		RoomPrototypeViewport viewport,
+		bool isZoomed,
+		string label
+	)
+	{
+		Slot = slot;
+		Viewport = viewport;
+		IsZoomed = isZoomed;
+		Label = label;
+	}
+}
+
+public static class RoomPrototypeLevelOnePanelModel
+{
+	public const int RoomColumns = 4;
+	public const int RoomRows = 2;
+
+	public static RoomPrototypeViewport GetInitialViewport(RoomPrototypePanelSlot slot)
+	{
+		switch (slot)
+		{
+			case RoomPrototypePanelSlot.TopLeft:
+				return new RoomPrototypeViewport(1, 0, 2, 2);
+			case RoomPrototypePanelSlot.BottomLeft:
+				return new RoomPrototypeViewport(0, 0, 2, 2);
+			case RoomPrototypePanelSlot.TopRight:
+				return new RoomPrototypeViewport(2, 0, 2, 2);
+			case RoomPrototypePanelSlot.BottomRight:
+				return new RoomPrototypeViewport(3, 1, 1, 1);
+			default:
+				throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+		}
+	}
+
+	public static RoomPrototypePanelState GetInitialState(RoomPrototypePanelSlot slot)
+	{
+		return new RoomPrototypePanelState(slot, GetInitialViewport(slot), false, "ROOM");
+	}
+
+	public static RoomPrototypePanelState GetZoomState(RoomPrototypePanelSlot slot)
+	{
+		switch (slot)
+		{
+			case RoomPrototypePanelSlot.TopLeft:
+				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(1, 0, 1, 1), true, "CUPBOARD");
+			case RoomPrototypePanelSlot.BottomLeft:
+				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(0, 0, 1, 1), true, "KEY ROUTE");
+			case RoomPrototypePanelSlot.TopRight:
+				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(3, 0, 1, 1), true, "CAGE");
+			case RoomPrototypePanelSlot.BottomRight:
+				return GetInitialState(slot);
+			default:
+				throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+		}
+	}
+
+	public static bool CanZoom(RoomPrototypePanelState state)
+	{
+		return !state.IsZoomed && state.Slot != RoomPrototypePanelSlot.BottomRight;
+	}
+
+	public static bool TryNavigate(
+		RoomPrototypePanelState state,
+		RoomPrototypePanelDirection direction,
+		out RoomPrototypePanelState nextState
+	)
+	{
+		nextState = state;
+
+		if (!state.IsZoomed)
+		{
+			return false;
+		}
+
+		if (state.Slot == RoomPrototypePanelSlot.TopLeft)
+		{
+			if (state.Viewport.Equals(new RoomPrototypeViewport(1, 0, 1, 1)) && direction == RoomPrototypePanelDirection.Left)
+			{
+				nextState = new RoomPrototypePanelState(state.Slot, new RoomPrototypeViewport(0, 0, 1, 1), true, "KEY RACK");
+				return true;
+			}
+
+			if (state.Viewport.Equals(new RoomPrototypeViewport(0, 0, 1, 1)) && direction == RoomPrototypePanelDirection.Right)
+			{
+				nextState = GetZoomState(state.Slot);
+				return true;
+			}
+		}
+
+		if (state.Slot == RoomPrototypePanelSlot.BottomLeft)
+		{
+			if (state.Viewport.Equals(new RoomPrototypeViewport(0, 0, 1, 1))
+				&& (direction == RoomPrototypePanelDirection.Right || direction == RoomPrototypePanelDirection.Down))
+			{
+				nextState = new RoomPrototypePanelState(state.Slot, new RoomPrototypeViewport(1, 1, 1, 1), true, "TRUCK");
+				return true;
+			}
+
+			if (state.Viewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1))
+				&& (direction == RoomPrototypePanelDirection.Left || direction == RoomPrototypePanelDirection.Up))
+			{
+				nextState = GetZoomState(state.Slot);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static string FormatViewport(RoomPrototypeViewport viewport)
+	{
+		string start = FormatCell(viewport.X, viewport.Y);
+		if (viewport.Width == 1 && viewport.Height == 1)
+		{
+			return start;
+		}
+
+		return $"{start}-{FormatCell(viewport.X + viewport.Width - 1, viewport.Y + viewport.Height - 1)}";
+	}
+
+	private static string FormatCell(int x, int y)
+	{
+		char row = (char)('A' + y);
+		return $"{row}{x + 1}";
+	}
+}
+
+public sealed class RoomPrototypeLevelOneController : MonoBehaviour
+{
+	[SerializeField] private Sprite backgroundSprite = null;
+	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
+	[SerializeField] private Vector2 boardSize = new Vector2(1320f, 742f);
+	[SerializeField] private float panelGap = 8f;
+	[SerializeField] private float animationDuration = 0.28f;
+	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
+	[SerializeField] private Color panelTint = Color.white;
+	[SerializeField] private Color controlColor = new Color(0.08f, 0.08f, 0.075f, 0.86f);
+
+	private readonly Dictionary<RoomPrototypePanelSlot, PanelView> panels = new Dictionary<RoomPrototypePanelSlot, PanelView>();
+	private readonly List<RoomMarker> roomMarkers = new List<RoomMarker>();
+	private Font interfaceFont;
+	private Sprite circleSprite;
+
+	private void Awake()
+	{
+		BuildPrototype();
+	}
+
+	private void BuildPrototype()
+	{
+		interfaceFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+		circleSprite = CreateCircleSprite();
+		BuildMarkers();
+		EnsureEventSystem();
+
+		RectTransform canvasRoot = CreateCanvas();
+		RectTransform boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
+		boardRoot.anchorMin = new Vector2(0.5f, 0.5f);
+		boardRoot.anchorMax = new Vector2(0.5f, 0.5f);
+		boardRoot.pivot = new Vector2(0.5f, 0.5f);
+		boardRoot.sizeDelta = boardSize;
+		boardRoot.anchoredPosition = Vector2.zero;
+
+		Vector2 panelSize = new Vector2((boardSize.x - panelGap) * 0.5f, (boardSize.y - panelGap) * 0.5f);
+		CreatePanel(boardRoot, RoomPrototypePanelSlot.TopLeft, new Vector2(-(panelSize.x + panelGap) * 0.5f, (panelSize.y + panelGap) * 0.5f), panelSize);
+		CreatePanel(boardRoot, RoomPrototypePanelSlot.TopRight, new Vector2((panelSize.x + panelGap) * 0.5f, (panelSize.y + panelGap) * 0.5f), panelSize);
+		CreatePanel(boardRoot, RoomPrototypePanelSlot.BottomLeft, new Vector2(-(panelSize.x + panelGap) * 0.5f, -(panelSize.y + panelGap) * 0.5f), panelSize);
+		CreatePanel(boardRoot, RoomPrototypePanelSlot.BottomRight, new Vector2((panelSize.x + panelGap) * 0.5f, -(panelSize.y + panelGap) * 0.5f), panelSize);
+	}
+
+	private RectTransform CreateCanvas()
+	{
+		GameObject canvasObject = new GameObject("Room Prototype Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+		canvasObject.transform.SetParent(transform, false);
+
+		Canvas canvas = canvasObject.GetComponent<Canvas>();
+		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+		canvas.sortingOrder = 0;
+
+		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+		scaler.referenceResolution = referenceResolution;
+		scaler.matchWidthOrHeight = 0.5f;
+
+		RectTransform rectTransform = canvasObject.GetComponent<RectTransform>();
+		rectTransform.anchorMin = Vector2.zero;
+		rectTransform.anchorMax = Vector2.one;
+		rectTransform.offsetMin = Vector2.zero;
+		rectTransform.offsetMax = Vector2.zero;
+		return rectTransform;
+	}
+
+	private void CreatePanel(RectTransform boardRoot, RoomPrototypePanelSlot slot, Vector2 position, Vector2 size)
+	{
+		RectTransform root = CreateRectTransform($"{slot} Panel", boardRoot);
+		root.sizeDelta = size;
+		root.anchoredPosition = position;
+		Image frame = root.gameObject.AddComponent<Image>();
+		frame.color = frameColor;
+
+		RectTransform content = CreateRectTransform("Viewport", root);
+		content.anchorMin = Vector2.zero;
+		content.anchorMax = Vector2.one;
+		content.offsetMin = new Vector2(4f, 4f);
+		content.offsetMax = new Vector2(-4f, -4f);
+		content.gameObject.AddComponent<RectMask2D>();
+
+		Image background = CreateImage("Room Slice", content, Color.white);
+		background.sprite = backgroundSprite;
+		background.preserveAspect = false;
+		background.color = backgroundSprite == null ? new Color(0.32f, 0.3f, 0.27f, 1f) : panelTint;
+		RectTransform backgroundRect = background.rectTransform;
+		backgroundRect.anchorMin = new Vector2(0.5f, 0.5f);
+		backgroundRect.anchorMax = new Vector2(0.5f, 0.5f);
+		backgroundRect.pivot = new Vector2(0.5f, 0.5f);
+
+		PanelView panel = new PanelView
+		{
+			Slot = slot,
+			Root = root,
+			Content = content,
+			Background = backgroundRect,
+			State = RoomPrototypeLevelOnePanelModel.GetInitialState(slot)
+		};
+
+		foreach (RoomMarker marker in roomMarkers)
+		{
+			panel.MarkerViews.Add(CreateMarkerView(content, marker));
+		}
+
+		Button tapButton = CreateButton("Tap Area", content, string.Empty, Color.clear, Color.clear, new Vector2(1f, 1f));
+		RectTransform tapRect = tapButton.GetComponent<RectTransform>();
+		tapRect.anchorMin = Vector2.zero;
+		tapRect.anchorMax = Vector2.one;
+		tapRect.offsetMin = Vector2.zero;
+		tapRect.offsetMax = Vector2.zero;
+		tapButton.onClick.AddListener(() => ZoomPanel(panel));
+		panel.TapButton = tapButton;
+
+		panel.Label = CreateText("Panel Label", root, string.Empty, 18, TextAnchor.UpperLeft, Color.white);
+		RectTransform labelRect = panel.Label.rectTransform;
+		labelRect.anchorMin = new Vector2(0f, 1f);
+		labelRect.anchorMax = new Vector2(1f, 1f);
+		labelRect.pivot = new Vector2(0f, 1f);
+		labelRect.offsetMin = new Vector2(12f, -44f);
+		labelRect.offsetMax = new Vector2(-12f, -10f);
+
+		panels[slot] = panel;
+		ApplyState(panel, panel.State, false);
+	}
+
+	private MarkerView CreateMarkerView(RectTransform parent, RoomMarker marker)
+	{
+		Image image = CreateImage(marker.Label, parent, marker.Color);
+		image.sprite = marker.Shape == MarkerShape.Circle ? circleSprite : null;
+
+		Text label = CreateText($"{marker.Label} Label", image.rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
+		label.fontStyle = FontStyle.Bold;
+		label.raycastTarget = false;
+		RectTransform labelRect = label.rectTransform;
+		labelRect.anchorMin = Vector2.zero;
+		labelRect.anchorMax = Vector2.one;
+		labelRect.offsetMin = Vector2.zero;
+		labelRect.offsetMax = Vector2.zero;
+
+		return new MarkerView
+		{
+			Marker = marker,
+			RectTransform = image.rectTransform,
+			Image = image
+		};
+	}
+
+	private void ZoomPanel(PanelView panel)
+	{
+		if (!RoomPrototypeLevelOnePanelModel.CanZoom(panel.State) || panel.Animation != null)
+		{
+			return;
+		}
+
+		ApplyState(panel, RoomPrototypeLevelOnePanelModel.GetZoomState(panel.Slot), true);
+	}
+
+	private void ApplyState(PanelView panel, RoomPrototypePanelState state, bool animated)
+	{
+		if (panel.Animation != null)
+		{
+			StopCoroutine(panel.Animation);
+			panel.Animation = null;
+		}
+
+		ClearControls(panel);
+
+		if (!animated)
+		{
+			panel.State = state;
+			ApplyViewport(panel, ToFrame(state.Viewport));
+			RefreshControls(panel);
+			return;
+		}
+
+		panel.Animation = StartCoroutine(AnimateToState(panel, state));
+	}
+
+	private IEnumerator AnimateToState(PanelView panel, RoomPrototypePanelState targetState)
+	{
+		Vector4 start = ToFrame(panel.State.Viewport);
+		Vector4 target = ToFrame(targetState.Viewport);
+		float elapsed = 0f;
+
+		while (elapsed < animationDuration)
+		{
+			elapsed += Time.deltaTime;
+			float normalized = animationDuration <= 0f ? 1f : Mathf.Clamp01(elapsed / animationDuration);
+			float eased = normalized * normalized * (3f - 2f * normalized);
+			ApplyViewport(panel, Vector4.Lerp(start, target, eased));
+			yield return null;
+		}
+
+		panel.State = targetState;
+		ApplyViewport(panel, target);
+		panel.Animation = null;
+		RefreshControls(panel);
+	}
+
+	private void ApplyViewport(PanelView panel, Vector4 viewport)
+	{
+		Vector2 panelSize = panel.Content.rect.size;
+		if (panelSize.x <= 0f || panelSize.y <= 0f)
+		{
+			panelSize = panel.Content.sizeDelta;
+		}
+
+		float width = Mathf.Max(0.01f, viewport.z);
+		float height = Mathf.Max(0.01f, viewport.w);
+		Vector2 imageSize = new Vector2(
+			panelSize.x * RoomPrototypeLevelOnePanelModel.RoomColumns / width,
+			panelSize.y * RoomPrototypeLevelOnePanelModel.RoomRows / height
+		);
+
+		float centerX = (viewport.x + width * 0.5f) / RoomPrototypeLevelOnePanelModel.RoomColumns;
+		float centerY = (viewport.y + height * 0.5f) / RoomPrototypeLevelOnePanelModel.RoomRows;
+		Vector2 offset = new Vector2((centerX - 0.5f) * imageSize.x, (0.5f - centerY) * imageSize.y);
+
+		panel.Background.sizeDelta = imageSize;
+		panel.Background.anchoredPosition = -offset;
+		UpdateMarkerViews(panel, viewport, panelSize);
+		UpdateLabel(panel, viewport);
+	}
+
+	private void UpdateMarkerViews(PanelView panel, Vector4 viewport, Vector2 panelSize)
+	{
+		foreach (MarkerView markerView in panel.MarkerViews)
+		{
+			RoomMarker marker = markerView.Marker;
+			bool visible = MarkerIntersectsViewport(marker, viewport);
+			markerView.RectTransform.gameObject.SetActive(visible);
+			if (!visible)
+			{
+				continue;
+			}
+
+			Vector2 normalized = new Vector2(
+				(marker.RoomPosition.x - viewport.x) / viewport.z,
+				1f - (marker.RoomPosition.y - viewport.y) / viewport.w
+			);
+
+			markerView.RectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+			markerView.RectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+			markerView.RectTransform.pivot = new Vector2(0.5f, 0.5f);
+			markerView.RectTransform.sizeDelta = new Vector2(
+				panelSize.x * marker.RoomSize.x / viewport.z,
+				panelSize.y * marker.RoomSize.y / viewport.w
+			);
+			markerView.RectTransform.anchoredPosition = new Vector2(
+				(normalized.x - 0.5f) * panelSize.x,
+				(normalized.y - 0.5f) * panelSize.y
+			);
+		}
+	}
+
+	private static bool MarkerIntersectsViewport(RoomMarker marker, Vector4 viewport)
+	{
+		float markerMinX = marker.RoomPosition.x - marker.RoomSize.x * 0.5f;
+		float markerMaxX = marker.RoomPosition.x + marker.RoomSize.x * 0.5f;
+		float markerMinY = marker.RoomPosition.y - marker.RoomSize.y * 0.5f;
+		float markerMaxY = marker.RoomPosition.y + marker.RoomSize.y * 0.5f;
+
+		return markerMaxX >= viewport.x
+			&& markerMinX <= viewport.x + viewport.z
+			&& markerMaxY >= viewport.y
+			&& markerMinY <= viewport.y + viewport.w;
+	}
+
+	private void UpdateLabel(PanelView panel, Vector4 viewport)
+	{
+		RoomPrototypeViewport roundedViewport = new RoomPrototypeViewport(
+			Mathf.RoundToInt(viewport.x),
+			Mathf.RoundToInt(viewport.y),
+			Mathf.RoundToInt(viewport.z),
+			Mathf.RoundToInt(viewport.w)
+		);
+
+		string zoomLabel = panel.State.IsZoomed ? panel.State.Label : "ROOM";
+		panel.Label.text = $"{GetSlotShortName(panel.Slot)}  {zoomLabel}  {RoomPrototypeLevelOnePanelModel.FormatViewport(roundedViewport)}";
+	}
+
+	private void RefreshControls(PanelView panel)
+	{
+		panel.TapButton.interactable = RoomPrototypeLevelOnePanelModel.CanZoom(panel.State);
+
+		if (panel.State.IsZoomed)
+		{
+			Button minus = CreateButton("Zoom Out", panel.Root, "-", controlColor, Color.white, new Vector2(46f, 46f));
+			PlaceControl(minus.transform as RectTransform, RoomPrototypePanelDirection.Left, true, panel.Root.sizeDelta);
+			minus.onClick.AddListener(() => ApplyState(panel, RoomPrototypeLevelOnePanelModel.GetInitialState(panel.Slot), true));
+			panel.ControlObjects.Add(minus.gameObject);
+		}
+
+		foreach (RoomPrototypePanelDirection direction in Enum.GetValues(typeof(RoomPrototypePanelDirection)))
+		{
+			RoomPrototypePanelDirection capturedDirection = direction;
+			if (!RoomPrototypeLevelOnePanelModel.TryNavigate(panel.State, capturedDirection, out _))
+			{
+				continue;
+			}
+
+			Button arrow = CreateButton($"{capturedDirection} Arrow", panel.Root, GetArrowText(capturedDirection), controlColor, Color.white, new Vector2(46f, 46f));
+			PlaceControl(arrow.transform as RectTransform, capturedDirection, false, panel.Root.sizeDelta);
+			arrow.onClick.AddListener(() =>
+			{
+				if (RoomPrototypeLevelOnePanelModel.TryNavigate(panel.State, capturedDirection, out RoomPrototypePanelState nextState))
+				{
+					ApplyState(panel, nextState, true);
+				}
+			});
+			panel.ControlObjects.Add(arrow.gameObject);
+		}
+	}
+
+	private void ClearControls(PanelView panel)
+	{
+		for (int i = 0; i < panel.ControlObjects.Count; i++)
+		{
+			Destroy(panel.ControlObjects[i]);
+		}
+
+		panel.ControlObjects.Clear();
+	}
+
+	private static void PlaceControl(RectTransform rectTransform, RoomPrototypePanelDirection direction, bool forceBottomLeft, Vector2 panelSize)
+	{
+		rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+		rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+		rectTransform.pivot = new Vector2(0.5f, 0.5f);
+
+		if (forceBottomLeft)
+		{
+			rectTransform.anchoredPosition = new Vector2(-panelSize.x * 0.5f + 34f, -panelSize.y * 0.5f + 34f);
+			return;
+		}
+
+		switch (direction)
+		{
+			case RoomPrototypePanelDirection.Left:
+				rectTransform.anchoredPosition = new Vector2(-panelSize.x * 0.5f + 34f, 0f);
+				break;
+			case RoomPrototypePanelDirection.Right:
+				rectTransform.anchoredPosition = new Vector2(panelSize.x * 0.5f - 34f, 0f);
+				break;
+			case RoomPrototypePanelDirection.Up:
+				rectTransform.anchoredPosition = new Vector2(0f, panelSize.y * 0.5f - 34f);
+				break;
+			case RoomPrototypePanelDirection.Down:
+				rectTransform.anchoredPosition = new Vector2(0f, -panelSize.y * 0.5f + 34f);
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+		}
+	}
+
+	private static Vector4 ToFrame(RoomPrototypeViewport viewport)
+	{
+		return new Vector4(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+	}
+
+	private void BuildMarkers()
+	{
+		roomMarkers.Clear();
+		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.22f, 0.33f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f)));
+		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f)));
+		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.35f, 0.62f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f)));
+		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.32f, 0.52f), new Color(0.95f, 0.67f, 0.16f, 0.42f)));
+	}
+
+	private static string GetSlotShortName(RoomPrototypePanelSlot slot)
+	{
+		switch (slot)
+		{
+			case RoomPrototypePanelSlot.TopLeft:
+				return "TL";
+			case RoomPrototypePanelSlot.TopRight:
+				return "TR";
+			case RoomPrototypePanelSlot.BottomLeft:
+				return "BL";
+			case RoomPrototypePanelSlot.BottomRight:
+				return "BR";
+			default:
+				throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+		}
+	}
+
+	private static string GetArrowText(RoomPrototypePanelDirection direction)
+	{
+		switch (direction)
+		{
+			case RoomPrototypePanelDirection.Left:
+				return "<";
+			case RoomPrototypePanelDirection.Right:
+				return ">";
+			case RoomPrototypePanelDirection.Up:
+				return "^";
+			case RoomPrototypePanelDirection.Down:
+				return "v";
+			default:
+				throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+		}
+	}
+
+	private void EnsureEventSystem()
+	{
+		if (FindFirstObjectByType<EventSystem>() != null)
+		{
+			return;
+		}
+
+		GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+		eventSystemObject.transform.SetParent(transform, false);
+	}
+
+	private Button CreateButton(string name, RectTransform parent, string text, Color background, Color foreground, Vector2 size)
+	{
+		Image image = CreateImage(name, parent, background);
+		RectTransform rectTransform = image.rectTransform;
+		rectTransform.sizeDelta = size;
+		Button button = image.gameObject.AddComponent<Button>();
+		ColorBlock colors = button.colors;
+		colors.normalColor = background;
+		colors.highlightedColor = new Color(background.r + 0.08f, background.g + 0.08f, background.b + 0.08f, background.a);
+		colors.pressedColor = new Color(background.r * 0.7f, background.g * 0.7f, background.b * 0.7f, background.a);
+		colors.selectedColor = colors.highlightedColor;
+		button.colors = colors;
+
+		if (!string.IsNullOrEmpty(text))
+		{
+			Text label = CreateText("Text", rectTransform, text, 30, TextAnchor.MiddleCenter, foreground);
+			label.fontStyle = FontStyle.Bold;
+			label.raycastTarget = false;
+			RectTransform labelRect = label.rectTransform;
+			labelRect.anchorMin = Vector2.zero;
+			labelRect.anchorMax = Vector2.one;
+			labelRect.offsetMin = Vector2.zero;
+			labelRect.offsetMax = Vector2.zero;
+		}
+
+		return button;
+	}
+
+	private Image CreateImage(string name, RectTransform parent, Color color)
+	{
+		RectTransform rectTransform = CreateRectTransform(name, parent);
+		Image image = rectTransform.gameObject.AddComponent<Image>();
+		image.color = color;
+		return image;
+	}
+
+	private Text CreateText(string name, RectTransform parent, string text, int fontSize, TextAnchor alignment, Color color)
+	{
+		RectTransform rectTransform = CreateRectTransform(name, parent);
+		Text label = rectTransform.gameObject.AddComponent<Text>();
+		label.text = text;
+		label.font = interfaceFont;
+		label.fontSize = fontSize;
+		label.alignment = alignment;
+		label.color = color;
+		label.horizontalOverflow = HorizontalWrapMode.Overflow;
+		label.verticalOverflow = VerticalWrapMode.Overflow;
+		return label;
+	}
+
+	private static RectTransform CreateRectTransform(string name, Transform parent)
+	{
+		GameObject gameObject = new GameObject(name, typeof(RectTransform));
+		RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+		rectTransform.SetParent(parent, false);
+		rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+		rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+		rectTransform.pivot = new Vector2(0.5f, 0.5f);
+		rectTransform.localScale = Vector3.one;
+		rectTransform.localRotation = Quaternion.identity;
+		return rectTransform;
+	}
+
+	private static Sprite CreateCircleSprite()
+	{
+		const int size = 32;
+		Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+		texture.name = "RoomPrototypeCircle";
+		texture.wrapMode = TextureWrapMode.Clamp;
+
+		Vector2 center = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+		float radius = (size - 2) * 0.5f;
+		for (int y = 0; y < size; y++)
+		{
+			for (int x = 0; x < size; x++)
+			{
+				float distance = Vector2.Distance(new Vector2(x, y), center);
+				texture.SetPixel(x, y, distance <= radius ? Color.white : Color.clear);
+			}
+		}
+
+		texture.Apply();
+		return Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), size);
+	}
+
+	private enum MarkerShape
+	{
+		Rectangle,
+		Circle
+	}
+
+	private readonly struct RoomMarker
+	{
+		public readonly string Label;
+		public readonly MarkerShape Shape;
+		public readonly Vector2 RoomPosition;
+		public readonly Vector2 RoomSize;
+		public readonly Color Color;
+
+		public RoomMarker(string label, MarkerShape shape, Vector2 roomPosition, Vector2 roomSize, Color color)
+		{
+			Label = label;
+			Shape = shape;
+			RoomPosition = roomPosition;
+			RoomSize = roomSize;
+			Color = color;
+		}
+	}
+
+	private sealed class MarkerView
+	{
+		public RoomMarker Marker;
+		public RectTransform RectTransform;
+		public Image Image;
+	}
+
+	private sealed class PanelView
+	{
+		public RoomPrototypePanelSlot Slot;
+		public RectTransform Root;
+		public RectTransform Content;
+		public RectTransform Background;
+		public Text Label;
+		public Button TapButton;
+		public RoomPrototypePanelState State;
+		public Coroutine Animation;
+		public readonly List<MarkerView> MarkerViews = new List<MarkerView>();
+		public readonly List<GameObject> ControlObjects = new List<GameObject>();
+	}
+}

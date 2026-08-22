@@ -203,3 +203,31 @@ public sealed class Scene01ControllerBackgroundScaleTests
 		Assert.That(scale.z, Is.EqualTo(1f).Within(0.001f));
 	}
 }
+
+public sealed class RoomPrototypeNavigationTests
+{
+	[Test]
+	public void GetInitialViewport_ReturnsExpectedLevelOnePanels()
+	{
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.TopLeft), Is.EqualTo(new RoomPrototypeViewport(1, 0, 2, 2)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.BottomLeft), Is.EqualTo(new RoomPrototypeViewport(0, 0, 2, 2)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.TopRight), Is.EqualTo(new RoomPrototypeViewport(2, 0, 2, 2)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.BottomRight), Is.EqualTo(new RoomPrototypeViewport(3, 1, 1, 1)));
+	}
+
+	[Test]
+	public void TryNavigate_AllowsOnlyConfiguredPrototypeArrows()
+	{
+		RoomPrototypePanelState topLeftZoom = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.TopLeft);
+		RoomPrototypePanelState bottomLeftZoom = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(topLeftZoom, RoomPrototypePanelDirection.Left, out RoomPrototypePanelState keyRackState), Is.True);
+		Assert.That(keyRackState.Viewport, Is.EqualTo(new RoomPrototypeViewport(0, 0, 1, 1)));
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(bottomLeftZoom, RoomPrototypePanelDirection.Right, out RoomPrototypePanelState truckState), Is.True);
+		Assert.That(truckState.Viewport, Is.EqualTo(new RoomPrototypeViewport(1, 1, 1, 1)));
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(topLeftZoom, RoomPrototypePanelDirection.Down, out _), Is.False);
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(RoomPrototypeLevelOnePanelModel.GetInitialState(RoomPrototypePanelSlot.BottomRight), RoomPrototypePanelDirection.Left, out _), Is.False);
+	}
+}
