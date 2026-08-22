@@ -247,7 +247,13 @@ public class TitleIntroController : MonoBehaviour
 				|| entry.eventID == EventTriggerType.PointerExit
 				|| entry.eventID == EventTriggerType.PointerDown
 				|| entry.eventID == EventTriggerType.PointerUp);
-			AddPointerEvent(trigger, EventTriggerType.PointerEnter, () => PlayUiSfx(hoverClip));
+			AddPointerEvent(trigger, EventTriggerType.PointerEnter, () =>
+			{
+				if (button.IsInteractable())
+				{
+					PlayUiSfx(hoverClip);
+				}
+			});
 
 			button.onClick.RemoveListener(PlayConfirm);
 			button.onClick.AddListener(PlayConfirm);
