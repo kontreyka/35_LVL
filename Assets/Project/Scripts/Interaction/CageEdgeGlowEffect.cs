@@ -26,7 +26,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
 	[SerializeField] private float glowPulseDuration = 4.8f;
 	[SerializeField] private float alphaThreshold = 0.2f;
-	[SerializeField] private int glowSortingOffset = 1;
+	[SerializeField] private int glowSortingOffset = -1;
 
 	[Header("Edge Particles")]
 	[SerializeField] private Color particleColor = new Color(1f, 0.9f, 0.55f, 0.42f);
@@ -35,7 +35,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	[SerializeField] private Vector2 particleLifetimeRange = new Vector2(1.2f, 2.4f);
 	[SerializeField] private float particleDriftSpeed = 0.025f;
 	[SerializeField] private float particleJitter = 0.01f;
-	[SerializeField] private int particleSortingOffset = 2;
+	[SerializeField] private int particleSortingOffset = -1;
 
 	private readonly List<Vector3> contourLocalPositions = new List<Vector3>();
 

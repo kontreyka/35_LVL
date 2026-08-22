@@ -1339,14 +1339,14 @@ MonoBehaviour:
   glowColor: {r: 1, g: 0.86, b: 0.48, a: 0.5}
   glowPulseDuration: 4.8
   alphaThreshold: 0.2
-  glowSortingOffset: 1
+  glowSortingOffset: -1
   particleColor: {r: 1, g: 0.9, b: 0.55, a: 0.42}
   particleSampleStepPixels: 24
   particleSizeRange: {x: 0.01, y: 0.026}
   particleLifetimeRange: {x: 1.2, y: 2.4}
   particleDriftSpeed: 0.025
   particleJitter: 0.01
-  particleSortingOffset: 2
+  particleSortingOffset: -1
 --- !u!1 &1385090531
 GameObject:
   m_ObjectHideFlags: 0

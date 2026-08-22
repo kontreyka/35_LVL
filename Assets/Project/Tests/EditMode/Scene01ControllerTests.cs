@@ -63,6 +63,37 @@ public sealed class SpriteContourSamplerTests
 	}
 
 	[Test]
+	public void FindContourPixels_IgnoresTransparentHolesInsideSilhouette()
+	{
+		Texture2D texture = CreateTexture(7, 7, Color.clear);
+
+		for (int y = 1; y <= 5; y++)
+		{
+			for (int x = 1; x <= 5; x++)
+			{
+				texture.SetPixel(x, y, Color.white);
+			}
+		}
+
+		texture.SetPixel(3, 3, Color.clear);
+		texture.Apply();
+
+		Vector2Int[] contour = SpriteContourSampler.FindContourPixels(
+			texture,
+			new Rect(0f, 0f, 7f, 7f),
+			1,
+			0.5f
+		).ToArray();
+
+		Assert.That(contour, Has.No.Member(new Vector2Int(2, 3)));
+		Assert.That(contour, Has.No.Member(new Vector2Int(3, 2)));
+		Assert.That(contour, Has.No.Member(new Vector2Int(3, 4)));
+		Assert.That(contour, Has.No.Member(new Vector2Int(4, 3)));
+		Assert.That(contour, Has.Member(new Vector2Int(1, 3)));
+		Assert.That(contour, Has.Member(new Vector2Int(5, 3)));
+	}
+
+	[Test]
 	public void BuildGlowTexture_AddsPaddingSoOpaqueSpriteAuraCanExtendPastEdges()
 	{
 		Texture2D texture = CreateTexture(7, 7, Color.black);

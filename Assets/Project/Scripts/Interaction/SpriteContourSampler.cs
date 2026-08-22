@@ -30,16 +30,7 @@ public static class SpriteContourSampler
 			return contourPixels;
 		}
 
-		for (int y = yMin; y <= yMax; y += step)
-		{
-			for (int x = xMin; x <= xMax; x += step)
-			{
-				if (IsAlphaContourPixel(pixels, texture.width, texture.height, x, y, alphaLimit))
-				{
-					contourPixels.Add(new Vector2Int(x, y));
-				}
-			}
-		}
+		AddOuterSilhouettePixels(contourPixels, pixels, texture.width, xMin, yMin, xMax, yMax, step, alphaLimit);
 
 		return contourPixels;
 	}
@@ -64,6 +55,136 @@ public static class SpriteContourSampler
 		}
 
 		return false;
+	}
+
+	private static void AddOuterSilhouettePixels(
+		List<Vector2Int> contourPixels,
+		Color32[] pixels,
+		int width,
+		int xMin,
+		int yMin,
+		int xMax,
+		int yMax,
+		int step,
+		byte alphaLimit
+	)
+	{
+		HashSet<Vector2Int> uniquePixels = new HashSet<Vector2Int>();
+
+		for (int y = yMin; y <= yMax; y += step)
+		{
+			AddRowExtremes(contourPixels, uniquePixels, pixels, width, xMin, xMax, y, alphaLimit);
+		}
+
+		if ((yMax - yMin) % step != 0)
+		{
+			AddRowExtremes(contourPixels, uniquePixels, pixels, width, xMin, xMax, yMax, alphaLimit);
+		}
+
+		for (int x = xMin; x <= xMax; x += step)
+		{
+			AddColumnExtremes(contourPixels, uniquePixels, pixels, width, x, yMin, yMax, alphaLimit);
+		}
+
+		if ((xMax - xMin) % step != 0)
+		{
+			AddColumnExtremes(contourPixels, uniquePixels, pixels, width, xMax, yMin, yMax, alphaLimit);
+		}
+	}
+
+	private static void AddRowExtremes(
+		List<Vector2Int> contourPixels,
+		HashSet<Vector2Int> uniquePixels,
+		Color32[] pixels,
+		int width,
+		int xMin,
+		int xMax,
+		int y,
+		byte alphaLimit
+	)
+	{
+		int left = -1;
+		int right = -1;
+
+		for (int x = xMin; x <= xMax; x++)
+		{
+			if (IsOpaque(pixels, width, x, y, alphaLimit))
+			{
+				left = x;
+				break;
+			}
+		}
+
+		for (int x = xMax; x >= xMin; x--)
+		{
+			if (IsOpaque(pixels, width, x, y, alphaLimit))
+			{
+				right = x;
+				break;
+			}
+		}
+
+		AddUniquePixel(contourPixels, uniquePixels, left, y);
+		AddUniquePixel(contourPixels, uniquePixels, right, y);
+	}
+
+	private static void AddColumnExtremes(
+		List<Vector2Int> contourPixels,
+		HashSet<Vector2Int> uniquePixels,
+		Color32[] pixels,
+		int width,
+		int x,
+		int yMin,
+		int yMax,
+		byte alphaLimit
+	)
+	{
+		int bottom = -1;
+		int top = -1;
+
+		for (int y = yMin; y <= yMax; y++)
+		{
+			if (IsOpaque(pixels, width, x, y, alphaLimit))
+			{
+				bottom = y;
+				break;
+			}
+		}
+
+		for (int y = yMax; y >= yMin; y--)
+		{
+			if (IsOpaque(pixels, width, x, y, alphaLimit))
+			{
+				top = y;
+				break;
+			}
+		}
+
+		AddUniquePixel(contourPixels, uniquePixels, x, bottom);
+		AddUniquePixel(contourPixels, uniquePixels, x, top);
+	}
+
+	private static void AddUniquePixel(
+		List<Vector2Int> contourPixels,
+		HashSet<Vector2Int> uniquePixels,
+		int x,
+		int y
+	)
+	{
+		if (x < 0 || y < 0)
+			return;
+
+		Vector2Int pixel = new Vector2Int(x, y);
+
+		if (uniquePixels.Add(pixel))
+		{
+			contourPixels.Add(pixel);
+		}
+	}
+
+	private static bool IsOpaque(Color32[] pixels, int width, int x, int y, byte alphaLimit)
+	{
+		return pixels[ToIndex(x, y, width)].a >= alphaLimit;
 	}
 
 	private static void AddPerimeterPixels(List<Vector2Int> contourPixels, int xMin, int yMin, int xMax, int yMax, int step)
@@ -97,32 +218,6 @@ public static class SpriteContourSampler
 				contourPixels.Add(new Vector2Int(xMax, y));
 			}
 		}
-	}
-
-	private static bool IsAlphaContourPixel(Color32[] pixels, int width, int height, int x, int y, byte alphaLimit)
-	{
-		if (pixels[ToIndex(x, y, width)].a < alphaLimit)
-			return false;
-
-		for (int oy = -1; oy <= 1; oy++)
-		{
-			for (int ox = -1; ox <= 1; ox++)
-			{
-				if (ox == 0 && oy == 0)
-					continue;
-
-				int nx = x + ox;
-				int ny = y + oy;
-
-				if (nx < 0 || nx >= width || ny < 0 || ny >= height)
-					return true;
-
-				if (pixels[ToIndex(nx, ny, width)].a < alphaLimit)
-					return true;
-			}
-		}
-
-		return false;
 	}
 
 	private static byte FloatToByte(float value)
