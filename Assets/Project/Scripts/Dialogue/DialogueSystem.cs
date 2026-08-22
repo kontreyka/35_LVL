@@ -172,6 +172,7 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		SetSpeaker(line.SpeakerName);
 		SetPortrait(line.Portrait);
+		ApplyLineLayout(line);
 
 		fullCurrentText = line.Text ?? string.Empty;
 
@@ -343,6 +344,21 @@ public sealed class DialogueSystem : MonoBehaviour
 		bool shouldShowPortrait = usePortraits && portrait != null;
 		portraitImage.gameObject.SetActive(shouldShowPortrait);
 		portraitImage.sprite = portrait;
+	}
+
+	private void ApplyLineLayout(DialogueLine line)
+	{
+		if (bodyText == null)
+			return;
+
+		bool centerText = line != null && line.CenterText;
+		bodyText.alignment = centerText
+			? TextAlignmentOptions.Center
+			: TextAlignmentOptions.TopLeft;
+		bodyText.fontStyle = centerText ? FontStyles.Bold : FontStyles.Normal;
+		bodyText.fontSize = line != null && line.FontSizeOverride > 0f
+			? line.FontSizeOverride
+			: bodyFontSize;
 	}
 
 	private void SetCanvasActive(bool active)

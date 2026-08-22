@@ -16,3 +16,5 @@ MonoBehaviour:
   - speakerName:
     text: "..."
     portrait: {fileID: 0}
+    centerText: 1
+    fontSizeOverride: 110
