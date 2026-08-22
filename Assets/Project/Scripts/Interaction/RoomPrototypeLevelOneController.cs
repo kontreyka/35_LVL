@@ -165,6 +165,25 @@ public static class RoomPrototypeLevelOnePanelModel
 		return true;
 	}
 
+	public static bool TryMoveTruckToTable(RoomPrototypePanelState state, out RoomPrototypePanelState nextState)
+	{
+		nextState = state;
+		if (state.Slot != RoomPrototypePanelSlot.BottomLeft
+			|| !state.IsZoomed
+			|| !state.Viewport.Equals(new RoomPrototypeViewport(2, 1, 1, 1)))
+		{
+			return false;
+		}
+
+		nextState = new RoomPrototypePanelState(
+			RoomPrototypePanelSlot.BottomRight,
+			new RoomPrototypeViewport(3, 1, 1, 1),
+			false,
+			"TABLE"
+		);
+		return true;
+	}
+
 	public static bool TryNavigate(
 		RoomPrototypePanelState state,
 		RoomPrototypePanelDirection direction,
@@ -276,6 +295,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private bool keyDeliveredToTruck;
 	private bool truckIsDriving;
 	private bool truckMovedToNextCell;
+	private bool truckReachedTable;
 
 	private void Awake()
 	{
@@ -420,14 +440,21 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void ConfigureMarkerInteraction(MarkerView markerView)
 	{
-		if (markerView.Marker.Label != "KEY")
+		if (markerView.Marker.Label != "KEY" && markerView.Marker.Label != "ROPE")
 		{
 			return;
 		}
 
 		Button button = markerView.Image.gameObject.AddComponent<Button>();
 		button.targetGraphic = markerView.Image;
-		button.onClick.AddListener(TryDropKeyIntoTruck);
+		if (markerView.Marker.Label == "KEY")
+		{
+			button.onClick.AddListener(TryDropKeyIntoTruck);
+		}
+		else
+		{
+			button.onClick.AddListener(TryPullRopeToTable);
+		}
 		markerView.Button = button;
 	}
 
@@ -455,14 +482,16 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			return;
 		}
 
-		Vector2 startPosition = GetCanvasPosition(keyMarker.RectTransform);
-		Vector2 targetPosition = GetCanvasPosition(truckMarker.RectTransform);
+		PanelView keyPanel = panels[RoomPrototypePanelSlot.TopLeft];
+		PanelView truckPanel = panels[RoomPrototypePanelSlot.BottomLeft];
+		Vector2 startPosition = keyMarker.RectTransform.anchoredPosition;
+		Vector2 targetPosition = truckMarker.RectTransform.anchoredPosition;
 		Vector2 markerSize = keyMarker.RectTransform.rect.size;
 		keyIsFalling = true;
 		keyMarker.RectTransform.gameObject.SetActive(false);
 		RefreshKeyInteraction();
 		RefreshInteractionLock();
-		keyDropAnimation = StartCoroutine(AnimateKeyDrop(keyMarker.Marker, startPosition, targetPosition, markerSize));
+		keyDropAnimation = StartCoroutine(AnimateKeyDrop(keyMarker.Marker, keyPanel, truckPanel, startPosition, targetPosition, markerSize));
 	}
 
 	private bool CanDropKeyIntoTruck()
@@ -509,6 +538,27 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		}
 	}
 
+	private void RefreshRopeInteraction()
+	{
+		bool ropeCanPull = CanPullRopeToTable();
+		foreach (PanelView panel in panels.Values)
+		{
+			foreach (MarkerView markerView in panel.MarkerViews)
+			{
+				if (markerView.Marker.Label != "ROPE" || markerView.Button == null)
+				{
+					continue;
+				}
+
+				bool isActiveRope = ropeCanPull
+					&& panel.Slot == RoomPrototypePanelSlot.BottomLeft
+					&& markerView.RectTransform.gameObject.activeInHierarchy;
+				markerView.Button.interactable = isActiveRope;
+				markerView.Image.raycastTarget = isActiveRope;
+			}
+		}
+	}
+
 	private void RefreshInteractionLock()
 	{
 		bool isLocked = IsInteractionLocked();
@@ -544,37 +594,68 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		return null;
 	}
 
-	private IEnumerator AnimateKeyDrop(RoomMarker keyMarker, Vector2 startPosition, Vector2 targetPosition, Vector2 markerSize)
+	private void TryPullRopeToTable()
 	{
-		Image fallingKey = CreateImage("Falling Key", canvasRoot, keyMarker.Color);
+		if (!CanPullRopeToTable())
+		{
+			return;
+		}
+
+		truckMoveAnimation = StartCoroutine(AnimateTruckToTable());
+		RefreshInteractionLock();
+		RefreshRopeInteraction();
+	}
+
+	private bool CanPullRopeToTable()
+	{
+		if (IsInteractionLocked() || !truckMovedToNextCell || truckReachedTable
+			|| !panels.TryGetValue(RoomPrototypePanelSlot.BottomLeft, out PanelView truckPanel))
+		{
+			return false;
+		}
+
+		return truckPanel.Animation == null
+			&& RoomPrototypeLevelOnePanelModel.TryMoveTruckToTable(truckPanel.State, out _);
+	}
+
+	private IEnumerator AnimateKeyDrop(
+		RoomMarker keyMarker,
+		PanelView keyPanel,
+		PanelView truckPanel,
+		Vector2 startPosition,
+		Vector2 targetPosition,
+		Vector2 markerSize
+	)
+	{
+		Image fallingKey = CreateMovingMarker("Falling Key", keyPanel.Content, keyMarker, markerSize, startPosition);
 		RectTransform fallingKeyRect = fallingKey.rectTransform;
-		fallingKeyRect.anchorMin = new Vector2(0.5f, 0.5f);
-		fallingKeyRect.anchorMax = new Vector2(0.5f, 0.5f);
-		fallingKeyRect.pivot = new Vector2(0.5f, 0.5f);
-		fallingKeyRect.sizeDelta = markerSize;
-		fallingKeyRect.anchoredPosition = startPosition;
-
-		Text label = CreateText("Text", fallingKeyRect, keyMarker.Label, 14, TextAnchor.MiddleCenter, Color.white);
-		label.fontStyle = FontStyle.Bold;
-		label.raycastTarget = false;
-		RectTransform labelRect = label.rectTransform;
-		labelRect.anchorMin = Vector2.zero;
-		labelRect.anchorMax = Vector2.one;
-		labelRect.offsetMin = Vector2.zero;
-		labelRect.offsetMax = Vector2.zero;
-
-		const float duration = 0.45f;
+		Vector2 exitPosition = new Vector2(startPosition.x, -keyPanel.Content.rect.height * 0.5f - markerSize.y);
+		const float duration = 0.24f;
 		float elapsed = 0f;
 		while (elapsed < duration)
 		{
 			elapsed += Time.deltaTime;
 			float progress = Mathf.Clamp01(elapsed / duration);
 			float eased = progress * progress;
-			fallingKeyRect.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, eased);
+			fallingKeyRect.anchoredPosition = Vector2.Lerp(startPosition, exitPosition, eased);
 			yield return null;
 		}
 
 		Destroy(fallingKey.gameObject);
+		Vector2 enterPosition = new Vector2(targetPosition.x, truckPanel.Content.rect.height * 0.5f + markerSize.y);
+		Image arrivingKey = CreateMovingMarker("Arriving Key", truckPanel.Content, keyMarker, markerSize, enterPosition);
+		RectTransform arrivingKeyRect = arrivingKey.rectTransform;
+		elapsed = 0f;
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			float progress = Mathf.Clamp01(elapsed / duration);
+			float eased = progress * progress;
+			arrivingKeyRect.anchoredPosition = Vector2.Lerp(enterPosition, targetPosition, eased);
+			yield return null;
+		}
+
+		Destroy(arrivingKey.gameObject);
 		keyIsFalling = false;
 		keyDeliveredToTruck = true;
 		keyDropAnimation = null;
@@ -647,13 +728,62 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		truckMoveAnimation = null;
 		RefreshInteractionLock();
 		RefreshKeyInteraction();
+		RefreshRopeInteraction();
 	}
 
-	private Vector2 GetCanvasPosition(RectTransform rectTransform)
+	private IEnumerator AnimateTruckToTable()
 	{
-		Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(null, rectTransform.position);
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRoot, screenPosition, null, out Vector2 localPosition);
-		return localPosition;
+		if (!panels.TryGetValue(RoomPrototypePanelSlot.BottomLeft, out PanelView truckPanel)
+			|| !panels.TryGetValue(RoomPrototypePanelSlot.BottomRight, out PanelView tablePanel)
+			|| !RoomPrototypeLevelOnePanelModel.TryMoveTruckToTable(truckPanel.State, out RoomPrototypePanelState tableState))
+		{
+			truckMoveAnimation = null;
+			RefreshInteractionLock();
+			yield break;
+		}
+
+		MarkerView truckMarker = FindMarkerView(RoomPrototypePanelSlot.BottomLeft, "TRUCK");
+		if (truckMarker == null)
+		{
+			truckMoveAnimation = null;
+			RefreshInteractionLock();
+			yield break;
+		}
+
+		RoomMarker tableTruck = GetCurrentMarker(truckMarker.Marker).WithRoomPosition(new Vector2(3.44f, 1.63f)).WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
+		Vector2 markerSize = truckMarker.RectTransform.rect.size;
+		Vector2 sourceStart = truckMarker.RectTransform.anchoredPosition;
+		Vector2 sourceExit = sourceStart + new Vector2(truckPanel.Content.rect.width, 0f);
+		Vector2 targetPosition = GetMarkerPositionInPanel(tableTruck, tablePanel);
+		Vector2 targetEnter = new Vector2(-tablePanel.Content.rect.width * 0.5f - markerSize.x, targetPosition.y);
+		truckIsDriving = true;
+		truckMarker.RectTransform.gameObject.SetActive(false);
+
+		Image departingTruck = CreateMovingMarker("Departing Truck", truckPanel.Content, truckMarker.Marker, markerSize, sourceStart);
+		Image arrivingTruck = CreateMovingMarker("Arriving Truck", tablePanel.Content, truckMarker.Marker, markerSize, targetEnter);
+		RectTransform departingTruckRect = departingTruck.rectTransform;
+		RectTransform arrivingTruckRect = arrivingTruck.rectTransform;
+		const float duration = 0.5f;
+		float elapsed = 0f;
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			float progress = Mathf.Clamp01(elapsed / duration);
+			float eased = progress * progress * (3f - 2f * progress);
+			departingTruckRect.anchoredPosition = Vector2.Lerp(sourceStart, sourceExit, eased);
+			arrivingTruckRect.anchoredPosition = Vector2.Lerp(targetEnter, targetPosition, eased);
+			yield return null;
+		}
+
+		Destroy(departingTruck.gameObject);
+		Destroy(arrivingTruck.gameObject);
+		truckIsDriving = false;
+		truckReachedTable = true;
+		ApplyState(tablePanel, tableState, false);
+
+		truckMoveAnimation = null;
+		RefreshInteractionLock();
+		RefreshRopeInteraction();
 	}
 
 	private void ApplyState(PanelView panel, RoomPrototypePanelState state, bool animated)
@@ -672,6 +802,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			ApplyViewport(panel, ToFrame(state.Viewport));
 			RefreshControls(panel);
 			RefreshKeyInteraction();
+			RefreshRopeInteraction();
 			return;
 		}
 
@@ -698,6 +829,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		panel.Animation = null;
 		RefreshControls(panel);
 		RefreshKeyInteraction();
+		RefreshRopeInteraction();
 	}
 
 	private void ApplyViewport(PanelView panel, Vector4 viewport)
@@ -731,6 +863,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			RoomMarker marker = GetCurrentMarker(markerView.Marker);
 			bool visible = (marker.Label != "KEY" || (!keyIsFalling && !keyDeliveredToTruck))
 				&& (marker.Label != "TRUCK" || !truckIsDriving)
+				&& (marker.Label != "ROPE" || (truckMovedToNextCell && !truckReachedTable))
 				&& (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
 				&& MarkerIntersectsViewport(marker, viewport);
 			markerView.RectTransform.gameObject.SetActive(visible);
@@ -857,6 +990,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Clear();
 		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.39f, 0.62f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
+		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, new Vector2(2.76f, 1.29f), new Vector2(0.1f, 0.42f), new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.39f, 1.14f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.32f, 0.52f), new Color(0.95f, 0.67f, 0.16f, 0.42f)));
 	}
@@ -909,12 +1043,66 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private RoomMarker GetCurrentMarker(RoomMarker marker)
 	{
-		if (marker.Label == "TRUCK" && truckMovedToNextCell)
+		if (marker.Label != "TRUCK")
+		{
+			return marker;
+		}
+
+		if (truckReachedTable)
+		{
+			return marker
+				.WithRoomPosition(new Vector2(3.44f, 1.63f))
+				.WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
+		}
+
+		if (truckMovedToNextCell)
 		{
 			return marker.WithRoomPosition(new Vector2(2.44f, 1.63f));
 		}
 
 		return marker;
+	}
+
+	private Vector2 GetMarkerPositionInPanel(RoomMarker marker, PanelView panel)
+	{
+		Vector2 panelSize = panel.Content.rect.size;
+		if (panelSize.x <= 0f || panelSize.y <= 0f)
+		{
+			panelSize = panel.Content.sizeDelta;
+		}
+
+		Vector4 viewport = ToFrame(panel.State.Viewport);
+		Vector2 normalized = new Vector2(
+			(marker.RoomPosition.x - viewport.x) / viewport.z,
+			1f - (marker.RoomPosition.y - viewport.y) / viewport.w
+		);
+		return new Vector2(
+			(normalized.x - 0.5f) * panelSize.x,
+			(normalized.y - 0.5f) * panelSize.y
+		);
+	}
+
+	private Image CreateMovingMarker(string name, RectTransform parent, RoomMarker marker, Vector2 size, Vector2 position)
+	{
+		Image image = CreateImage(name, parent, marker.Color);
+		image.sprite = marker.Shape == MarkerShape.Circle ? circleSprite : null;
+		RectTransform rectTransform = image.rectTransform;
+		rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+		rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+		rectTransform.pivot = new Vector2(0.5f, 0.5f);
+		rectTransform.sizeDelta = size;
+		rectTransform.anchoredPosition = position;
+		rectTransform.SetAsLastSibling();
+
+		Text label = CreateText("Text", rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
+		label.fontStyle = FontStyle.Bold;
+		label.raycastTarget = false;
+		RectTransform labelRect = label.rectTransform;
+		labelRect.anchorMin = Vector2.zero;
+		labelRect.anchorMax = Vector2.one;
+		labelRect.offsetMin = Vector2.zero;
+		labelRect.offsetMax = Vector2.zero;
+		return image;
 	}
 
 	private Button CreateButton(string name, RectTransform parent, string text, Color background, Color foreground, Vector2 size)
@@ -1040,6 +1228,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		public RoomMarker WithRoomPosition(Vector2 roomPosition)
 		{
 			return new RoomMarker(Label, Shape, roomPosition, RoomSize, Color, DisplaySlot);
+		}
+
+		public RoomMarker WithDisplaySlot(RoomPrototypePanelSlot? displaySlot)
+		{
+			return new RoomMarker(Label, Shape, RoomPosition, RoomSize, Color, displaySlot);
 		}
 	}
 
