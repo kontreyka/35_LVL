@@ -146,12 +146,19 @@ public static class RoomPrototypeLevelOnePanelModel
 			&& truckState.Viewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1));
 	}
 
-	public static bool CanDropAppleIntoTruck(RoomPrototypePanelState appleState, RoomPrototypePanelState truckState)
+	public static bool CanDropAppleIntoTruck(
+		RoomPrototypePanelState appleState,
+		RoomPrototypePanelState truckState,
+		RoomPrototypePanelState cageState
+	)
 	{
 		return appleState.Slot == RoomPrototypePanelSlot.BottomRight
 			&& appleState.Viewport.Equals(new RoomPrototypeViewport(3, 1, 1, 1))
 			&& truckState.Slot == RoomPrototypePanelSlot.BottomRight
-			&& truckState.Viewport.Equals(new RoomPrototypeViewport(3, 1, 1, 1));
+			&& truckState.Viewport.Equals(new RoomPrototypeViewport(3, 1, 1, 1))
+			&& cageState.Slot == RoomPrototypePanelSlot.TopRight
+			&& cageState.IsZoomed
+			&& cageState.Viewport.Equals(new RoomPrototypeViewport(3, 0, 1, 1));
 	}
 
 	public static bool TryMoveTruckToNextCell(RoomPrototypePanelState state, out RoomPrototypePanelState nextState)
@@ -698,15 +705,18 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private bool CanDropAppleIntoTruck()
 	{
 		if (IsInteractionLocked() || !truckReachedTable || appleDelivered || keyDeliveredToCage
-			|| !panels.TryGetValue(RoomPrototypePanelSlot.BottomRight, out PanelView tablePanel))
+			|| !panels.TryGetValue(RoomPrototypePanelSlot.BottomRight, out PanelView tablePanel)
+			|| !panels.TryGetValue(RoomPrototypePanelSlot.TopRight, out PanelView cagePanel))
 		{
 			return false;
 		}
 
 		return tablePanel.Animation == null
+			&& cagePanel.Animation == null
 			&& RoomPrototypeLevelOnePanelModel.CanDropAppleIntoTruck(
 				tablePanel.State,
-				RoomPrototypeLevelOnePanelModel.GetInitialState(RoomPrototypePanelSlot.BottomRight)
+				RoomPrototypeLevelOnePanelModel.GetInitialState(RoomPrototypePanelSlot.BottomRight),
+				cagePanel.State
 			);
 	}
 

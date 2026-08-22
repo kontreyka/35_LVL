@@ -450,6 +450,8 @@ public sealed class RoomPrototypeNavigationTests
 	public void CanDropAppleIntoTruck_RequiresTruckToReachB4()
 	{
 		RoomPrototypePanelState appleAtTable = RoomPrototypeLevelOnePanelModel.GetInitialState(RoomPrototypePanelSlot.BottomRight);
+		RoomPrototypePanelState cageZoom = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.TopRight);
+		RoomPrototypePanelState cageOverview = RoomPrototypeLevelOnePanelModel.GetInitialState(RoomPrototypePanelSlot.TopRight);
 		RoomPrototypePanelState truckInB3 = new RoomPrototypePanelState(
 			RoomPrototypePanelSlot.BottomLeft,
 			new RoomPrototypeViewport(2, 1, 1, 1),
@@ -458,8 +460,9 @@ public sealed class RoomPrototypeNavigationTests
 		);
 		RoomPrototypeLevelOnePanelModel.TryMoveTruckToTable(truckInB3, out RoomPrototypePanelState truckAtTable);
 
-		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropAppleIntoTruck(appleAtTable, truckAtTable), Is.True);
-		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropAppleIntoTruck(appleAtTable, truckInB3), Is.False);
+		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropAppleIntoTruck(appleAtTable, truckAtTable, cageZoom), Is.True);
+		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropAppleIntoTruck(appleAtTable, truckAtTable, cageOverview), Is.False);
+		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropAppleIntoTruck(appleAtTable, truckInB3, cageZoom), Is.False);
 	}
 
 	[Test]
