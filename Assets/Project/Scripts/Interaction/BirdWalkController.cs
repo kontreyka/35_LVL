@@ -18,6 +18,13 @@ public sealed class BirdWalkController : MonoBehaviour
 	[SerializeField] private float birdFootHalfWidth = 0.35f;
 	[SerializeField] private float platformEdgePadding = 0.05f;
 
+	[Header("Platform Bounds")]
+	[Tooltip("Рабочая длина платформы в world units. 0 использует полный SpriteRenderer bounds.")]
+	[SerializeField] private float platformWalkableWidth = 0f;
+
+	[Tooltip("Смещение центра рабочей длины платформы относительно Transform brown cage 1.")]
+	[SerializeField] private float platformWalkableCenterOffsetX = 0f;
+
 	[Header("Animation")]
 	[SerializeField] private float stepFrameDelay = 0.5f;
 
@@ -100,16 +107,35 @@ public sealed class BirdWalkController : MonoBehaviour
 		if (platformRenderer == null)
 			return x;
 
-		Bounds platformBounds = platformRenderer.bounds;
+		GetPlatformWalkableRange(out float platformMinX, out float platformMaxX);
+
 		float halfWidth = Mathf.Max(0f, birdFootHalfWidth);
 		float padding = Mathf.Max(0f, platformEdgePadding);
-		float minX = platformBounds.min.x + halfWidth + padding;
-		float maxX = platformBounds.max.x - halfWidth - padding;
+		float minX = platformMinX + halfWidth + padding;
+		float maxX = platformMaxX - halfWidth - padding;
 
 		if (minX > maxX)
-			return platformBounds.center.x;
+			return (platformMinX + platformMaxX) * 0.5f;
 
 		return Mathf.Clamp(x, minX, maxX);
+	}
+
+	private void GetPlatformWalkableRange(out float minX, out float maxX)
+	{
+		if (platformWalkableWidth > Mathf.Epsilon)
+		{
+			Vector3 center = platformRenderer.transform.TransformPoint(
+				new Vector3(platformWalkableCenterOffsetX, 0f, 0f)
+			);
+			float halfWidth = platformWalkableWidth * Mathf.Abs(platformRenderer.transform.lossyScale.x) * 0.5f;
+			minX = center.x - halfWidth;
+			maxX = center.x + halfWidth;
+			return;
+		}
+
+		Bounds platformBounds = platformRenderer.bounds;
+		minX = platformBounds.min.x;
+		maxX = platformBounds.max.x;
 	}
 
 	private void UpdateDirection(float horizontalInput)
