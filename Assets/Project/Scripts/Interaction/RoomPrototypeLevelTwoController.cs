@@ -367,6 +367,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		}
 
 		Image image = CreateImage($"{direction} Arrow", panel.Root, new Color(0.08f, 0.08f, 0.075f, 0.86f));
+		image.raycastTarget = true;
 		RectTransform rect = image.rectTransform;
 		rect.sizeDelta = new Vector2(46f, 46f);
 		PlaceArrow(rect, direction);
