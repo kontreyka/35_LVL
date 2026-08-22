@@ -70,6 +70,21 @@ public static class RoomPrototypeLevelTwoWorldProjection
 	}
 }
 
+public static class RoomPrototypeLevelTwoClockPuzzleModel
+{
+	public static bool ArePortraitAndCageVerticallyAligned(int portraitSlot, int cageSlot)
+	{
+		return (portraitSlot == RoomPrototypeLevelTwoSlot.TopLeft && cageSlot == RoomPrototypeLevelTwoSlot.BottomLeft)
+			|| (portraitSlot == RoomPrototypeLevelTwoSlot.TopRight && cageSlot == RoomPrototypeLevelTwoSlot.BottomRight);
+	}
+
+	public static float GetAcceleratedFallProgress(float normalizedTime)
+	{
+		float clampedTime = Mathf.Clamp01(normalizedTime);
+		return clampedTime * clampedTime;
+	}
+}
+
 public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 {
 	private const int RoomColumns = 4;
@@ -87,6 +102,18 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Vector2 sharedTruckWorldSize = new Vector2(0.5f, 0.22f);
 	[SerializeField] private Color sharedTruckPlaceholderColor = new Color(0.08f, 0.42f, 0.92f, 0.92f);
 	[SerializeField] private float sharedTruckMoveDuration = 0.8f;
+	[SerializeField] private Sprite portraitHand1 = null;
+	[SerializeField] private Sprite portraitHand2 = null;
+	[SerializeField] private Sprite portraitHand3 = null;
+	[SerializeField] private Vector2 portraitWorldPosition = new Vector2(2.53f, 0.47f);
+	[SerializeField] private Vector2 portraitWorldSize = new Vector2(0.68f, 0.9f);
+	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.73f, 0.43f);
+	[SerializeField] private Vector2 clockWorldSize = new Vector2(0.42f, 0.66f);
+	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.76f, 0.38f);
+	[SerializeField] private Vector2 releasedKeyEndWorldPosition = new Vector2(3.42f, 1.23f);
+	[SerializeField] private Vector2 releasedKeyWorldSize = new Vector2(0.24f, 0.08f);
+	[SerializeField] private Color releasedKeyPlaceholderColor = new Color(0.95f, 0.76f, 0.16f, 0.96f);
+	[SerializeField] private float releasedKeyFallDuration = 0.9f;
 
 	private readonly List<PanelView> panels = new List<PanelView>();
 	private Font interfaceFont;
@@ -98,6 +125,11 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private bool isDragging;
 	private SharedWorldObject sharedTruck;
 	private Coroutine sharedTruckAnimation;
+	private SharedWorldObject releasedKey;
+	private Coroutine releasedKeyAnimation;
+	private int portraitStageIndex;
+	private int clockPressCount;
+	private bool keyReleased;
 
 	private void Start()
 	{
@@ -113,10 +145,12 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		float side = (squareBoardSize.x - panelGap) * 0.5f;
 		panelSize = new Vector2(side, side);
 		sharedTruck = new SharedWorldObject(sharedTruckWorldPosition, sharedTruckWorldSize);
+		releasedKey = new SharedWorldObject(releasedKeyStartWorldPosition, releasedKeyWorldSize);
 
 		CreatePanel(0, RoomPrototypeLevelTwoSlot.TopRight, 0, 0);
 		CreatePanel(1, RoomPrototypeLevelTwoSlot.TopLeft, 2, 0);
 		CreatePanel(2, RoomPrototypeLevelTwoSlot.BottomLeft, 1, 0);
+		RefreshClockPuzzleState();
 	}
 
 	public void OnPanelPointerDown(int panelId, PointerEventData eventData)
@@ -295,6 +329,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		}
 
 		interactionLocked = false;
+		RefreshClockPuzzleState();
 	}
 
 	private IEnumerator AnimateViewport(PanelView panel, Viewport target)
@@ -315,6 +350,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		panel.Animation = null;
 		interactionLocked = false;
 		RefreshControls(panel);
+		RefreshClockPuzzleState();
 	}
 
 	private void CreatePanel(int id, int slot, int regionX, int regionY)
@@ -361,7 +397,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		dragHandler.Initialize(this, id);
 		ApplyViewport(panel, panel.Viewport);
 		CreateSharedTruckView(panel);
-		UpdateSharedTruckView(panel, panel.Viewport);
+		CreatePortraitView(panel);
+		CreateReleasedKeyView(panel);
+		CreateClockHotspot(panel);
+		UpdateWorldViews(panel, panel.Viewport);
 	}
 
 	private void ApplyViewport(PanelView panel, Viewport viewport)
@@ -381,7 +420,15 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		Vector2 offset = new Vector2((centerX - 0.5f) * imageSize.x, (0.5f - centerY) * imageSize.y);
 		panel.Background.sizeDelta = imageSize;
 		panel.Background.anchoredPosition = -offset;
+		UpdateWorldViews(panel, viewport);
+	}
+
+	private void UpdateWorldViews(PanelView panel, Viewport viewport)
+	{
 		UpdateSharedTruckView(panel, viewport);
+		UpdatePortraitView(panel, viewport);
+		UpdateReleasedKeyView(panel, viewport);
+		UpdateClockHotspot(panel, viewport);
 	}
 
 	private void CreateSharedTruckView(PanelView panel)
@@ -428,6 +475,222 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		for (int i = 0; i < panels.Count; i++)
 		{
 			UpdateSharedTruckView(panels[i], panels[i].Viewport);
+		}
+	}
+
+	private void CreatePortraitView(PanelView panel)
+	{
+		Image portrait = CreateImage("Portrait Stage", panel.Content, Color.white);
+		portrait.preserveAspect = true;
+		panel.PortraitStage = portrait;
+	}
+
+	private void UpdatePortraitView(PanelView panel, Viewport viewport)
+	{
+		if (panel.PortraitStage == null)
+		{
+			return;
+		}
+
+		Sprite portraitSprite = GetCurrentPortraitSprite();
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		panel.PortraitStage.sprite = portraitSprite;
+		panel.PortraitStage.gameObject.SetActive(
+			portraitSprite != null
+			&& RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(portraitWorldPosition, visibleWorldRect)
+		);
+		if (!panel.PortraitStage.gameObject.activeSelf)
+		{
+			return;
+		}
+
+		Vector2 contentSize = GetContentSize(panel);
+		panel.PortraitStage.rectTransform.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(
+			portraitWorldSize,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.PortraitStage.rectTransform.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			portraitWorldPosition,
+			contentSize,
+			visibleWorldRect
+		);
+	}
+
+	private Sprite GetCurrentPortraitSprite()
+	{
+		switch (portraitStageIndex)
+		{
+			case 0: return portraitHand1;
+			case 1: return portraitHand2;
+			default: return portraitHand3;
+		}
+	}
+
+	private void CreateReleasedKeyView(PanelView panel)
+	{
+		Image keyPlaceholder = CreateImage("Released Key Placeholder", panel.Content, releasedKeyPlaceholderColor);
+		panel.ReleasedKeyPlaceholder = keyPlaceholder.rectTransform;
+	}
+
+	private void UpdateReleasedKeyView(PanelView panel, Viewport viewport)
+	{
+		if (releasedKey == null || panel.ReleasedKeyPlaceholder == null)
+		{
+			return;
+		}
+
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		bool shouldShow = keyReleased && RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(releasedKey.Position, visibleWorldRect);
+		panel.ReleasedKeyPlaceholder.gameObject.SetActive(shouldShow);
+		if (!shouldShow)
+		{
+			return;
+		}
+
+		Vector2 contentSize = GetContentSize(panel);
+		panel.ReleasedKeyPlaceholder.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(
+			releasedKey.Size,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.ReleasedKeyPlaceholder.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			releasedKey.Position,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.ReleasedKeyPlaceholder.localEulerAngles = new Vector3(0f, 0f, releasedKey.Rotation);
+	}
+
+	private void CreateClockHotspot(PanelView panel)
+	{
+		Image hotspot = CreateImage("Clock Puzzle Hotspot", panel.Content, new Color(1f, 1f, 1f, 0f));
+		hotspot.raycastTarget = true;
+		Button button = hotspot.gameObject.AddComponent<Button>();
+		button.targetGraphic = hotspot;
+		button.onClick.AddListener(OnClockPressed);
+		panel.ClockHotspot = hotspot.rectTransform;
+	}
+
+	private void UpdateClockHotspot(PanelView panel, Viewport viewport)
+	{
+		if (panel.ClockHotspot == null)
+		{
+			return;
+		}
+
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		Vector2 contentSize = GetContentSize(panel);
+		panel.ClockHotspot.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(
+			clockWorldSize,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.ClockHotspot.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			clockWorldPosition,
+			contentSize,
+			visibleWorldRect
+		);
+	}
+
+	private Vector2 GetContentSize(PanelView panel)
+	{
+		Vector2 contentSize = panel.Content.rect.size;
+		return contentSize.x <= 0f || contentSize.y <= 0f ? panel.Content.sizeDelta : contentSize;
+	}
+
+	private void RefreshClockPuzzleState()
+	{
+		bool puzzleReady = IsClockPuzzleReady();
+		PanelView clockPanel = FindPanel(0);
+		if (clockPanel != null && clockPanel.ClockHotspot != null)
+		{
+			clockPanel.ClockHotspot.gameObject.SetActive(puzzleReady && !keyReleased);
+		}
+
+		if (!puzzleReady && !keyReleased && clockPressCount > 0)
+		{
+			clockPressCount = 0;
+			portraitStageIndex = 0;
+			RefreshPortraitViews();
+		}
+	}
+
+	private bool IsClockPuzzleReady()
+	{
+		PanelView clockPanel = FindPanel(0);
+		PanelView portraitPanel = FindPanel(2);
+		PanelView cagePanel = FindPanel(1);
+		return IsZoomedAt(clockPanel, 0f, 0f)
+			&& IsZoomedAt(portraitPanel, 2f, 0f)
+			&& IsZoomedAt(cagePanel, 3f, 1f)
+			&& RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(portraitPanel.Slot, cagePanel.Slot);
+	}
+
+	private static bool IsZoomedAt(PanelView panel, float worldX, float worldY)
+	{
+		return panel != null
+			&& panel.IsZoomed
+			&& Mathf.Approximately(panel.Viewport.X, worldX)
+			&& Mathf.Approximately(panel.Viewport.Y, worldY)
+			&& Mathf.Approximately(panel.Viewport.Width, 1f)
+			&& Mathf.Approximately(panel.Viewport.Height, 1f);
+	}
+
+	private void OnClockPressed()
+	{
+		if (interactionLocked || keyReleased || !IsClockPuzzleReady())
+		{
+			return;
+		}
+
+		clockPressCount++;
+		portraitStageIndex = Mathf.Min(clockPressCount, 2);
+		RefreshPortraitViews();
+		if (clockPressCount == 2)
+		{
+			keyReleased = true;
+			releasedKey.Position = releasedKeyStartWorldPosition;
+			releasedKey.Rotation = -82f;
+			releasedKeyAnimation = StartCoroutine(AnimateReleasedKey());
+		}
+	}
+
+	private void RefreshPortraitViews()
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			UpdatePortraitView(panels[i], panels[i].Viewport);
+		}
+	}
+
+	private IEnumerator AnimateReleasedKey()
+	{
+		interactionLocked = true;
+		float elapsed = 0f;
+		while (elapsed < releasedKeyFallDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float normalizedTime = Mathf.Clamp01(elapsed / releasedKeyFallDuration);
+			float fallProgress = RoomPrototypeLevelTwoClockPuzzleModel.GetAcceleratedFallProgress(normalizedTime);
+			releasedKey.Position = Vector2.LerpUnclamped(releasedKeyStartWorldPosition, releasedKeyEndWorldPosition, fallProgress);
+			releasedKey.Rotation = Mathf.Lerp(-82f, 0f, normalizedTime);
+			RefreshReleasedKeyViews();
+			yield return null;
+		}
+
+		releasedKey.Position = releasedKeyEndWorldPosition;
+		releasedKey.Rotation = 0f;
+		RefreshReleasedKeyViews();
+		releasedKeyAnimation = null;
+		interactionLocked = false;
+	}
+
+	private void RefreshReleasedKeyViews()
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			UpdateReleasedKeyView(panels[i], panels[i].Viewport);
 		}
 	}
 
@@ -719,6 +982,9 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		public RectTransform Content;
 		public RectTransform Background;
 		public RectTransform SharedTruckPlaceholder;
+		public Image PortraitStage;
+		public RectTransform ReleasedKeyPlaceholder;
+		public RectTransform ClockHotspot;
 		public CanvasGroup CanvasGroup;
 		public Viewport Viewport;
 		public Coroutine Animation;
@@ -729,6 +995,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	{
 		public Vector2 Position;
 		public readonly Vector2 Size;
+		public float Rotation;
 
 		public SharedWorldObject(Vector2 position, Vector2 size)
 		{

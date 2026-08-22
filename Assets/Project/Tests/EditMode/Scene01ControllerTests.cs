@@ -249,6 +249,30 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelTwoClockPuzzle_RequiresPortraitDirectlyAboveCage()
+	{
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(
+			RoomPrototypeLevelTwoSlot.TopLeft,
+			RoomPrototypeLevelTwoSlot.BottomLeft
+		), Is.True);
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(
+			RoomPrototypeLevelTwoSlot.TopRight,
+			RoomPrototypeLevelTwoSlot.BottomRight
+		), Is.True);
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(
+			RoomPrototypeLevelTwoSlot.TopLeft,
+			RoomPrototypeLevelTwoSlot.BottomRight
+		), Is.False);
+	}
+
+	[Test]
+	public void LevelTwoKeyFall_AcceleratesAfterRelease()
+	{
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.GetAcceleratedFallProgress(0.5f), Is.EqualTo(0.25f).Within(0.001f));
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.GetAcceleratedFallProgress(1f), Is.EqualTo(1f).Within(0.001f));
+	}
+
+	[Test]
 	public void CalculateSquareBoardSize_UsesShorterConfiguredSide()
 	{
 		Vector2 squareBoardSize = RoomPrototypeLevelOneController.CalculateSquareBoardSize(new Vector2(1320f, 742f));
