@@ -273,6 +273,16 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelTwoKeyFallOverlay_DropsVerticallyOverTheBoard()
+	{
+		Vector2 start = new Vector2(120f, 260f);
+		Vector2 tablePosition = new Vector2(420f, -180f);
+
+		Assert.That(RoomPrototypeLevelTwoClockPuzzleModel.GetStraightDropTarget(start, tablePosition),
+			Is.EqualTo(new Vector2(120f, -180f)));
+	}
+
+	[Test]
 	public void CalculateSquareBoardSize_UsesShorterConfiguredSide()
 	{
 		Vector2 squareBoardSize = RoomPrototypeLevelOneController.CalculateSquareBoardSize(new Vector2(1320f, 742f));
