@@ -218,6 +218,8 @@ MonoBehaviour:
   dragStartDistance: 14
   keyFallDuration: 1.25
   flowerGrowDuration: 1.1
+  flowerPullCompletionThreshold: 0.82
+  flowerReturnDuration: 0.28
   frameColor: {r: 0.035, g: 0.033, b: 0.03, a: 1}
   flowerColor: {r: 0.36, g: 0.78, b: 0.26, a: 0.95}
   keyColor: {r: 0.96, g: 0.75, b: 0.13, a: 0.98}
