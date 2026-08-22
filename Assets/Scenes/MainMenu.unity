@@ -612,7 +612,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 592533771581954883, guid: 11dba1fc1248c794ba3fb14124b88008, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 2389ca41c52de584e880fb9128efb10a, type: 3}
+  m_Resource: {fileID: 8300000, guid: 424521b65982a344f93afd3e9c8e4bb7, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -711,8 +711,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   uiSfxSource: {fileID: 518781985}
-  hoverClip: {fileID: 8300000, guid: 2389ca41c52de584e880fb9128efb10a, type: 3}
-  confirmClip: {fileID: 8300000, guid: 5ee631df790640445bb331cdb57e102d, type: 3}
+  hoverClip: {fileID: 8300000, guid: 424521b65982a344f93afd3e9c8e4bb7, type: 3}
+  confirmClip: {fileID: 8300000, guid: 8da556a9e113fcb42ad99801172e49fd, type: 3}
 --- !u!1 &628918016
 GameObject:
   m_ObjectHideFlags: 0
@@ -2699,8 +2699,8 @@ MonoBehaviour:
   menuButtons: {fileID: 1441673500}
   rightVisual: {fileID: 327887081}
   uiSfxSource: {fileID: 518781985}
-  hoverClip: {fileID: 8300000, guid: 2389ca41c52de584e880fb9128efb10a, type: 3}
-  confirmClip: {fileID: 8300000, guid: 5ee631df790640445bb331cdb57e102d, type: 3}
+  hoverClip: {fileID: 8300000, guid: 424521b65982a344f93afd3e9c8e4bb7, type: 3}
+  confirmClip: {fileID: 8300000, guid: 8da556a9e113fcb42ad99801172e49fd, type: 3}
   irisMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
   introOverlay: {fileID: 222935478}
   blackScreenDelay: 0.4
