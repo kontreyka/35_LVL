@@ -474,6 +474,40 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void ConfigureLevelMusic_UsesASeamlessTwoDimensionalLoop()
+	{
+		GameObject musicObject = new GameObject("Test Music");
+		AudioSource musicSource = musicObject.AddComponent<AudioSource>();
+		AudioClip musicClip = AudioClip.Create("Test Clip", 44100, 1, 44100, false);
+
+		RoomPrototypeLevelOneController.ConfigureLevelMusic(musicSource, musicClip);
+
+		Assert.That(musicSource.clip, Is.EqualTo(musicClip));
+		Assert.That(musicSource.loop, Is.True);
+		Assert.That(musicSource.spatialBlend, Is.EqualTo(0f));
+		Assert.That(musicSource.playOnAwake, Is.False);
+		Object.DestroyImmediate(musicObject);
+		Object.DestroyImmediate(musicClip);
+	}
+
+	[Test]
+	public void ConfigureUiSfxSource_UsesTwoDimensionalOneShotPlayback()
+	{
+		GameObject audioObject = new GameObject("Test UI SFX");
+		AudioSource audioSource = audioObject.AddComponent<AudioSource>();
+		audioSource.loop = true;
+		audioSource.playOnAwake = true;
+		audioSource.spatialBlend = 1f;
+
+		AudioManager.ConfigureUiSfxSource(audioSource);
+
+		Assert.That(audioSource.loop, Is.False);
+		Assert.That(audioSource.playOnAwake, Is.False);
+		Assert.That(audioSource.spatialBlend, Is.EqualTo(0f));
+		Object.DestroyImmediate(audioObject);
+	}
+
+	[Test]
 	public void TryNavigate_BottomLeftZoomMovesOneCellAtATimeInEveryValidDirection()
 	{
 		RoomPrototypePanelState topLeftState = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);
