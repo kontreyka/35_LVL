@@ -524,7 +524,7 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(colors.highlightedColor, Is.EqualTo(new Color(0.12f, 0.42f, 0.92f, 1f)));
 		Assert.That(colors.pressedColor, Is.EqualTo(new Color(0.05f, 0.17f, 0.48f, 1f)));
 		Assert.That(colors.selectedColor, Is.EqualTo(colors.normalColor));
-		Assert.That(colors.disabledColor, Is.EqualTo(colors.normalColor));
+		Assert.That(colors.disabledColor, Is.EqualTo(new Color(0.42f, 0.44f, 0.48f, 1f)));
 		Assert.That(button.transition, Is.EqualTo(Selectable.Transition.ColorTint));
 		Assert.That(image.color, Is.EqualTo(Color.white));
 		Assert.That(image.material.shader.name, Is.EqualTo("UI/Grayscale Button Tint"));

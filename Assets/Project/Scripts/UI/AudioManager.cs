@@ -59,7 +59,7 @@ public class AudioManager : MonoBehaviour
 		colors.highlightedColor = new Color(0.12f, 0.42f, 0.92f, 1f);
 		colors.pressedColor = new Color(0.05f, 0.17f, 0.48f, 1f);
 		colors.selectedColor = colors.normalColor;
-		colors.disabledColor = colors.normalColor;
+		colors.disabledColor = new Color(0.42f, 0.44f, 0.48f, 1f);
 		colors.fadeDuration = 0.04f;
 		button.colors = colors;
 		button.transition = Selectable.Transition.ColorTint;
