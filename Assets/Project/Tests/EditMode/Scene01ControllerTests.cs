@@ -207,6 +207,12 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void BuiltInFontResourceName_UsesUnity6000RuntimeFont()
+	{
+		Assert.That(RoomPrototypeLevelOneController.BuiltInFontResourceName, Is.EqualTo("LegacyRuntime.ttf"));
+	}
+
+	[Test]
 	public void GetInitialViewport_ReturnsExpectedLevelOnePanels()
 	{
 		Assert.That(RoomPrototypeLevelOnePanelModel.GetInitialViewport(RoomPrototypePanelSlot.TopLeft), Is.EqualTo(new RoomPrototypeViewport(1, 0, 2, 2)));

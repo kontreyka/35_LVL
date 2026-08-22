@@ -203,6 +203,8 @@ public static class RoomPrototypeLevelOnePanelModel
 
 public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 {
+	public const string BuiltInFontResourceName = "LegacyRuntime.ttf";
+
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1320f, 742f);
@@ -224,7 +226,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void BuildPrototype()
 	{
-		interfaceFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
 		circleSprite = CreateCircleSprite();
 		BuildMarkers();
 		EnsureEventSystem();
