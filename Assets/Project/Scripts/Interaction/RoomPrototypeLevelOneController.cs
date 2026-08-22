@@ -6,6 +6,18 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
+public static class RoomPrototypeKeySpriteSizing
+{
+	public static Vector2 GetSizeForHeight(float sourceWidth, float sourceHeight, float height)
+	{
+		if (sourceWidth <= 0f || sourceHeight <= 0f || height <= 0f)
+		{
+			return Vector2.zero;
+		}
+		return new Vector2(height * sourceWidth / sourceHeight, height);
+	}
+}
+
 public enum RoomPrototypePanelSlot
 {
 	TopLeft,
@@ -296,6 +308,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	public const string BuiltInFontResourceName = "LegacyRuntime.ttf";
 
 	[SerializeField] private Sprite backgroundSprite = null;
+	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -479,16 +492,24 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private MarkerView CreateMarkerView(RectTransform parent, RoomMarker marker)
 	{
 		Image image = CreateImage(marker.Label, parent, marker.Color);
-		image.sprite = marker.Shape == MarkerShape.Circle ? circleSprite : null;
-
-		Text label = CreateText($"{marker.Label} Label", image.rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
-		label.fontStyle = FontStyle.Bold;
-		label.raycastTarget = false;
-		RectTransform labelRect = label.rectTransform;
-		labelRect.anchorMin = Vector2.zero;
-		labelRect.anchorMax = Vector2.one;
-		labelRect.offsetMin = Vector2.zero;
-		labelRect.offsetMax = Vector2.zero;
+		bool usesKeySprite = IsKeyMarker(marker) && keySprite != null;
+		image.sprite = usesKeySprite ? keySprite : marker.Shape == MarkerShape.Circle ? circleSprite : null;
+		image.preserveAspect = usesKeySprite;
+		if (usesKeySprite)
+		{
+			image.color = Color.white;
+		}
+		else
+		{
+			Text label = CreateText($"{marker.Label} Label", image.rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
+			label.fontStyle = FontStyle.Bold;
+			label.raycastTarget = false;
+			RectTransform labelRect = label.rectTransform;
+			labelRect.anchorMin = Vector2.zero;
+			labelRect.anchorMax = Vector2.one;
+			labelRect.offsetMin = Vector2.zero;
+			labelRect.offsetMax = Vector2.zero;
+		}
 
 		return new MarkerView
 		{
@@ -1323,7 +1344,13 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private Image CreateMovingMarker(string name, RectTransform parent, RoomMarker marker, Vector2 size, Vector2 position)
 	{
 		Image image = CreateImage(name, parent, marker.Color);
-		image.sprite = marker.Shape == MarkerShape.Circle ? circleSprite : null;
+		bool usesKeySprite = IsKeyMarker(marker) && keySprite != null;
+		image.sprite = usesKeySprite ? keySprite : marker.Shape == MarkerShape.Circle ? circleSprite : null;
+		image.preserveAspect = usesKeySprite;
+		if (usesKeySprite)
+		{
+			image.color = Color.white;
+		}
 		RectTransform rectTransform = image.rectTransform;
 		rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
 		rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
@@ -1332,15 +1359,23 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		rectTransform.anchoredPosition = position;
 		rectTransform.SetAsLastSibling();
 
-		Text label = CreateText("Text", rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
-		label.fontStyle = FontStyle.Bold;
-		label.raycastTarget = false;
-		RectTransform labelRect = label.rectTransform;
-		labelRect.anchorMin = Vector2.zero;
-		labelRect.anchorMax = Vector2.one;
-		labelRect.offsetMin = Vector2.zero;
-		labelRect.offsetMax = Vector2.zero;
+		if (!usesKeySprite)
+		{
+			Text label = CreateText("Text", rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
+			label.fontStyle = FontStyle.Bold;
+			label.raycastTarget = false;
+			RectTransform labelRect = label.rectTransform;
+			labelRect.anchorMin = Vector2.zero;
+			labelRect.anchorMax = Vector2.one;
+			labelRect.offsetMin = Vector2.zero;
+			labelRect.offsetMax = Vector2.zero;
+		}
 		return image;
+	}
+
+	private static bool IsKeyMarker(RoomMarker marker)
+	{
+		return marker.Label == "KEY" || marker.Label == "CAGE KEY";
 	}
 
 	private Button CreateButton(string name, RectTransform parent, string text, Color background, Color foreground, Vector2 size)

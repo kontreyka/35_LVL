@@ -220,6 +220,15 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void KeySpriteSizing_PreservesThePortraitKeyProportions()
+	{
+		Vector2 size = RoomPrototypeKeySpriteSizing.GetSizeForHeight(168f, 643f, 84f);
+
+		Assert.That(size.x, Is.EqualTo(21.95f).Within(0.01f));
+		Assert.That(size.y, Is.EqualTo(84f));
+	}
+
+	[Test]
 	public void LevelThreeWindow_UsesRoomWindowAndSkyAsThreeConsecutiveStates()
 	{
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.AdvanceWindow(RoomPrototypeLevelThreeWindowState.Room),

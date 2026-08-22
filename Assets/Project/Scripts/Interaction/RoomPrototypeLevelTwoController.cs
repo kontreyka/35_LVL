@@ -108,6 +108,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private const string BuiltInFontResourceName = "LegacyRuntime.ttf";
 
 	[SerializeField] private Sprite backgroundSprite = null;
+	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -165,7 +166,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		float side = (squareBoardSize.x - panelGap) * 0.5f;
 		panelSize = new Vector2(side, side);
 		sharedTruck = new SharedWorldObject(sharedTruckWorldPosition, sharedTruckWorldSize);
-		landedKey = new SharedWorldObject(Vector2.zero, releasedKeyWorldSize);
+		landedKey = new SharedWorldObject(Vector2.zero, GetReleasedKeyWorldSize());
 
 		CreatePanel(0, RoomPrototypeLevelTwoSlot.TopRight, 0, 0);
 		CreatePanel(1, RoomPrototypeLevelTwoSlot.TopLeft, 2, 0);
@@ -586,8 +587,11 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	private void CreateReleasedKeyOverlay()
 	{
-		Image keyOverlay = CreateImage("Released Key Screen Overlay", boardRoot, releasedKeyPlaceholderColor);
-		keyOverlay.rectTransform.sizeDelta = releasedKeyOverlaySize;
+		bool usesKeySprite = keySprite != null;
+		Image keyOverlay = CreateImage("Released Key Screen Overlay", boardRoot, usesKeySprite ? Color.white : releasedKeyPlaceholderColor);
+		keyOverlay.sprite = keySprite;
+		keyOverlay.preserveAspect = usesKeySprite;
+		keyOverlay.rectTransform.sizeDelta = GetReleasedKeyOverlaySize();
 		keyOverlay.rectTransform.SetAsLastSibling();
 		keyOverlay.gameObject.SetActive(false);
 		releasedKeyOverlay = keyOverlay.rectTransform;
@@ -595,8 +599,25 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	private void CreateLandedKeyView(PanelView panel)
 	{
-		Image keyView = CreateImage("Landed Key", panel.Content, releasedKeyPlaceholderColor);
+		bool usesKeySprite = keySprite != null;
+		Image keyView = CreateImage("Landed Key", panel.Content, usesKeySprite ? Color.white : releasedKeyPlaceholderColor);
+		keyView.sprite = keySprite;
+		keyView.preserveAspect = usesKeySprite;
 		panel.LandedKey = keyView.rectTransform;
+	}
+
+	private Vector2 GetReleasedKeyOverlaySize()
+	{
+		return keySprite == null
+			? releasedKeyOverlaySize
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(keySprite.rect.width, keySprite.rect.height, Mathf.Max(releasedKeyOverlaySize.x, releasedKeyOverlaySize.y));
+	}
+
+	private Vector2 GetReleasedKeyWorldSize()
+	{
+		return keySprite == null
+			? releasedKeyWorldSize
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(keySprite.rect.width, keySprite.rect.height, Mathf.Max(releasedKeyWorldSize.x, releasedKeyWorldSize.y));
 	}
 
 	private void UpdateLandedKeyView(PanelView panel, Viewport viewport)

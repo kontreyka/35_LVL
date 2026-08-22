@@ -75,6 +75,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	[SerializeField] private Sprite roomSprite = null;
 	[SerializeField] private Sprite skySprite = null;
+	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -488,8 +489,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void CreateTransitionOverlays()
 	{
-		Image key = CreateImage("Falling Key", boardRoot, keyColor);
-		key.rectTransform.sizeDelta = new Vector2(70f, 20f);
+		bool usesKeySprite = keySprite != null;
+		Image key = CreateImage("Falling Key", boardRoot, usesKeySprite ? Color.white : keyColor);
+		key.sprite = keySprite;
+		key.preserveAspect = usesKeySprite;
+		key.rectTransform.sizeDelta = GetKeyOverlaySize();
 		key.gameObject.SetActive(false);
 		keyOverlay = key.rectTransform;
 
@@ -544,7 +548,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		}
 		if (panel.CaughtKey != null)
 		{
-			PlaceWorldMarker(panel.CaughtKey, panel, viewport, new Vector2(1.63f, 0.34f), new Vector2(0.24f, 0.07f));
+			PlaceWorldMarker(panel.CaughtKey, panel, viewport, new Vector2(1.63f, 0.34f), GetCaughtKeyWorldSize());
 			panel.CaughtKey.gameObject.SetActive(keyCaught && panel.CaughtKey.gameObject.activeSelf);
 		}
 		if (panel.CageOpenMarker != null)
@@ -636,8 +640,25 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		{
 			return;
 		}
-		Image key = CreateImage("Caught Key", flower.Content, keyColor);
+		bool usesKeySprite = keySprite != null;
+		Image key = CreateImage("Caught Key", flower.Content, usesKeySprite ? Color.white : keyColor);
+		key.sprite = keySprite;
+		key.preserveAspect = usesKeySprite;
 		flower.CaughtKey = key.rectTransform;
+	}
+
+	private Vector2 GetKeyOverlaySize()
+	{
+		return keySprite == null
+			? new Vector2(70f, 20f)
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(keySprite.rect.width, keySprite.rect.height, 84f);
+	}
+
+	private Vector2 GetCaughtKeyWorldSize()
+	{
+		return keySprite == null
+			? new Vector2(0.24f, 0.07f)
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(keySprite.rect.width, keySprite.rect.height, 0.28f);
 	}
 
 	private bool CanStartFlowerPull(PanelView flower, Vector2 screenPosition)
