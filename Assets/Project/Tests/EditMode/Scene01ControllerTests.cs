@@ -283,6 +283,18 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelTwoKeyLanding_ConvertsOverlayPositionBackIntoB4WorldCoordinates()
+	{
+		Vector2 worldPosition = RoomPrototypeLevelTwoWorldProjection.GetWorldPosition(
+			new Vector2(0.66f, 0.18f),
+			new Rect(3f, 1f, 1f, 1f)
+		);
+
+		Assert.That(worldPosition.x, Is.EqualTo(3.66f).Within(0.001f));
+		Assert.That(worldPosition.y, Is.EqualTo(1.18f).Within(0.001f));
+	}
+
+	[Test]
 	public void CalculateSquareBoardSize_UsesShorterConfiguredSide()
 	{
 		Vector2 squareBoardSize = RoomPrototypeLevelOneController.CalculateSquareBoardSize(new Vector2(1320f, 742f));
