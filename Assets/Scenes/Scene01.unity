@@ -184,7 +184,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 1657ca2326723ed4f966d0c2811d99bb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1336,7 +1336,7 @@ MonoBehaviour:
   auraIntensity: 0.25
   auraSizePixels: 60
   particleCount: 60
-  glowColor: {r: 0.33773577, g: 0.82383627, b: 1, a: 0.5}
+  glowColor: {r: 1, g: 0.86, b: 0.48, a: 0.5}
   glowPulseDuration: 4.8
   alphaThreshold: 0.2
   glowSortingOffset: 1
