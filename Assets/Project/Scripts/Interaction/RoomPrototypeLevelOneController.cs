@@ -303,6 +303,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
 	[SerializeField] private Color panelTint = Color.white;
 	[SerializeField] private Color controlColor = new Color(0.08f, 0.08f, 0.075f, 0.86f);
+	[SerializeField] private AudioClip levelMusic = null;
+	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
 
 	private readonly Dictionary<RoomPrototypePanelSlot, PanelView> panels = new Dictionary<RoomPrototypePanelSlot, PanelView>();
 	private readonly List<RoomMarker> roomMarkers = new List<RoomMarker>();
@@ -325,7 +327,39 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void Awake()
 	{
+		StartLevelMusic();
 		BuildPrototype();
+	}
+
+	public static void ConfigureLevelMusic(AudioSource musicSource, AudioClip musicClip)
+	{
+		if (musicSource == null)
+		{
+			return;
+		}
+
+		musicSource.clip = musicClip;
+		musicSource.loop = true;
+		musicSource.spatialBlend = 0f;
+		musicSource.playOnAwake = false;
+	}
+
+	private void StartLevelMusic()
+	{
+		if (levelMusic == null)
+		{
+			return;
+		}
+
+		AudioSource musicSource = GetComponent<AudioSource>();
+		if (musicSource == null)
+		{
+			musicSource = gameObject.AddComponent<AudioSource>();
+		}
+
+		ConfigureLevelMusic(musicSource, levelMusic);
+		musicSource.volume = Mathf.Clamp01(levelMusicVolume);
+		musicSource.Play();
 	}
 
 	private void BuildPrototype()
