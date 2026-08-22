@@ -28,8 +28,12 @@ public class Scene01Controller : MonoBehaviour
 	[SerializeField] private Transform windowTarget = null;
 
 	[Header("Cage Aura")]
-	[Tooltip("Компонент ареола клетки. На первых трех кликах по клетке будет кратко гаснуть и возвращаться.")]
+	[Tooltip("Компонент ареола клетки. На кликах по клетке будет кратко гаснуть и возвращаться, пока не исчерпан лимит ниже.")]
 	[SerializeField] private MonoBehaviour cageAuraEffect = null;
+
+	[Tooltip("Сколько раз глоу клетки будет кратко гаснуть и снова включаться. 0 полностью отключает это поведение.")]
+	[Min(0)]
+	[SerializeField] private int cageAuraFadeAndReturnCount = 3;
 
 	[Header("Zoom")]
 	[SerializeField] private float zoomDuration = 1.2f;
@@ -80,6 +84,7 @@ public class Scene01Controller : MonoBehaviour
 	private MaterialPropertyBlock vignetteProperties;
 	private Texture2D solidVignetteTexture;
 	private Sprite solidVignetteSprite;
+	private int cageAuraFadeAndReturnTriggers;
 
 	private void Awake()
 	{
@@ -92,9 +97,12 @@ public class Scene01Controller : MonoBehaviour
 		if (isTransitioning)
 			return;
 
-		if (ShouldFadeCageAuraForClickStepIndex((int)clickStep))
+		if (ShouldFadeCageAuraForTriggerCount(
+			cageAuraFadeAndReturnTriggers,
+			cageAuraFadeAndReturnCount
+		) && FadeCageAuraAndReturn())
 		{
-			FadeCageAuraAndReturn();
+			cageAuraFadeAndReturnTriggers++;
 		}
 
 		switch (clickStep)
@@ -113,25 +121,35 @@ public class Scene01Controller : MonoBehaviour
 
 	public static bool ShouldFadeCageAuraForClickStepIndex(int clickStepIndex)
 	{
-		return clickStepIndex >= (int)ClickStep.FocusWindow
-			&& clickStepIndex <= (int)ClickStep.ZoomOut;
+		return ShouldFadeCageAuraForTriggerCount(clickStepIndex, 3);
 	}
 
-	private void FadeCageAuraAndReturn()
+	public static bool ShouldFadeCageAuraForTriggerCount(
+		int completedTriggerCount,
+		int allowedTriggerCount
+	)
+	{
+		return completedTriggerCount >= 0
+			&& completedTriggerCount < Mathf.Max(0, allowedTriggerCount);
+	}
+
+	private bool FadeCageAuraAndReturn()
 	{
 		if (TryFadeCageAura(cageAuraEffect))
-			return;
+			return true;
 
 		if (windowTarget == null)
-			return;
+			return false;
 
 		MonoBehaviour[] behaviours = windowTarget.GetComponents<MonoBehaviour>();
 
 		for (int i = 0; i < behaviours.Length; i++)
 		{
 			if (TryFadeCageAura(behaviours[i]))
-				return;
+				return true;
 		}
+
+		return false;
 	}
 
 	private static bool TryFadeCageAura(MonoBehaviour behaviour)
