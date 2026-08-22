@@ -220,6 +220,66 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void LevelThreeWindow_UsesRoomWindowAndSkyAsThreeConsecutiveStates()
+	{
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.AdvanceWindow(RoomPrototypeLevelThreeWindowState.Room),
+			Is.EqualTo(RoomPrototypeLevelThreeWindowState.Window));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.AdvanceWindow(RoomPrototypeLevelThreeWindowState.Window),
+			Is.EqualTo(RoomPrototypeLevelThreeWindowState.Sky));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.AdvanceWindow(RoomPrototypeLevelThreeWindowState.Sky),
+			Is.EqualTo(RoomPrototypeLevelThreeWindowState.Sky));
+	}
+
+	[Test]
+	public void LevelThreeBird_DropsKeyOnlyWhenSkyIsDirectlyAboveZoomedFlower()
+	{
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanDropKey(
+			RoomPrototypeLevelThreeWindowState.Sky,
+			RoomPrototypeLevelTwoSlot.TopRight,
+			true,
+			RoomPrototypeLevelTwoSlot.BottomRight,
+			false
+		), Is.True);
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanDropKey(
+			RoomPrototypeLevelThreeWindowState.Window,
+			RoomPrototypeLevelTwoSlot.TopRight,
+			true,
+			RoomPrototypeLevelTwoSlot.BottomRight,
+			false
+		), Is.False);
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanDropKey(
+			RoomPrototypeLevelThreeWindowState.Sky,
+			RoomPrototypeLevelTwoSlot.TopLeft,
+			true,
+			RoomPrototypeLevelTwoSlot.BottomRight,
+			false
+		), Is.False);
+	}
+
+	[Test]
+	public void LevelThreeFlower_GrowsOnlyBelowZoomedCageAfterCatchingKey()
+	{
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
+			true,
+			RoomPrototypeLevelTwoSlot.BottomLeft,
+			true,
+			RoomPrototypeLevelTwoSlot.TopLeft
+		), Is.True);
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
+			false,
+			RoomPrototypeLevelTwoSlot.BottomLeft,
+			true,
+			RoomPrototypeLevelTwoSlot.TopLeft
+		), Is.False);
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
+			true,
+			RoomPrototypeLevelTwoSlot.BottomRight,
+			true,
+			RoomPrototypeLevelTwoSlot.TopLeft
+		), Is.False);
+	}
+
+	[Test]
 	public void LevelTwoWorldObject_UsesOneWorldPositionAcrossOverlappingPanels()
 	{
 		Vector2 sharedWorldPosition = new Vector2(1.75f, 1.5f);

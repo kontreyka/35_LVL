@@ -1,0 +1,982 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
+
+public enum RoomPrototypeLevelThreeWindowState
+{
+	Room,
+	Window,
+	Sky
+}
+
+public static class RoomPrototypeLevelThreePuzzleModel
+{
+	public static RoomPrototypeLevelThreeWindowState AdvanceWindow(RoomPrototypeLevelThreeWindowState state)
+	{
+		switch (state)
+		{
+			case RoomPrototypeLevelThreeWindowState.Room:
+				return RoomPrototypeLevelThreeWindowState.Window;
+			case RoomPrototypeLevelThreeWindowState.Window:
+				return RoomPrototypeLevelThreeWindowState.Sky;
+			default:
+				return RoomPrototypeLevelThreeWindowState.Sky;
+		}
+	}
+
+	public static bool CanDropKey(
+		RoomPrototypeLevelThreeWindowState windowState,
+		int windowSlot,
+		bool flowerZoomed,
+		int flowerSlot,
+		bool keyAlreadyCaught)
+	{
+		return windowState == RoomPrototypeLevelThreeWindowState.Sky
+			&& flowerZoomed
+			&& !keyAlreadyCaught
+			&& IsDirectlyAbove(windowSlot, flowerSlot);
+	}
+
+	public static bool CanGrowFlower(bool keyCaught, int flowerSlot, bool cageZoomed, int cageSlot)
+	{
+		return keyCaught && cageZoomed && IsDirectlyAbove(cageSlot, flowerSlot);
+	}
+
+	private static bool IsDirectlyAbove(int upperSlot, int lowerSlot)
+	{
+		return (upperSlot == RoomPrototypeLevelTwoSlot.TopLeft && lowerSlot == RoomPrototypeLevelTwoSlot.BottomLeft)
+			|| (upperSlot == RoomPrototypeLevelTwoSlot.TopRight && lowerSlot == RoomPrototypeLevelTwoSlot.BottomRight);
+	}
+}
+
+public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
+{
+	private const int RoomColumns = 4;
+	private const int RoomRows = 2;
+	private const string BuiltInFontResourceName = "LegacyRuntime.ttf";
+
+	[SerializeField] private Sprite roomSprite = null;
+	[SerializeField] private Sprite skySprite = null;
+	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
+	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
+	[SerializeField] private float panelGap = 8f;
+	[SerializeField] private float animationDuration = 0.3f;
+	[SerializeField] private float dragStartDistance = 14f;
+	[SerializeField] private float keyFallDuration = 1.25f;
+	[SerializeField] private float flowerGrowDuration = 1.1f;
+	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
+	[SerializeField] private Color flowerColor = new Color(0.36f, 0.78f, 0.26f, 0.95f);
+	[SerializeField] private Color keyColor = new Color(0.96f, 0.75f, 0.13f, 0.98f);
+
+	private readonly List<PanelView> panels = new List<PanelView>();
+	private Font interfaceFont;
+	private RectTransform boardRoot;
+	private Vector2 panelSize;
+	private PanelView pressedPanel;
+	private Vector2 pointerDownScreenPosition;
+	private bool isDragging;
+	private bool interactionLocked;
+	private bool keyDropStarted;
+	private bool keyCaught;
+	private bool flowerGrowing;
+	private bool cageOpened;
+	private RectTransform keyOverlay;
+	private RectTransform growthOverlay;
+
+	private void Start()
+	{
+		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
+		EnsureEventSystem();
+
+		RectTransform canvasRoot = CreateCanvas();
+		boardRoot = CreateRectTransform("Level Three Board", canvasRoot);
+		float boardSide = Mathf.Max(0f, Mathf.Min(boardSize.x, boardSize.y));
+		boardRoot.sizeDelta = new Vector2(boardSide, boardSide);
+		float side = (boardSide - panelGap) * 0.5f;
+		panelSize = new Vector2(side, side);
+
+		CreatePanel(0, PanelRole.Cage, RoomPrototypeLevelTwoSlot.TopLeft, 2, 0);
+		CreatePanel(1, PanelRole.Flower, RoomPrototypeLevelTwoSlot.TopRight, 0, 0);
+		CreatePanel(2, PanelRole.Window, RoomPrototypeLevelTwoSlot.BottomLeft, 2, 0);
+		CreateTransitionOverlays();
+		RefreshAllVisuals();
+	}
+
+	public void OnPanelPointerDown(int panelId, PointerEventData eventData)
+	{
+		if (interactionLocked || isDragging)
+		{
+			return;
+		}
+
+		pressedPanel = FindPanel(panelId);
+		if (pressedPanel != null)
+		{
+			pointerDownScreenPosition = eventData.position;
+		}
+	}
+
+	public void OnPanelDrag(int panelId, PointerEventData eventData)
+	{
+		if (interactionLocked || pressedPanel == null || pressedPanel.Id != panelId)
+		{
+			return;
+		}
+
+		if (!isDragging && (eventData.position - pointerDownScreenPosition).sqrMagnitude >= dragStartDistance * dragStartDistance)
+		{
+			isDragging = true;
+			pressedPanel.Root.SetAsLastSibling();
+			pressedPanel.Root.localScale = Vector3.one * 1.045f;
+			pressedPanel.CanvasGroup.alpha = 0.94f;
+		}
+
+		if (isDragging && RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, eventData.position, null, out Vector2 localPosition))
+		{
+			pressedPanel.Root.anchoredPosition = localPosition;
+		}
+	}
+
+	public void OnPanelPointerUp(int panelId, PointerEventData eventData)
+	{
+		if (pressedPanel != null && pressedPanel.Id == panelId)
+		{
+			FinishPointer(eventData.position);
+		}
+	}
+
+	public void OnPanelEndDrag(int panelId, PointerEventData eventData)
+	{
+		if (pressedPanel != null && pressedPanel.Id == panelId)
+		{
+			FinishPointer(eventData.position);
+		}
+	}
+
+	private void FinishPointer(Vector2 screenPosition)
+	{
+		PanelView panel = pressedPanel;
+		pressedPanel = null;
+
+		if (!isDragging)
+		{
+			HandlePanelTap(panel, screenPosition);
+			return;
+		}
+
+		isDragging = false;
+		panel.Root.localScale = Vector3.one;
+		panel.CanvasGroup.alpha = 1f;
+		MovePanelToSlot(panel, GetClosestSlot(screenPosition));
+	}
+
+	private void HandlePanelTap(PanelView panel, Vector2 screenPosition)
+	{
+		if (interactionLocked || panel == null)
+		{
+			return;
+		}
+
+		switch (panel.Role)
+		{
+			case PanelRole.Cage:
+				ToggleCageZoom(panel);
+				break;
+			case PanelRole.Flower:
+				if (CanTapFlower(panel, screenPosition))
+				{
+					StartCoroutine(AnimateFlowerGrowth());
+				}
+				else
+				{
+					ToggleFlowerZoom(panel);
+				}
+				break;
+			case PanelRole.Window:
+				AdvanceWindow(panel);
+				break;
+		}
+	}
+
+	private void ToggleCageZoom(PanelView panel)
+	{
+		Viewport target = panel.IsZoomed ? new Viewport(2f, 0f, 2f, 2f) : new Viewport(3f, 1f, 1f, 1f);
+		panel.IsZoomed = !panel.IsZoomed;
+		StartViewportAnimation(panel, target);
+	}
+
+	private void ToggleFlowerZoom(PanelView panel)
+	{
+		Viewport target = panel.IsZoomed ? new Viewport(0f, 0f, 2f, 2f) : new Viewport(1f, 0f, 1f, 1f);
+		panel.IsZoomed = !panel.IsZoomed;
+		StartViewportAnimation(panel, target);
+	}
+
+	private void AdvanceWindow(PanelView panel)
+	{
+		if (panel.WindowState == RoomPrototypeLevelThreeWindowState.Room)
+		{
+			panel.WindowState = RoomPrototypeLevelThreeWindowState.Window;
+			panel.IsZoomed = true;
+			StartViewportAnimation(panel, new Viewport(3f, 0f, 1f, 1f));
+			return;
+		}
+
+		if (panel.WindowState == RoomPrototypeLevelThreeWindowState.Window
+			&& Mathf.Approximately(panel.Viewport.X, 3f)
+			&& Mathf.Approximately(panel.Viewport.Y, 0f))
+		{
+			panel.WindowState = RoomPrototypeLevelThreePuzzleModel.AdvanceWindow(panel.WindowState);
+			RefreshAllVisuals();
+			CheckPuzzleTransitions();
+		}
+	}
+
+	private void StartViewportAnimation(PanelView panel, Viewport target)
+	{
+		if (panel.Animation != null)
+		{
+			return;
+		}
+		ClearControls(panel);
+		panel.Animation = StartCoroutine(AnimateViewport(panel, target));
+	}
+
+	private IEnumerator AnimateViewport(PanelView panel, Viewport target)
+	{
+		interactionLocked = true;
+		Viewport start = panel.Viewport;
+		float elapsed = 0f;
+		while (elapsed < animationDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / animationDuration));
+			ApplyViewport(panel, Viewport.Lerp(start, target, t));
+			yield return null;
+		}
+
+		panel.Viewport = target;
+		ApplyViewport(panel, target);
+		panel.Animation = null;
+		interactionLocked = false;
+		RefreshControls(panel);
+		CheckPuzzleTransitions();
+	}
+
+	private void Navigate(PanelView panel, Direction direction)
+	{
+		if (interactionLocked || !panel.IsZoomed || panel.Animation != null)
+		{
+			return;
+		}
+
+		float x = panel.Viewport.X;
+		float y = panel.Viewport.Y;
+		switch (direction)
+		{
+			case Direction.Left: x--; break;
+			case Direction.Right: x++; break;
+			case Direction.Up: y--; break;
+			case Direction.Down: y++; break;
+		}
+
+		if (!IsAllowedCell(panel.Role, x, y))
+		{
+			return;
+		}
+
+		StartViewportAnimation(panel, new Viewport(x, y, 1f, 1f));
+	}
+
+	private static bool IsAllowedCell(PanelRole role, float x, float y)
+	{
+		if (role == PanelRole.Flower)
+		{
+			return x >= 0f && x <= 1f && y >= 0f && y <= 1f;
+		}
+		if (role == PanelRole.Window)
+		{
+			return (Mathf.Approximately(x, 2f) && (Mathf.Approximately(y, 0f) || Mathf.Approximately(y, 1f)))
+				|| (Mathf.Approximately(x, 3f) && Mathf.Approximately(y, 0f));
+		}
+		return false;
+	}
+
+	private void MovePanelToSlot(PanelView draggedPanel, int targetSlot)
+	{
+		int originSlot = draggedPanel.Slot;
+		PanelView occupiedPanel = FindPanelInSlot(targetSlot);
+		if (occupiedPanel == null)
+		{
+			draggedPanel.Slot = targetSlot;
+			StartCoroutine(AnimatePanelsToSlots(new[] { draggedPanel }));
+			return;
+		}
+		if (targetSlot == originSlot)
+		{
+			StartCoroutine(AnimatePanelsToSlots(new[] { draggedPanel }));
+			return;
+		}
+
+		int displacementSlot = RoomPrototypeLevelTwoLayoutModel.ChooseDisplacementSlot(targetSlot, originSlot, FindEmptySlot());
+		draggedPanel.Slot = targetSlot;
+		occupiedPanel.Slot = displacementSlot;
+		StartCoroutine(AnimatePanelsToSlots(new[] { draggedPanel, occupiedPanel }));
+	}
+
+	private IEnumerator AnimatePanelsToSlots(IReadOnlyList<PanelView> movingPanels)
+	{
+		interactionLocked = true;
+		Vector2[] starts = new Vector2[movingPanels.Count];
+		Vector2[] targets = new Vector2[movingPanels.Count];
+		for (int i = 0; i < movingPanels.Count; i++)
+		{
+			starts[i] = movingPanels[i].Root.anchoredPosition;
+			targets[i] = GetSlotPosition(movingPanels[i].Slot);
+		}
+
+		float elapsed = 0f;
+		while (elapsed < animationDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / animationDuration));
+			for (int i = 0; i < movingPanels.Count; i++)
+			{
+				movingPanels[i].Root.anchoredPosition = Vector2.LerpUnclamped(starts[i], targets[i], t);
+			}
+			yield return null;
+		}
+
+		for (int i = 0; i < movingPanels.Count; i++)
+		{
+			movingPanels[i].Root.anchoredPosition = targets[i];
+		}
+		interactionLocked = false;
+		CheckPuzzleTransitions();
+	}
+
+	private void CreatePanel(int id, PanelRole role, int slot, int regionX, int regionY)
+	{
+		RectTransform root = CreateRectTransform($"{role} Panel", boardRoot);
+		root.sizeDelta = panelSize;
+		root.anchoredPosition = GetSlotPosition(slot);
+		Image frame = root.gameObject.AddComponent<Image>();
+		frame.color = frameColor;
+		frame.raycastTarget = true;
+
+		CanvasGroup canvasGroup = root.gameObject.AddComponent<CanvasGroup>();
+		RectTransform content = CreateRectTransform("Content", root);
+		content.anchorMin = Vector2.zero;
+		content.anchorMax = Vector2.one;
+		content.offsetMin = new Vector2(4f, 4f);
+		content.offsetMax = new Vector2(-4f, -4f);
+		content.gameObject.AddComponent<RectMask2D>();
+
+		Image room = CreateImage("Room", content, Color.white);
+		room.sprite = roomSprite;
+		room.preserveAspect = false;
+		RectTransform roomRect = room.rectTransform;
+		roomRect.anchorMin = new Vector2(0.5f, 0.5f);
+		roomRect.anchorMax = new Vector2(0.5f, 0.5f);
+
+		Image sky = CreateImage("Sky", content, Color.white);
+		sky.sprite = skySprite;
+		sky.preserveAspect = false;
+		sky.rectTransform.anchorMin = Vector2.zero;
+		sky.rectTransform.anchorMax = Vector2.one;
+		sky.rectTransform.offsetMin = Vector2.zero;
+		sky.rectTransform.offsetMax = Vector2.zero;
+		sky.gameObject.SetActive(false);
+
+		PanelView panel = new PanelView
+		{
+			Id = id,
+			Role = role,
+			Slot = slot,
+			RegionX = regionX,
+			RegionY = regionY,
+			Root = root,
+			Content = content,
+			Room = roomRect,
+			Sky = sky,
+			CanvasGroup = canvasGroup,
+			Viewport = new Viewport(regionX, regionY, 2f, 2f),
+			WindowState = RoomPrototypeLevelThreeWindowState.Room
+		};
+		panels.Add(panel);
+
+		if (role == PanelRole.Window)
+		{
+			CreateBird(panel);
+		}
+		if (role == PanelRole.Flower)
+		{
+			CreateFlower(panel);
+		}
+		if (role == PanelRole.Cage)
+		{
+			CreateCageOpenMarker(panel);
+		}
+
+		RoomPrototypeLevelThreePanelDrag drag = root.gameObject.AddComponent<RoomPrototypeLevelThreePanelDrag>();
+		drag.Initialize(this, id);
+		ApplyViewport(panel, panel.Viewport);
+	}
+
+	private void CreateBird(PanelView panel)
+	{
+		Image bird = CreateImage("Bird", panel.Content, new Color(0.96f, 0.97f, 1f, 0.96f));
+		bird.rectTransform.sizeDelta = new Vector2(86f, 38f);
+		Text label = CreateText("Bird Label", bird.rectTransform, "BIRD", 17, new Color(0.12f, 0.2f, 0.36f, 1f));
+		Stretch(label.rectTransform);
+		panel.Bird = bird.rectTransform;
+		bird.gameObject.SetActive(false);
+	}
+
+	private void CreateFlower(PanelView panel)
+	{
+		Image flower = CreateImage("Flower", panel.Content, flowerColor);
+		flower.rectTransform.sizeDelta = new Vector2(88f, 76f);
+		Text label = CreateText("Flower Label", flower.rectTransform, "FLOWER", 15, Color.white);
+		Stretch(label.rectTransform);
+		panel.Flower = flower.rectTransform;
+	}
+
+	private void CreateCageOpenMarker(PanelView panel)
+	{
+		Text marker = CreateText("Cage Open Marker", panel.Content, "OPEN", 42, new Color(0.44f, 1f, 0.42f, 1f));
+		marker.fontStyle = FontStyle.Bold;
+		marker.rectTransform.sizeDelta = new Vector2(180f, 70f);
+		marker.gameObject.SetActive(false);
+		panel.CageOpenMarker = marker;
+	}
+
+	private void CreateTransitionOverlays()
+	{
+		Image key = CreateImage("Falling Key", boardRoot, keyColor);
+		key.rectTransform.sizeDelta = new Vector2(70f, 20f);
+		key.gameObject.SetActive(false);
+		keyOverlay = key.rectTransform;
+
+		Image growth = CreateImage("Growing Flower", boardRoot, flowerColor);
+		growth.rectTransform.sizeDelta = new Vector2(32f, 0f);
+		growth.rectTransform.pivot = new Vector2(0.5f, 0f);
+		growth.gameObject.SetActive(false);
+		growthOverlay = growth.rectTransform;
+	}
+
+	private void ApplyViewport(PanelView panel, Viewport viewport)
+	{
+		Vector2 contentSize = GetContentSize(panel);
+		Vector2 imageSize = new Vector2(contentSize.x * RoomColumns / viewport.Width, contentSize.y * RoomRows / viewport.Height);
+		float centerX = (viewport.X + viewport.Width * 0.5f) / RoomColumns;
+		float centerY = (viewport.Y + viewport.Height * 0.5f) / RoomRows;
+		Vector2 offset = new Vector2((centerX - 0.5f) * imageSize.x, (0.5f - centerY) * imageSize.y);
+		panel.Room.sizeDelta = imageSize;
+		panel.Room.anchoredPosition = -offset;
+		RefreshPanelVisuals(panel, viewport);
+	}
+
+	private void RefreshAllVisuals()
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			RefreshPanelVisuals(panels[i], panels[i].Viewport);
+			RefreshControls(panels[i]);
+		}
+	}
+
+	private void RefreshPanelVisuals(PanelView panel, Viewport viewport)
+	{
+		bool isSky = panel.Role == PanelRole.Window && panel.WindowState == RoomPrototypeLevelThreeWindowState.Sky;
+		panel.Room.gameObject.SetActive(!isSky);
+		panel.Sky.gameObject.SetActive(isSky);
+		if (panel.Bird != null)
+		{
+			panel.Bird.gameObject.SetActive(isSky);
+		}
+
+		if (panel.Flower != null)
+		{
+			PlaceWorldMarker(panel.Flower, panel, viewport, new Vector2(1.55f, 0.42f), new Vector2(0.34f, 0.24f));
+		}
+		if (panel.CaughtKey != null)
+		{
+			PlaceWorldMarker(panel.CaughtKey, panel, viewport, new Vector2(1.63f, 0.34f), new Vector2(0.24f, 0.07f));
+			panel.CaughtKey.gameObject.SetActive(keyCaught && panel.CaughtKey.gameObject.activeSelf);
+		}
+		if (panel.CageOpenMarker != null)
+		{
+			panel.CageOpenMarker.gameObject.SetActive(cageOpened && panel.IsZoomed);
+			panel.CageOpenMarker.rectTransform.anchoredPosition = new Vector2(0f, 40f);
+		}
+	}
+
+	private void PlaceWorldMarker(RectTransform marker, PanelView panel, Viewport viewport, Vector2 worldPosition, Vector2 worldSize)
+	{
+		Rect visible = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		bool active = worldPosition.x >= visible.xMin && worldPosition.x <= visible.xMax
+			&& worldPosition.y >= visible.yMin && worldPosition.y <= visible.yMax;
+		marker.gameObject.SetActive(active);
+		if (!active)
+		{
+			return;
+		}
+
+		Vector2 contentSize = GetContentSize(panel);
+		float normalizedX = (worldPosition.x - visible.xMin) / visible.width;
+		float normalizedY = (worldPosition.y - visible.yMin) / visible.height;
+		marker.anchoredPosition = new Vector2((normalizedX - 0.5f) * contentSize.x, (0.5f - normalizedY) * contentSize.y);
+		marker.sizeDelta = new Vector2(worldSize.x / visible.width * contentSize.x, worldSize.y / visible.height * contentSize.y);
+	}
+
+	private void Update()
+	{
+		PanelView window = FindPanelByRole(PanelRole.Window);
+		if (window == null || window.Bird == null || window.WindowState != RoomPrototypeLevelThreeWindowState.Sky)
+		{
+			return;
+		}
+
+		float width = GetContentSize(window).x;
+		float normalized = Mathf.PingPong(Time.unscaledTime * 0.22f, 1f);
+		window.Bird.anchoredPosition = new Vector2(Mathf.Lerp(-width * 0.38f, width * 0.38f, normalized), width * 0.12f + Mathf.Sin(Time.unscaledTime * 2f) * 18f);
+	}
+
+	private void CheckPuzzleTransitions()
+	{
+		PanelView window = FindPanelByRole(PanelRole.Window);
+		PanelView flower = FindPanelByRole(PanelRole.Flower);
+		if (!keyDropStarted && RoomPrototypeLevelThreePuzzleModel.CanDropKey(
+			window.WindowState,
+			window.Slot,
+			IsFlowerZoomed(flower),
+			flower.Slot,
+			keyCaught))
+		{
+			keyDropStarted = true;
+			StartCoroutine(AnimateKeyDrop(window, flower));
+		}
+	}
+
+	private IEnumerator AnimateKeyDrop(PanelView window, PanelView flower)
+	{
+		interactionLocked = true;
+		keyOverlay.SetAsLastSibling();
+		Vector2 flowerBoardPosition = GetBoardPositionForWorld(flower, new Vector2(1.55f, 0.42f));
+		Vector2 start = new Vector2(flowerBoardPosition.x, GetPanelContentBoardPosition(window, new Vector2(0.5f, 0.45f)).y);
+		Vector2 target = flowerBoardPosition;
+		keyOverlay.anchoredPosition = start;
+		keyOverlay.localEulerAngles = new Vector3(0f, 0f, -75f);
+		keyOverlay.gameObject.SetActive(true);
+
+		float elapsed = 0f;
+		while (elapsed < keyFallDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float normalized = Mathf.Clamp01(elapsed / keyFallDuration);
+			float fall = normalized * normalized;
+			keyOverlay.anchoredPosition = Vector2.LerpUnclamped(start, target, fall);
+			keyOverlay.localEulerAngles = new Vector3(0f, 0f, Mathf.Lerp(-75f, 0f, normalized));
+			yield return null;
+		}
+
+		keyOverlay.gameObject.SetActive(false);
+		keyCaught = true;
+		EnsureCaughtKey(flower);
+		RefreshPanelVisuals(flower, flower.Viewport);
+		interactionLocked = false;
+	}
+
+	private void EnsureCaughtKey(PanelView flower)
+	{
+		if (flower.CaughtKey != null)
+		{
+			return;
+		}
+		Image key = CreateImage("Caught Key", flower.Content, keyColor);
+		flower.CaughtKey = key.rectTransform;
+	}
+
+	private bool CanTapFlower(PanelView flower, Vector2 screenPosition)
+	{
+		if (!RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
+			keyCaught,
+			flower.Slot,
+			IsCageZoomed(FindPanelByRole(PanelRole.Cage)),
+			FindPanelByRole(PanelRole.Cage).Slot))
+		{
+			return false;
+		}
+
+		if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(flower.Content, screenPosition, null, out Vector2 local))
+		{
+			return false;
+		}
+		Vector2 markerPosition = flower.Flower.anchoredPosition;
+		return Mathf.Abs(local.x - markerPosition.x) <= flower.Flower.sizeDelta.x * 0.7f
+			&& Mathf.Abs(local.y - markerPosition.y) <= flower.Flower.sizeDelta.y * 0.8f;
+	}
+
+	private IEnumerator AnimateFlowerGrowth()
+	{
+		if (flowerGrowing || cageOpened)
+		{
+			yield break;
+		}
+		flowerGrowing = true;
+		interactionLocked = true;
+		PanelView flower = FindPanelByRole(PanelRole.Flower);
+		PanelView cage = FindPanelByRole(PanelRole.Cage);
+		Vector2 start = GetBoardPositionForWorld(flower, new Vector2(1.55f, 0.42f));
+		Vector2 target = GetPanelContentBoardPosition(cage, new Vector2(0.5f, 0.66f));
+		growthOverlay.SetAsLastSibling();
+		growthOverlay.anchoredPosition = start;
+		growthOverlay.sizeDelta = new Vector2(34f, 0f);
+		growthOverlay.gameObject.SetActive(true);
+
+		float totalHeight = target.y - start.y;
+		float elapsed = 0f;
+		while (elapsed < flowerGrowDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / flowerGrowDuration));
+			growthOverlay.sizeDelta = new Vector2(34f, Mathf.Abs(totalHeight) * t);
+			growthOverlay.localScale = new Vector3(1f, Mathf.Sign(totalHeight), 1f);
+			yield return null;
+		}
+
+		cageOpened = true;
+		growthOverlay.gameObject.SetActive(false);
+		RefreshPanelVisuals(cage, cage.Viewport);
+		interactionLocked = false;
+	}
+
+	private static bool IsFlowerZoomed(PanelView panel)
+	{
+		return panel != null && panel.IsZoomed && Mathf.Approximately(panel.Viewport.X, 1f) && Mathf.Approximately(panel.Viewport.Y, 0f);
+	}
+
+	private static bool IsCageZoomed(PanelView panel)
+	{
+		return panel != null && panel.IsZoomed && Mathf.Approximately(panel.Viewport.X, 3f) && Mathf.Approximately(panel.Viewport.Y, 1f);
+	}
+
+	private void RefreshControls(PanelView panel)
+	{
+		ClearControls(panel);
+		if (!panel.IsZoomed || panel.Role == PanelRole.Cage || panel.WindowState == RoomPrototypeLevelThreeWindowState.Sky)
+		{
+			if (panel.Role == PanelRole.Window && panel.WindowState == RoomPrototypeLevelThreeWindowState.Sky)
+			{
+				CreateBackFromSkyButton(panel);
+			}
+			return;
+		}
+
+		TryCreateArrow(panel, Direction.Left, IsAllowedCell(panel.Role, panel.Viewport.X - 1f, panel.Viewport.Y));
+		TryCreateArrow(panel, Direction.Right, IsAllowedCell(panel.Role, panel.Viewport.X + 1f, panel.Viewport.Y));
+		TryCreateArrow(panel, Direction.Up, IsAllowedCell(panel.Role, panel.Viewport.X, panel.Viewport.Y - 1f));
+		TryCreateArrow(panel, Direction.Down, IsAllowedCell(panel.Role, panel.Viewport.X, panel.Viewport.Y + 1f));
+	}
+
+	private void TryCreateArrow(PanelView panel, Direction direction, bool allowed)
+	{
+		if (!allowed)
+		{
+			return;
+		}
+		Image image = CreateImage($"{direction} Arrow", panel.Root, new Color(0.08f, 0.08f, 0.075f, 0.86f));
+		image.raycastTarget = true;
+		image.rectTransform.sizeDelta = new Vector2(46f, 46f);
+		PlaceArrow(image.rectTransform, direction);
+		Button button = image.gameObject.AddComponent<Button>();
+		button.targetGraphic = image;
+		button.onClick.AddListener(() => Navigate(panel, direction));
+		Text label = CreateText("Label", image.rectTransform, GetArrowText(direction), 30, Color.white);
+		Stretch(label.rectTransform);
+		panel.Controls.Add(image.gameObject);
+	}
+
+	private void CreateBackFromSkyButton(PanelView panel)
+	{
+		Image image = CreateImage("Back From Sky", panel.Root, new Color(0.08f, 0.08f, 0.075f, 0.86f));
+		image.raycastTarget = true;
+		image.rectTransform.sizeDelta = new Vector2(46f, 46f);
+		PlaceArrow(image.rectTransform, Direction.Left);
+		Button button = image.gameObject.AddComponent<Button>();
+		button.targetGraphic = image;
+		button.onClick.AddListener(() =>
+		{
+			panel.WindowState = RoomPrototypeLevelThreeWindowState.Window;
+			RefreshAllVisuals();
+		});
+		Text label = CreateText("Label", image.rectTransform, "<", 30, Color.white);
+		Stretch(label.rectTransform);
+		panel.Controls.Add(image.gameObject);
+	}
+
+	private void ClearControls(PanelView panel)
+	{
+		for (int i = 0; i < panel.Controls.Count; i++)
+		{
+			Destroy(panel.Controls[i]);
+		}
+		panel.Controls.Clear();
+	}
+
+	private int GetClosestSlot(Vector2 screenPosition)
+	{
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 localPosition);
+		int closest = 0;
+		float distance = float.MaxValue;
+		for (int slot = 0; slot <= 3; slot++)
+		{
+			float current = (GetSlotPosition(slot) - localPosition).sqrMagnitude;
+			if (current < distance)
+			{
+				distance = current;
+				closest = slot;
+			}
+		}
+		return closest;
+	}
+
+	private Vector2 GetSlotPosition(int slot)
+	{
+		float halfStep = (panelSize.x + panelGap) * 0.5f;
+		switch (slot)
+		{
+			case RoomPrototypeLevelTwoSlot.TopLeft: return new Vector2(-halfStep, halfStep);
+			case RoomPrototypeLevelTwoSlot.TopRight: return new Vector2(halfStep, halfStep);
+			case RoomPrototypeLevelTwoSlot.BottomLeft: return new Vector2(-halfStep, -halfStep);
+			case RoomPrototypeLevelTwoSlot.BottomRight: return new Vector2(halfStep, -halfStep);
+			default: throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+		}
+	}
+
+	private int FindEmptySlot()
+	{
+		for (int slot = 0; slot <= 3; slot++)
+		{
+			if (FindPanelInSlot(slot) == null)
+			{
+				return slot;
+			}
+		}
+		throw new InvalidOperationException("Level three must keep one slot empty.");
+	}
+
+	private PanelView FindPanelInSlot(int slot)
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			if (panels[i].Slot == slot)
+			{
+				return panels[i];
+			}
+		}
+		return null;
+	}
+
+	private PanelView FindPanel(int id)
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			if (panels[i].Id == id)
+			{
+				return panels[i];
+			}
+		}
+		return null;
+	}
+
+	private PanelView FindPanelByRole(PanelRole role)
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			if (panels[i].Role == role)
+			{
+				return panels[i];
+			}
+		}
+		return null;
+	}
+
+	private Vector2 GetContentSize(PanelView panel)
+	{
+		Vector2 size = panel.Content.rect.size;
+		return size.x <= 0f || size.y <= 0f ? panel.Content.sizeDelta : size;
+	}
+
+	private Vector2 GetBoardPositionForWorld(PanelView panel, Vector2 worldPosition)
+	{
+		Rect viewport = new Rect(panel.Viewport.X, panel.Viewport.Y, panel.Viewport.Width, panel.Viewport.Height);
+		Vector2 size = GetContentSize(panel);
+		float x = ((worldPosition.x - viewport.xMin) / viewport.width - 0.5f) * size.x;
+		float y = (0.5f - (worldPosition.y - viewport.yMin) / viewport.height) * size.y;
+		return boardRoot.InverseTransformPoint(panel.Content.TransformPoint(new Vector2(x, y)));
+	}
+
+	private Vector2 GetPanelContentBoardPosition(PanelView panel, Vector2 normalizedTopLeft)
+	{
+		Vector2 size = GetContentSize(panel);
+		Vector2 local = new Vector2((normalizedTopLeft.x - 0.5f) * size.x, (0.5f - normalizedTopLeft.y) * size.y);
+		return boardRoot.InverseTransformPoint(panel.Content.TransformPoint(local));
+	}
+
+	private RectTransform CreateCanvas()
+	{
+		GameObject canvasObject = new GameObject("Room Prototype Level Three Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+		canvasObject.transform.SetParent(transform, false);
+		Canvas canvas = canvasObject.GetComponent<Canvas>();
+		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+		scaler.referenceResolution = referenceResolution;
+		scaler.matchWidthOrHeight = 0.5f;
+		RectTransform rect = canvasObject.GetComponent<RectTransform>();
+		rect.anchorMin = Vector2.zero;
+		rect.anchorMax = Vector2.one;
+		rect.offsetMin = Vector2.zero;
+		rect.offsetMax = Vector2.zero;
+		return rect;
+	}
+
+	private void EnsureEventSystem()
+	{
+		EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
+		if (eventSystem == null)
+		{
+			GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
+			eventSystemObject.transform.SetParent(transform, false);
+			eventSystem = eventSystemObject.GetComponent<EventSystem>();
+		}
+		InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+		if (inputModule == null)
+		{
+			inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+		}
+		inputModule.AssignDefaultActions();
+	}
+
+	private static RectTransform CreateRectTransform(string name, Transform parent)
+	{
+		GameObject gameObject = new GameObject(name, typeof(RectTransform));
+		RectTransform rect = gameObject.GetComponent<RectTransform>();
+		rect.SetParent(parent, false);
+		rect.anchorMin = new Vector2(0.5f, 0.5f);
+		rect.anchorMax = new Vector2(0.5f, 0.5f);
+		rect.pivot = new Vector2(0.5f, 0.5f);
+		return rect;
+	}
+
+	private static Image CreateImage(string name, Transform parent, Color color)
+	{
+		RectTransform rect = CreateRectTransform(name, parent);
+		Image image = rect.gameObject.AddComponent<Image>();
+		image.color = color;
+		image.raycastTarget = false;
+		return image;
+	}
+
+	private Text CreateText(string name, Transform parent, string text, int fontSize, Color color)
+	{
+		RectTransform rect = CreateRectTransform(name, parent);
+		Text label = rect.gameObject.AddComponent<Text>();
+		label.font = interfaceFont;
+		label.text = text;
+		label.fontSize = fontSize;
+		label.alignment = TextAnchor.MiddleCenter;
+		label.color = color;
+		label.raycastTarget = false;
+		return label;
+	}
+
+	private static void Stretch(RectTransform rect)
+	{
+		rect.anchorMin = Vector2.zero;
+		rect.anchorMax = Vector2.one;
+		rect.offsetMin = Vector2.zero;
+		rect.offsetMax = Vector2.zero;
+	}
+
+	private void PlaceArrow(RectTransform rect, Direction direction)
+	{
+		float edge = panelSize.x * 0.5f - 34f;
+		switch (direction)
+		{
+			case Direction.Left: rect.anchoredPosition = new Vector2(-edge, 0f); break;
+			case Direction.Right: rect.anchoredPosition = new Vector2(edge, 0f); break;
+			case Direction.Up: rect.anchoredPosition = new Vector2(0f, edge); break;
+			case Direction.Down: rect.anchoredPosition = new Vector2(0f, -edge); break;
+		}
+	}
+
+	private static string GetArrowText(Direction direction)
+	{
+		switch (direction)
+		{
+			case Direction.Left: return "<";
+			case Direction.Right: return ">";
+			case Direction.Up: return "^";
+			case Direction.Down: return "v";
+			default: return string.Empty;
+		}
+	}
+
+	private enum PanelRole { Cage, Flower, Window }
+	private enum Direction { Left, Right, Up, Down }
+
+	private readonly struct Viewport
+	{
+		public readonly float X;
+		public readonly float Y;
+		public readonly float Width;
+		public readonly float Height;
+
+		public Viewport(float x, float y, float width, float height)
+		{
+			X = x;
+			Y = y;
+			Width = width;
+			Height = height;
+		}
+
+		public static Viewport Lerp(Viewport from, Viewport to, float t)
+		{
+			return new Viewport(
+				Mathf.Lerp(from.X, to.X, t),
+				Mathf.Lerp(from.Y, to.Y, t),
+				Mathf.Lerp(from.Width, to.Width, t),
+				Mathf.Lerp(from.Height, to.Height, t));
+		}
+	}
+
+	private sealed class PanelView
+	{
+		public int Id;
+		public PanelRole Role;
+		public int Slot;
+		public int RegionX;
+		public int RegionY;
+		public bool IsZoomed;
+		public RectTransform Root;
+		public RectTransform Content;
+		public RectTransform Room;
+		public Image Sky;
+		public RectTransform Bird;
+		public RectTransform Flower;
+		public RectTransform CaughtKey;
+		public Text CageOpenMarker;
+		public CanvasGroup CanvasGroup;
+		public Viewport Viewport;
+		public Coroutine Animation;
+		public RoomPrototypeLevelThreeWindowState WindowState;
+		public readonly List<GameObject> Controls = new List<GameObject>();
+	}
+}
