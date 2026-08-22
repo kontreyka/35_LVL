@@ -229,7 +229,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
-	[SerializeField] private Vector2 boardSize = new Vector2(1320f, 918f);
+	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
 	[SerializeField] private float animationDuration = 0.28f;
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
@@ -453,7 +453,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		foreach (MarkerView markerView in panel.MarkerViews)
 		{
 			RoomMarker marker = markerView.Marker;
-			bool visible = MarkerIntersectsViewport(marker, viewport);
+			bool visible = (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
+				&& MarkerIntersectsViewport(marker, viewport);
 			markerView.RectTransform.gameObject.SetActive(visible);
 			if (!visible)
 			{
@@ -574,9 +575,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private void BuildMarkers()
 	{
 		roomMarkers.Clear();
-		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.22f, 0.33f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f)));
+		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.39f, 0.62f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f)));
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f)));
-		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.35f, 0.62f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f)));
+		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.39f, 1.14f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.32f, 0.52f), new Color(0.95f, 0.67f, 0.16f, 0.42f)));
 	}
 
@@ -727,14 +728,23 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		public readonly Vector2 RoomPosition;
 		public readonly Vector2 RoomSize;
 		public readonly Color Color;
+		public readonly RoomPrototypePanelSlot? DisplaySlot;
 
-		public RoomMarker(string label, MarkerShape shape, Vector2 roomPosition, Vector2 roomSize, Color color)
+		public RoomMarker(
+			string label,
+			MarkerShape shape,
+			Vector2 roomPosition,
+			Vector2 roomSize,
+			Color color,
+			RoomPrototypePanelSlot? displaySlot = null
+		)
 		{
 			Label = label;
 			Shape = shape;
 			RoomPosition = roomPosition;
 			RoomSize = roomSize;
 			Color = color;
+			DisplaySlot = displaySlot;
 		}
 	}
 

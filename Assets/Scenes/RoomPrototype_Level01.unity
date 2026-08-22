@@ -302,7 +302,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundSprite: {fileID: 21300000, guid: d8533941dbc54ef280926c51f43afc53, type: 3}
   referenceResolution: {x: 1674, y: 942}
-  boardSize: {x: 1320, y: 742}
+  boardSize: {x: 1674, y: 942}
   panelGap: 8
   animationDuration: 0.28
   frameColor: {r: 0.035, g: 0.033, b: 0.03, a: 1}
