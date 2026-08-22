@@ -17,10 +17,10 @@ public class Scene01Controller : MonoBehaviour
 	private static readonly int AspectProperty = Shader.PropertyToID("_Aspect");
 
 	[Header("Camera")]
-	[SerializeField] private Camera sceneCamera;
+	[SerializeField] private Camera sceneCamera = null;
 
 	[Header("Window")]
-	[SerializeField] private Transform windowTarget;
+	[SerializeField] private Transform windowTarget = null;
 
 	[Header("Zoom")]
 	[SerializeField] private float zoomDuration = 1.2f;
@@ -32,10 +32,17 @@ public class Scene01Controller : MonoBehaviour
 		1f, 1f
 	);
 
+	[Header("Depth Background")]
+	[SerializeField] private Transform zoomResponsiveBackground = null;
+
+	[Tooltip("0 - фон масштабируется как обычный объект сцены. 1 - фон сохраняет размер относительно камеры. 0.5 - половинная компенсация для объема.")]
+	[Range(0f, 1f)]
+	[SerializeField] private float backgroundZoomScaleCompensation = 0.5f;
+
 	[Header("Background Transition")]
-	[SerializeField] private SpriteRenderer backgroundRenderer;
-	[SerializeField] private Sprite secondBackgroundSprite;
-	[SerializeField] private Material vignetteMaterial;
+	[SerializeField] private SpriteRenderer backgroundRenderer = null;
+	[SerializeField] private Sprite secondBackgroundSprite = null;
+	[SerializeField] private Material vignetteMaterial = null;
 	[SerializeField] private float vignetteDuration = 0.9f;
 	[SerializeField] private float openVignetteRadius = 1.15f;
 
@@ -58,6 +65,8 @@ public class Scene01Controller : MonoBehaviour
 	private ClickStep clickStep;
 	private Vector3 initialCameraPosition;
 	private float initialCameraSize;
+	private Vector3 initialBackgroundScale;
+	private bool hasInitialBackgroundScale;
 	private SpriteRenderer vignetteRenderer;
 	private MaterialPropertyBlock vignetteProperties;
 	private Texture2D solidVignetteTexture;
@@ -66,6 +75,7 @@ public class Scene01Controller : MonoBehaviour
 	private void Awake()
 	{
 		CaptureInitialCameraState();
+		CaptureInitialBackgroundScale();
 	}
 
 	public void FocusWindow()
@@ -99,6 +109,7 @@ public class Scene01Controller : MonoBehaviour
 		}
 
 		CaptureInitialCameraState();
+		CaptureInitialBackgroundScale();
 
 		Vector3 startPosition = sceneCamera.transform.position;
 
@@ -131,11 +142,14 @@ public class Scene01Controller : MonoBehaviour
 				smoothT
 			);
 
+			UpdateZoomResponsiveBackgroundScale();
+
 			yield return null;
 		}
 
 		sceneCamera.transform.position = targetPosition;
 		sceneCamera.orthographicSize = targetCameraSize;
+		UpdateZoomResponsiveBackgroundScale();
 		clickStep = ClickStep.ChangeBackground;
 		isTransitioning = false;
 
@@ -194,6 +208,8 @@ public class Scene01Controller : MonoBehaviour
 			CaptureInitialCameraState();
 		}
 
+		CaptureInitialBackgroundScale();
+
 		if (vignetteRenderer != null)
 		{
 			vignetteRenderer.enabled = false;
@@ -222,11 +238,14 @@ public class Scene01Controller : MonoBehaviour
 				smoothT
 			);
 
+			UpdateZoomResponsiveBackgroundScale();
+
 			yield return null;
 		}
 
 		sceneCamera.transform.position = initialCameraPosition;
 		sceneCamera.orthographicSize = initialCameraSize;
+		UpdateZoomResponsiveBackgroundScale();
 		clickStep = ClickStep.Done;
 		isTransitioning = false;
 
@@ -363,6 +382,57 @@ public class Scene01Controller : MonoBehaviour
 		initialCameraPosition = sceneCamera.transform.position;
 		initialCameraSize = sceneCamera.orthographicSize;
 		hasInitialCameraState = true;
+	}
+
+	private void CaptureInitialBackgroundScale()
+	{
+		if (zoomResponsiveBackground == null || hasInitialBackgroundScale)
+			return;
+
+		initialBackgroundScale = zoomResponsiveBackground.localScale;
+		hasInitialBackgroundScale = true;
+	}
+
+	private void UpdateZoomResponsiveBackgroundScale()
+	{
+		if (sceneCamera == null || zoomResponsiveBackground == null)
+			return;
+
+		if (!hasInitialBackgroundScale)
+		{
+			CaptureInitialBackgroundScale();
+		}
+
+		if (!hasInitialBackgroundScale)
+			return;
+
+		zoomResponsiveBackground.localScale = CalculateZoomResponsiveBackgroundScale(
+			initialBackgroundScale,
+			initialCameraSize,
+			sceneCamera.orthographicSize,
+			backgroundZoomScaleCompensation
+		);
+	}
+
+	public static Vector3 CalculateZoomResponsiveBackgroundScale(
+		Vector3 baseScale,
+		float initialCameraSize,
+		float currentCameraSize,
+		float compensation
+	)
+	{
+		if (initialCameraSize <= Mathf.Epsilon || currentCameraSize <= Mathf.Epsilon)
+			return baseScale;
+
+		float clampedCompensation = Mathf.Clamp01(compensation);
+		float cameraSizeRatio = currentCameraSize / initialCameraSize;
+		float scaleFactor = Mathf.Lerp(1f, cameraSizeRatio, clampedCompensation);
+
+		return new Vector3(
+			baseScale.x * scaleFactor,
+			baseScale.y * scaleFactor,
+			baseScale.z
+		);
 	}
 
 	private Sprite GetSolidVignetteSprite()

@@ -130,3 +130,36 @@ public sealed class SpriteContourSamplerTests
 		return texture;
 	}
 }
+
+public sealed class Scene01ControllerBackgroundScaleTests
+{
+	[Test]
+	public void CalculateZoomResponsiveBackgroundScale_FullyCompensatesCameraZoom()
+	{
+		Vector3 scale = Scene01Controller.CalculateZoomResponsiveBackgroundScale(
+			new Vector3(2f, 3f, 1f),
+			5f,
+			2.5f,
+			1f
+		);
+
+		Assert.That(scale.x, Is.EqualTo(1f).Within(0.001f));
+		Assert.That(scale.y, Is.EqualTo(1.5f).Within(0.001f));
+		Assert.That(scale.z, Is.EqualTo(1f).Within(0.001f));
+	}
+
+	[Test]
+	public void CalculateZoomResponsiveBackgroundScale_HalfCompensatesCameraZoom()
+	{
+		Vector3 scale = Scene01Controller.CalculateZoomResponsiveBackgroundScale(
+			new Vector3(2f, 3f, 1f),
+			5f,
+			2.5f,
+			0.5f
+		);
+
+		Assert.That(scale.x, Is.EqualTo(1.5f).Within(0.001f));
+		Assert.That(scale.y, Is.EqualTo(2.25f).Within(0.001f));
+		Assert.That(scale.z, Is.EqualTo(1f).Within(0.001f));
+	}
+}
