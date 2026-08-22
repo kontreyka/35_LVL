@@ -514,6 +514,8 @@ public sealed class RoomPrototypeNavigationTests
 		Button button = buttonObject.GetComponent<Button>();
 		Image image = buttonObject.GetComponent<Image>();
 		button.targetGraphic = image;
+		button.transition = Selectable.Transition.ColorTint;
+		image.color = Color.magenta;
 
 		AudioManager.ConfigureMainMenuButtonColors(button);
 
