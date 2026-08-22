@@ -41,6 +41,7 @@ public sealed class DialogueSystem : MonoBehaviour
 	[SerializeField] private Vector2 windowOffset = new Vector2(0f, 56f);
 	[SerializeField] private Vector2 textPaddingMin = new Vector2(185f, 110f);
 	[SerializeField] private Vector2 textPaddingMax = new Vector2(120f, 112f);
+	[SerializeField] private float bodyTextVerticalOffset = -18f;
 	[SerializeField] private float speakerFontSize = 46f;
 	[SerializeField] private float bodyFontSize = 42f;
 	[SerializeField] private bool usePortraits = true;
@@ -483,8 +484,9 @@ public sealed class DialogueSystem : MonoBehaviour
 		body.anchorMin = new Vector2(0f, 0f);
 		body.anchorMax = new Vector2(1f, 1f);
 		body.pivot = new Vector2(0.5f, 0.5f);
-		body.offsetMin = textPaddingMin;
-		body.offsetMax = -textPaddingMax;
+		Vector2 bodyTextOffset = new Vector2(0f, bodyTextVerticalOffset);
+		body.offsetMin = textPaddingMin + bodyTextOffset;
+		body.offsetMax = -textPaddingMax + bodyTextOffset;
 
 		bodyText = body.GetComponent<TMP_Text>();
 		bodyText.fontSize = bodyFontSize;

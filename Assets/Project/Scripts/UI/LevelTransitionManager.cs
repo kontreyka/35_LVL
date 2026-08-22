@@ -34,7 +34,7 @@ public sealed class LevelTransitionManager : MonoBehaviour
 	[Header("Screen Fade")]
 	[SerializeField, Min(0f)] private float fadeOutDuration = 0.45f;
 	[SerializeField, Min(0f)] private float fadeInDuration = 0.35f;
-	[SerializeField] private Color fadeColor = Color.black;
+	[SerializeField] private Color fadeColor = Color.white;
 
 	private bool isTransitioning;
 

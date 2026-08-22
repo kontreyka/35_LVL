@@ -9,7 +9,7 @@ public class SceneLoader : MonoBehaviour
 			"LoadingScene",
 			0.35f,
 			0.35f,
-			Color.black
+			Color.white
 		);
 	}
 }

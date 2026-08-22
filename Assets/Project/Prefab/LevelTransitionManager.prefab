@@ -51,4 +51,5 @@ MonoBehaviour:
     sceneAsset: {fileID: 0}
     scenePath:
   fadeOutDuration: 0.45
-  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeInDuration: 0.35
+  fadeColor: {r: 1, g: 1, b: 1, a: 1}

@@ -100,12 +100,13 @@ public sealed class SceneTransitionOverlay : MonoBehaviour
 		if (fadeCoroutine != null)
 			StopCoroutine(fadeCoroutine);
 
+		canvasGroup.alpha = 1f;
 		fadeCoroutine = StartCoroutine(RevealAfterSceneLoad());
 	}
 
 	private IEnumerator RevealAfterSceneLoad()
 	{
-		yield return null;
+		yield return new WaitForEndOfFrame();
 		yield return FadeTo(0f, revealDuration);
 		Destroy(gameObject);
 	}
@@ -171,7 +172,7 @@ public sealed class SceneTransitionOverlay : MonoBehaviour
 		rect.offsetMax = Vector2.zero;
 
 		fadeImage = imageObject.GetComponent<Image>();
-		fadeImage.color = Color.black;
+		fadeImage.color = Color.white;
 		fadeImage.raycastTarget = true;
 	}
 }

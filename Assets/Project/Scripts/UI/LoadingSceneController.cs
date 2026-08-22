@@ -29,7 +29,7 @@ public class LoadingSceneController : MonoBehaviour
 	[SerializeField] private float transitionDuration = 0.4f;
 	[SerializeField, Min(0f)] private float sceneFadeOutDuration = 0.35f;
 	[SerializeField, Min(0f)] private float sceneFadeInDuration = 0.35f;
-	[SerializeField] private Color sceneFadeColor = Color.black;
+	[SerializeField] private Color sceneFadeColor = Color.white;
 
 	private void Start()
 	{
