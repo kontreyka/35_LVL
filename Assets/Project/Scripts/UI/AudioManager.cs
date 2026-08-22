@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
@@ -32,7 +30,6 @@ public class AudioManager : MonoBehaviour
 	private void Start()
 	{
 		ConfigureUiSfxSource(uiSfxSource);
-		ConfigureMainMenuButtons();
 	}
 
 	public static void ConfigureUiSfxSource(AudioSource audioSource)
@@ -64,33 +61,6 @@ public class AudioManager : MonoBehaviour
 		button.colors = colors;
 	}
 
-	private void ConfigureMainMenuButtons()
-	{
-		Button[] buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-		foreach (Button button in buttons)
-		{
-			ConfigureMainMenuButtonColors(button);
-			EventTrigger trigger = button.GetComponent<EventTrigger>();
-			if (trigger == null)
-			{
-				trigger = button.gameObject.AddComponent<EventTrigger>();
-			}
-
-			if (trigger.triggers == null)
-			{
-				trigger.triggers = new List<EventTrigger.Entry>();
-			}
-
-			trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.PointerEnter);
-			EventTrigger.Entry hoverEntry = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
-			hoverEntry.callback.AddListener(_ => PlayHover());
-			trigger.triggers.Add(hoverEntry);
-
-			button.onClick.RemoveListener(PlayConfirm);
-			button.onClick.AddListener(PlayConfirm);
-		}
-	}
-
 	private static void PreloadUiClip(AudioClip clip)
 	{
 		if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
@@ -99,19 +69,4 @@ public class AudioManager : MonoBehaviour
 		}
 	}
 
-	private void PlayHover()
-	{
-		if (uiSfxSource != null && hoverClip != null)
-		{
-			uiSfxSource.PlayOneShot(hoverClip);
-		}
-	}
-
-	private void PlayConfirm()
-	{
-		if (uiSfxSource != null && confirmClip != null)
-		{
-			uiSfxSource.PlayOneShot(confirmClip);
-		}
-	}
 }

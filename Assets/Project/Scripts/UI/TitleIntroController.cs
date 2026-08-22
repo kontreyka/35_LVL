@@ -1,5 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using TMPro;
 
 public class TitleIntroController : MonoBehaviour
@@ -13,6 +16,11 @@ public class TitleIntroController : MonoBehaviour
 	[Header("Menu")]
 	[SerializeField] private CanvasGroup menuButtons;
 	[SerializeField] private CanvasGroup rightVisual;
+
+	[Header("Button Feedback")]
+	[SerializeField] private AudioSource uiSfxSource;
+	[SerializeField] private AudioClip hoverClip;
+	[SerializeField] private AudioClip confirmClip;
 
 	[Header("Iris")]
 	[SerializeField] private Material irisMaterial;
@@ -59,6 +67,8 @@ public class TitleIntroController : MonoBehaviour
 
 	private void Start()
 	{
+		ConfigureMenuButtonFeedback();
+
 		if (!showTitle)
 		{
 			title.gameObject.SetActive(false);
@@ -215,5 +225,68 @@ public class TitleIntroController : MonoBehaviour
 		rightVisual.alpha = 1f;
 		menuButtons.interactable = true;
 		menuButtons.blocksRaycasts = true;
+	}
+
+	private void ConfigureMenuButtonFeedback()
+	{
+		foreach (Button button in GetComponentsInChildren<Button>(true))
+		{
+			AudioManager.ConfigureMainMenuButtonColors(button);
+			ColorBlock colors = button.colors;
+			EventTrigger trigger = button.GetComponent<EventTrigger>();
+			if (trigger == null)
+			{
+				trigger = button.gameObject.AddComponent<EventTrigger>();
+			}
+
+			if (trigger.triggers == null)
+			{
+				trigger.triggers = new List<EventTrigger.Entry>();
+			}
+
+			trigger.triggers.RemoveAll(entry => entry.eventID == EventTriggerType.PointerEnter
+				|| entry.eventID == EventTriggerType.PointerExit
+				|| entry.eventID == EventTriggerType.PointerDown
+				|| entry.eventID == EventTriggerType.PointerUp);
+			AddPointerEvent(trigger, EventTriggerType.PointerEnter, () =>
+			{
+				SetButtonColor(button, colors.highlightedColor);
+				PlayUiSfx(hoverClip);
+			});
+			AddPointerEvent(trigger, EventTriggerType.PointerExit, () => SetButtonColor(button, colors.normalColor));
+			AddPointerEvent(trigger, EventTriggerType.PointerDown, () => SetButtonColor(button, colors.pressedColor));
+			AddPointerEvent(trigger, EventTriggerType.PointerUp, () => SetButtonColor(button, colors.highlightedColor));
+
+			button.onClick.RemoveListener(PlayConfirm);
+			button.onClick.AddListener(PlayConfirm);
+		}
+	}
+
+	private static void AddPointerEvent(EventTrigger trigger, EventTriggerType eventType, UnityEngine.Events.UnityAction action)
+	{
+		EventTrigger.Entry entry = new EventTrigger.Entry { eventID = eventType };
+		entry.callback.AddListener(_ => action());
+		trigger.triggers.Add(entry);
+	}
+
+	private static void SetButtonColor(Button button, Color color)
+	{
+		if (button != null && button.targetGraphic != null)
+		{
+			button.targetGraphic.color = color;
+		}
+	}
+
+	private void PlayConfirm()
+	{
+		PlayUiSfx(confirmClip);
+	}
+
+	private void PlayUiSfx(AudioClip clip)
+	{
+		if (uiSfxSource != null && clip != null)
+		{
+			uiSfxSource.PlayOneShot(clip);
+		}
 	}
 }
