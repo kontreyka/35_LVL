@@ -401,6 +401,21 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void TryMoveTruckToNextCell_MovesOnlyFromB2ToB3()
+	{
+		RoomPrototypePanelState truckInB2 = new RoomPrototypePanelState(
+			RoomPrototypePanelSlot.BottomLeft,
+			new RoomPrototypeViewport(1, 1, 1, 1),
+			true,
+			"TRUCK"
+		);
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryMoveTruckToNextCell(truckInB2, out RoomPrototypePanelState truckInB3), Is.True);
+		Assert.That(truckInB3.Viewport, Is.EqualTo(new RoomPrototypeViewport(2, 1, 1, 1)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryMoveTruckToNextCell(truckInB3, out _), Is.False);
+	}
+
+	[Test]
 	public void TryNavigate_BottomLeftZoomMovesOneCellAtATimeInEveryValidDirection()
 	{
 		RoomPrototypePanelState topLeftState = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);

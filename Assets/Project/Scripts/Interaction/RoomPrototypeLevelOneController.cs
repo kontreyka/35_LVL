@@ -146,6 +146,25 @@ public static class RoomPrototypeLevelOnePanelModel
 			&& truckState.Viewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1));
 	}
 
+	public static bool TryMoveTruckToNextCell(RoomPrototypePanelState state, out RoomPrototypePanelState nextState)
+	{
+		nextState = state;
+		if (state.Slot != RoomPrototypePanelSlot.BottomLeft
+			|| !state.IsZoomed
+			|| !state.Viewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1)))
+		{
+			return false;
+		}
+
+		nextState = new RoomPrototypePanelState(
+			RoomPrototypePanelSlot.BottomLeft,
+			new RoomPrototypeViewport(2, 1, 1, 1),
+			true,
+			"TRUCK"
+		);
+		return true;
+	}
+
 	public static bool TryNavigate(
 		RoomPrototypePanelState state,
 		RoomPrototypePanelDirection direction,
@@ -252,8 +271,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private Sprite circleSprite;
 	private RectTransform canvasRoot;
 	private Coroutine keyDropAnimation;
+	private Coroutine truckMoveAnimation;
 	private bool keyIsFalling;
 	private bool keyDeliveredToTruck;
+	private bool truckIsDriving;
+	private bool truckMovedToNextCell;
 
 	private void Awake()
 	{
@@ -439,12 +461,13 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		keyIsFalling = true;
 		keyMarker.RectTransform.gameObject.SetActive(false);
 		RefreshKeyInteraction();
+		RefreshInteractionLock();
 		keyDropAnimation = StartCoroutine(AnimateKeyDrop(keyMarker.Marker, startPosition, targetPosition, markerSize));
 	}
 
 	private bool CanDropKeyIntoTruck()
 	{
-		if (keyIsFalling || keyDeliveredToTruck || keyDropAnimation != null)
+		if (IsInteractionLocked() || keyDeliveredToTruck)
 		{
 			return false;
 		}
@@ -458,6 +481,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		return keyPanel.Animation == null
 			&& truckPanel.Animation == null
 			&& RoomPrototypeLevelOnePanelModel.CanDropKeyIntoTruck(keyPanel.State, truckPanel.State);
+	}
+
+	private bool IsInteractionLocked()
+	{
+		return keyIsFalling || keyDropAnimation != null || truckMoveAnimation != null;
 	}
 
 	private void RefreshKeyInteraction()
@@ -477,6 +505,23 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 					&& markerView.RectTransform.gameObject.activeInHierarchy;
 				markerView.Button.interactable = isActiveKey;
 				markerView.Image.raycastTarget = isActiveKey;
+			}
+		}
+	}
+
+	private void RefreshInteractionLock()
+	{
+		bool isLocked = IsInteractionLocked();
+		foreach (PanelView panel in panels.Values)
+		{
+			panel.TapButton.interactable = !isLocked && RoomPrototypeLevelOnePanelModel.CanZoom(panel.State);
+			foreach (GameObject controlObject in panel.ControlObjects)
+			{
+				Button button = controlObject.GetComponent<Button>();
+				if (button != null)
+				{
+					button.interactable = !isLocked;
+				}
 			}
 		}
 	}
@@ -533,7 +578,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		keyIsFalling = false;
 		keyDeliveredToTruck = true;
 		keyDropAnimation = null;
-		RefreshKeyInteraction();
+		truckMoveAnimation = StartCoroutine(AnimateTruckToNextCell());
 	}
 
 	private Vector2 GetCanvasPosition(RectTransform rectTransform)
@@ -659,7 +704,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void RefreshControls(PanelView panel)
 	{
-		panel.TapButton.interactable = RoomPrototypeLevelOnePanelModel.CanZoom(panel.State);
+		panel.TapButton.interactable = !IsInteractionLocked() && RoomPrototypeLevelOnePanelModel.CanZoom(panel.State);
 
 		if (panel.State.IsZoomed)
 		{
@@ -688,6 +733,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			});
 			panel.ControlObjects.Add(arrow.gameObject);
 		}
+
+		RefreshInteractionLock();
 	}
 
 	private void ClearControls(PanelView panel)
