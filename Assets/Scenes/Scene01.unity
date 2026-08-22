@@ -1565,11 +1565,11 @@ MonoBehaviour:
   backgroundRenderer: {fileID: 813774252}
   secondBackgroundSprite: {fileID: 5625426115830882069, guid: 9ac1e553d74c9e54ead09762f0816b5c, type: 3}
   vignetteMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
-  vignetteDuration: 2
-  openVignetteRadius: 2.52
-  vignetteCompressionRadius: 0.096
-  vignetteSoftness: 0.25
-  vignetteSortingOrder: 19
+  vignetteDuration: 1.5
+  openVignetteRadius: 1
+  vignetteCompressionRadius: 0.05
+  vignetteSoftness: 0.14
+  vignetteSortingOrder: 16
   vignetteCurve:
     serializedVersion: 2
     m_Curve:

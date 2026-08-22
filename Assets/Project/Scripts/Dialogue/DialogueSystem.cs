@@ -354,7 +354,7 @@ public sealed class DialogueSystem : MonoBehaviour
 		bool centerText = line != null && line.CenterText;
 		bodyText.alignment = centerText
 			? TextAlignmentOptions.Center
-			: TextAlignmentOptions.TopLeft;
+			: TextAlignmentOptions.MidlineLeft;
 		bodyText.fontStyle = centerText ? FontStyles.Bold : FontStyles.Normal;
 		bodyText.fontSize = line != null && line.FontSizeOverride > 0f
 			? line.FontSizeOverride
@@ -488,7 +488,7 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		bodyText = body.GetComponent<TMP_Text>();
 		bodyText.fontSize = bodyFontSize;
-		bodyText.alignment = TextAlignmentOptions.TopLeft;
+		bodyText.alignment = TextAlignmentOptions.MidlineLeft;
 		bodyText.textWrappingMode = TextWrappingModes.Normal;
 		bodyText.overflowMode = TextOverflowModes.Overflow;
 	}
