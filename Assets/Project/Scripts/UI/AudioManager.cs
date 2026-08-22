@@ -3,6 +3,9 @@ using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
+	private const string GrayscaleButtonShaderName = "UI/Grayscale Button Tint";
+	private static Material grayscaleButtonMaterial;
+
 	public static AudioManager Instance { get; private set; }
 
 	[SerializeField] private AudioSource uiSfxSource = null;
@@ -63,9 +66,35 @@ public class AudioManager : MonoBehaviour
 
 		if (button.targetGraphic != null)
 		{
+			Material material = GetGrayscaleButtonMaterial();
+			if (material != null)
+			{
+				button.targetGraphic.material = material;
+			}
+
 			button.targetGraphic.color = Color.white;
 			button.targetGraphic.CrossFadeColor(colors.normalColor, 0f, true, true);
 		}
+	}
+
+	private static Material GetGrayscaleButtonMaterial()
+	{
+		if (grayscaleButtonMaterial != null)
+		{
+			return grayscaleButtonMaterial;
+		}
+
+		Shader shader = Shader.Find(GrayscaleButtonShaderName);
+		if (shader == null)
+		{
+			return null;
+		}
+
+		grayscaleButtonMaterial = new Material(shader)
+		{
+			hideFlags = HideFlags.DontSave
+		};
+		return grayscaleButtonMaterial;
 	}
 
 	private static void PreloadUiClip(AudioClip clip)

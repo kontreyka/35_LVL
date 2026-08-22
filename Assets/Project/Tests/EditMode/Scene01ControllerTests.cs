@@ -508,7 +508,7 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
-	public void ConfigureMainMenuButtonColors_UsesAWhiteGraphicBaseAndConsistentGrayDisabledState()
+	public void ConfigureMainMenuButtonColors_DesaturatesBrushesBeforeApplyingButtonTint()
 	{
 		GameObject buttonObject = new GameObject("Test Menu Button", typeof(Image), typeof(Button));
 		Button button = buttonObject.GetComponent<Button>();
@@ -527,6 +527,7 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(colors.disabledColor, Is.EqualTo(colors.normalColor));
 		Assert.That(button.transition, Is.EqualTo(Selectable.Transition.ColorTint));
 		Assert.That(image.color, Is.EqualTo(Color.white));
+		Assert.That(image.material.shader.name, Is.EqualTo("UI/Grayscale Button Tint"));
 		Object.DestroyImmediate(buttonObject);
 	}
 
