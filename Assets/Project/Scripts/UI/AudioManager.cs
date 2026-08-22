@@ -59,7 +59,7 @@ public class AudioManager : MonoBehaviour
 		colors.disabledColor = new Color(0.3f, 0.32f, 0.36f, 0.5f);
 		colors.fadeDuration = 0.04f;
 		button.colors = colors;
-		button.transition = Selectable.Transition.None;
+		button.transition = Selectable.Transition.ColorTint;
 
 		if (button.targetGraphic != null)
 		{

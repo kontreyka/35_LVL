@@ -508,7 +508,7 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
-	public void ConfigureMainMenuButtonColors_UsesGrayNormalBlueHoverAndDarkBluePress()
+	public void ConfigureMainMenuButtonColors_UsesUnityColorTintForHoverAndPress()
 	{
 		GameObject buttonObject = new GameObject("Test Menu Button", typeof(Image), typeof(Button));
 		Button button = buttonObject.GetComponent<Button>();
@@ -524,7 +524,7 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(colors.highlightedColor, Is.EqualTo(new Color(0.12f, 0.42f, 0.92f, 1f)));
 		Assert.That(colors.pressedColor, Is.EqualTo(new Color(0.05f, 0.17f, 0.48f, 1f)));
 		Assert.That(colors.selectedColor, Is.EqualTo(colors.normalColor));
-		Assert.That(button.transition, Is.EqualTo(Selectable.Transition.None));
+		Assert.That(button.transition, Is.EqualTo(Selectable.Transition.ColorTint));
 		Assert.That(image.color, Is.EqualTo(colors.normalColor));
 		Object.DestroyImmediate(buttonObject);
 	}

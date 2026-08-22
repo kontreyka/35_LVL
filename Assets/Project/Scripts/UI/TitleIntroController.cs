@@ -232,7 +232,6 @@ public class TitleIntroController : MonoBehaviour
 		foreach (Button button in GetComponentsInChildren<Button>(true))
 		{
 			AudioManager.ConfigureMainMenuButtonColors(button);
-			ColorBlock colors = button.colors;
 			EventTrigger trigger = button.GetComponent<EventTrigger>();
 			if (trigger == null)
 			{
@@ -248,14 +247,7 @@ public class TitleIntroController : MonoBehaviour
 				|| entry.eventID == EventTriggerType.PointerExit
 				|| entry.eventID == EventTriggerType.PointerDown
 				|| entry.eventID == EventTriggerType.PointerUp);
-			AddPointerEvent(trigger, EventTriggerType.PointerEnter, () =>
-			{
-				SetButtonColor(button, colors.highlightedColor);
-				PlayUiSfx(hoverClip);
-			});
-			AddPointerEvent(trigger, EventTriggerType.PointerExit, () => SetButtonColor(button, colors.normalColor));
-			AddPointerEvent(trigger, EventTriggerType.PointerDown, () => SetButtonColor(button, colors.pressedColor));
-			AddPointerEvent(trigger, EventTriggerType.PointerUp, () => SetButtonColor(button, colors.highlightedColor));
+			AddPointerEvent(trigger, EventTriggerType.PointerEnter, () => PlayUiSfx(hoverClip));
 
 			button.onClick.RemoveListener(PlayConfirm);
 			button.onClick.AddListener(PlayConfirm);
@@ -267,14 +259,6 @@ public class TitleIntroController : MonoBehaviour
 		EventTrigger.Entry entry = new EventTrigger.Entry { eventID = eventType };
 		entry.callback.AddListener(_ => action());
 		trigger.triggers.Add(entry);
-	}
-
-	private static void SetButtonColor(Button button, Color color)
-	{
-		if (button != null && button.targetGraphic != null)
-		{
-			button.targetGraphic.color = color;
-		}
 	}
 
 	private void PlayConfirm()
