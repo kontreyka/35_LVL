@@ -374,6 +374,33 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void CanDropKeyIntoTruck_RequiresKeyAndTruckToBeZoomedToMatchingCells()
+	{
+		RoomPrototypePanelState keyState = new RoomPrototypePanelState(
+			RoomPrototypePanelSlot.TopLeft,
+			new RoomPrototypeViewport(0, 0, 1, 1),
+			true,
+			"KEY RACK"
+		);
+		RoomPrototypePanelState truckState = new RoomPrototypePanelState(
+			RoomPrototypePanelSlot.BottomLeft,
+			new RoomPrototypeViewport(1, 1, 1, 1),
+			true,
+			"TRUCK"
+		);
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropKeyIntoTruck(keyState, truckState), Is.True);
+		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropKeyIntoTruck(
+			RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.TopLeft),
+			truckState
+		), Is.False);
+		Assert.That(RoomPrototypeLevelOnePanelModel.CanDropKeyIntoTruck(
+			keyState,
+			RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft)
+		), Is.False);
+	}
+
+	[Test]
 	public void TryNavigate_BottomLeftZoomMovesOneCellAtATimeInEveryValidDirection()
 	{
 		RoomPrototypePanelState topLeftState = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);

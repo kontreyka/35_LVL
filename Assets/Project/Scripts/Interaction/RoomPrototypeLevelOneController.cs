@@ -136,6 +136,16 @@ public static class RoomPrototypeLevelOnePanelModel
 		return !state.IsZoomed && state.Slot != RoomPrototypePanelSlot.BottomRight;
 	}
 
+	public static bool CanDropKeyIntoTruck(RoomPrototypePanelState keyState, RoomPrototypePanelState truckState)
+	{
+		return keyState.Slot == RoomPrototypePanelSlot.TopLeft
+			&& keyState.IsZoomed
+			&& keyState.Viewport.Equals(new RoomPrototypeViewport(0, 0, 1, 1))
+			&& truckState.Slot == RoomPrototypePanelSlot.BottomLeft
+			&& truckState.IsZoomed
+			&& truckState.Viewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1));
+	}
+
 	public static bool TryNavigate(
 		RoomPrototypePanelState state,
 		RoomPrototypePanelDirection direction,
@@ -240,6 +250,10 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private readonly List<RoomMarker> roomMarkers = new List<RoomMarker>();
 	private Font interfaceFont;
 	private Sprite circleSprite;
+	private RectTransform canvasRoot;
+	private Coroutine keyDropAnimation;
+	private bool keyIsFalling;
+	private bool keyDeliveredToTruck;
 
 	private void Awake()
 	{
@@ -253,7 +267,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		BuildMarkers();
 		EnsureEventSystem();
 
-		RectTransform canvasRoot = CreateCanvas();
+		canvasRoot = CreateCanvas();
 		RectTransform boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
 		Vector2 squareBoardSize = CalculateSquareBoardSize(boardSize);
 		boardRoot.anchorMin = new Vector2(0.5f, 0.5f);
@@ -334,7 +348,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		foreach (RoomMarker marker in roomMarkers)
 		{
-			panel.MarkerViews.Add(CreateMarkerView(content, marker));
+			MarkerView markerView = CreateMarkerView(content, marker);
+			panel.MarkerViews.Add(markerView);
+			ConfigureMarkerInteraction(markerView);
 		}
 
 		Button tapButton = CreateButton("Tap Area", content, string.Empty, Color.clear, Color.clear, new Vector2(1f, 1f));
@@ -345,6 +361,14 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		tapRect.offsetMax = Vector2.zero;
 		tapButton.onClick.AddListener(() => ZoomPanel(panel));
 		panel.TapButton = tapButton;
+
+		foreach (MarkerView markerView in panel.MarkerViews)
+		{
+			if (markerView.Button != null)
+			{
+				markerView.RectTransform.SetAsLastSibling();
+			}
+		}
 
 		panels[slot] = panel;
 		ApplyState(panel, panel.State, false);
@@ -372,6 +396,19 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		};
 	}
 
+	private void ConfigureMarkerInteraction(MarkerView markerView)
+	{
+		if (markerView.Marker.Label != "KEY")
+		{
+			return;
+		}
+
+		Button button = markerView.Image.gameObject.AddComponent<Button>();
+		button.targetGraphic = markerView.Image;
+		button.onClick.AddListener(TryDropKeyIntoTruck);
+		markerView.Button = button;
+	}
+
 	private void ZoomPanel(PanelView panel)
 	{
 		if (!RoomPrototypeLevelOnePanelModel.CanZoom(panel.State) || panel.Animation != null)
@@ -380,6 +417,130 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		}
 
 		ApplyState(panel, RoomPrototypeLevelOnePanelModel.GetZoomState(panel.Slot), true);
+	}
+
+	private void TryDropKeyIntoTruck()
+	{
+		if (!CanDropKeyIntoTruck())
+		{
+			return;
+		}
+
+		MarkerView keyMarker = FindMarkerView(RoomPrototypePanelSlot.TopLeft, "KEY");
+		MarkerView truckMarker = FindMarkerView(RoomPrototypePanelSlot.BottomLeft, "TRUCK");
+		if (keyMarker == null || truckMarker == null)
+		{
+			return;
+		}
+
+		Vector2 startPosition = GetCanvasPosition(keyMarker.RectTransform);
+		Vector2 targetPosition = GetCanvasPosition(truckMarker.RectTransform);
+		Vector2 markerSize = keyMarker.RectTransform.rect.size;
+		keyIsFalling = true;
+		keyMarker.RectTransform.gameObject.SetActive(false);
+		RefreshKeyInteraction();
+		keyDropAnimation = StartCoroutine(AnimateKeyDrop(keyMarker.Marker, startPosition, targetPosition, markerSize));
+	}
+
+	private bool CanDropKeyIntoTruck()
+	{
+		if (keyIsFalling || keyDeliveredToTruck || keyDropAnimation != null)
+		{
+			return false;
+		}
+
+		if (!panels.TryGetValue(RoomPrototypePanelSlot.TopLeft, out PanelView keyPanel)
+			|| !panels.TryGetValue(RoomPrototypePanelSlot.BottomLeft, out PanelView truckPanel))
+		{
+			return false;
+		}
+
+		return keyPanel.Animation == null
+			&& truckPanel.Animation == null
+			&& RoomPrototypeLevelOnePanelModel.CanDropKeyIntoTruck(keyPanel.State, truckPanel.State);
+	}
+
+	private void RefreshKeyInteraction()
+	{
+		bool keyCanDrop = CanDropKeyIntoTruck();
+		foreach (PanelView panel in panels.Values)
+		{
+			foreach (MarkerView markerView in panel.MarkerViews)
+			{
+				if (markerView.Marker.Label != "KEY" || markerView.Button == null)
+				{
+					continue;
+				}
+
+				bool isActiveKey = keyCanDrop
+					&& panel.Slot == RoomPrototypePanelSlot.TopLeft
+					&& markerView.RectTransform.gameObject.activeInHierarchy;
+				markerView.Button.interactable = isActiveKey;
+				markerView.Image.raycastTarget = isActiveKey;
+			}
+		}
+	}
+
+	private MarkerView FindMarkerView(RoomPrototypePanelSlot slot, string label)
+	{
+		if (!panels.TryGetValue(slot, out PanelView panel))
+		{
+			return null;
+		}
+
+		foreach (MarkerView markerView in panel.MarkerViews)
+		{
+			if (markerView.Marker.Label == label)
+			{
+				return markerView;
+			}
+		}
+
+		return null;
+	}
+
+	private IEnumerator AnimateKeyDrop(RoomMarker keyMarker, Vector2 startPosition, Vector2 targetPosition, Vector2 markerSize)
+	{
+		Image fallingKey = CreateImage("Falling Key", canvasRoot, keyMarker.Color);
+		RectTransform fallingKeyRect = fallingKey.rectTransform;
+		fallingKeyRect.anchorMin = new Vector2(0.5f, 0.5f);
+		fallingKeyRect.anchorMax = new Vector2(0.5f, 0.5f);
+		fallingKeyRect.pivot = new Vector2(0.5f, 0.5f);
+		fallingKeyRect.sizeDelta = markerSize;
+		fallingKeyRect.anchoredPosition = startPosition;
+
+		Text label = CreateText("Text", fallingKeyRect, keyMarker.Label, 14, TextAnchor.MiddleCenter, Color.white);
+		label.fontStyle = FontStyle.Bold;
+		label.raycastTarget = false;
+		RectTransform labelRect = label.rectTransform;
+		labelRect.anchorMin = Vector2.zero;
+		labelRect.anchorMax = Vector2.one;
+		labelRect.offsetMin = Vector2.zero;
+		labelRect.offsetMax = Vector2.zero;
+
+		const float duration = 0.45f;
+		float elapsed = 0f;
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			float progress = Mathf.Clamp01(elapsed / duration);
+			float eased = progress * progress;
+			fallingKeyRect.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, eased);
+			yield return null;
+		}
+
+		Destroy(fallingKey.gameObject);
+		keyIsFalling = false;
+		keyDeliveredToTruck = true;
+		keyDropAnimation = null;
+		RefreshKeyInteraction();
+	}
+
+	private Vector2 GetCanvasPosition(RectTransform rectTransform)
+	{
+		Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(null, rectTransform.position);
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRoot, screenPosition, null, out Vector2 localPosition);
+		return localPosition;
 	}
 
 	private void ApplyState(PanelView panel, RoomPrototypePanelState state, bool animated)
@@ -397,6 +558,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			panel.State = state;
 			ApplyViewport(panel, ToFrame(state.Viewport));
 			RefreshControls(panel);
+			RefreshKeyInteraction();
 			return;
 		}
 
@@ -422,6 +584,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		ApplyViewport(panel, target);
 		panel.Animation = null;
 		RefreshControls(panel);
+		RefreshKeyInteraction();
 	}
 
 	private void ApplyViewport(PanelView panel, Vector4 viewport)
@@ -453,7 +616,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		foreach (MarkerView markerView in panel.MarkerViews)
 		{
 			RoomMarker marker = markerView.Marker;
-			bool visible = (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
+			bool visible = (marker.Label != "KEY" || (!keyIsFalling && !keyDeliveredToTruck))
+				&& (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
 				&& MarkerIntersectsViewport(marker, viewport);
 			markerView.RectTransform.gameObject.SetActive(visible);
 			if (!visible)
@@ -575,7 +739,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private void BuildMarkers()
 	{
 		roomMarkers.Clear();
-		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.39f, 0.62f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f)));
+		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.39f, 0.62f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.39f, 1.14f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.32f, 0.52f), new Color(0.95f, 0.67f, 0.16f, 0.42f)));
@@ -753,6 +917,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		public RoomMarker Marker;
 		public RectTransform RectTransform;
 		public Image Image;
+		public Button Button;
 	}
 
 	private sealed class PanelView
