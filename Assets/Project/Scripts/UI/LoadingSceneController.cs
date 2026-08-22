@@ -17,14 +17,16 @@ public class LoadingSceneController : MonoBehaviour
 	[Header("Loading Images")]
 	[SerializeField] private Image firstImage;
 	[SerializeField] private Image secondImage;
+	[SerializeField] private Image thirdImage;
 
 	[Header("Scene")]
 	[SerializeField] private string fallbackTargetSceneName;
 
 	[Header("Timing")]
-	[SerializeField] private float minimumFirstFrameTime = 1f;
-	[SerializeField] private float transitionDuration = 0.6f;
-	[SerializeField] private float secondFrameTime = 0.8f;
+	[SerializeField] private float firstFrameTime = 0.8f;
+	[SerializeField] private float secondFrameTime = 0.6f;
+	[SerializeField] private float thirdFrameTime = 0.8f;
+	[SerializeField] private float transitionDuration = 0.4f;
 
 	private void Start()
 	{
@@ -44,38 +46,52 @@ public class LoadingSceneController : MonoBehaviour
 	{
 		SetAlpha(firstImage, 1f);
 		SetAlpha(secondImage, 0f);
-
-		yield return new WaitForSecondsRealtime(minimumFirstFrameTime);
+		SetAlpha(thirdImage, 0f);
 
 		AsyncOperation loading = SceneManager.LoadSceneAsync(sceneName);
 		loading.allowSceneActivation = false;
 
+		// Кадр 1 — птица в клетке
+		yield return new WaitForSecondsRealtime(firstFrameTime);
+
+		// Переход 1 -> 2
+		yield return StartCoroutine(FadeBetween(firstImage, secondImage, transitionDuration));
+
+		// Кадр 2 — перья в клетке
+		yield return new WaitForSecondsRealtime(secondFrameTime);
+
+		// Переход 2 -> 3
+		yield return StartCoroutine(FadeBetween(secondImage, thirdImage, transitionDuration));
+
+		// Кадр 3 — перья упали
+		yield return new WaitForSecondsRealtime(thirdFrameTime);
+
+		// Ждём, пока сцена будет почти готова
 		while (loading.progress < 0.9f)
 		{
 			yield return null;
 		}
 
-		// Плавный переход между двумя кадрами
+		loading.allowSceneActivation = true;
+	}
+
+	private IEnumerator FadeBetween(Image from, Image to, float duration)
+	{
 		float elapsed = 0f;
 
-		while (elapsed < transitionDuration)
+		while (elapsed < duration)
 		{
 			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.Clamp01(elapsed / duration);
 
-			float t = Mathf.Clamp01(elapsed / transitionDuration);
-
-			SetAlpha(firstImage, 1f - t);
-			SetAlpha(secondImage, t);
+			SetAlpha(from, 1f - t);
+			SetAlpha(to, t);
 
 			yield return null;
 		}
 
-		SetAlpha(firstImage, 0f);
-		SetAlpha(secondImage, 1f);
-
-		yield return new WaitForSecondsRealtime(secondFrameTime);
-
-		loading.allowSceneActivation = true;
+		SetAlpha(from, 0f);
+		SetAlpha(to, 1f);
 	}
 
 	private void SetAlpha(Image image, float alpha)
