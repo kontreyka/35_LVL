@@ -1705,6 +1705,7 @@ GameObject:
   - component: {fileID: 1438578633}
   - component: {fileID: 1438578632}
   - component: {fileID: 1438578631}
+  - component: {fileID: 1438578634}
   m_Layer: 0
   m_Name: SceneAudio
   m_TagString: Untagged
@@ -1921,6 +1922,25 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1438578634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438578630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7387c1d24f514055b604d29fff81784b, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Scene01CageMusicProximity
+  musicSource: {fileID: 1438578632}
+  targetRenderer: {fileID: 132172275}
+  targetCamera: {fileID: 789448156}
+  minimumVolumeMultiplier: 0.2
+  fullVolumePadding: 0
+  quietDistance: 4
+  volumeSmoothTime: 0.18
 --- !u!1 &1643853418
 GameObject:
   m_ObjectHideFlags: 0
