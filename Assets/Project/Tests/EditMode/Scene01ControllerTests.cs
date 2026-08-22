@@ -207,6 +207,14 @@ public sealed class Scene01ControllerBackgroundScaleTests
 public sealed class RoomPrototypeNavigationTests
 {
 	[Test]
+	public void CalculateSquareBoardSize_UsesShorterConfiguredSide()
+	{
+		Vector2 squareBoardSize = RoomPrototypeLevelOneController.CalculateSquareBoardSize(new Vector2(1320f, 742f));
+
+		Assert.That(squareBoardSize, Is.EqualTo(new Vector2(742f, 742f)));
+	}
+
+	[Test]
 	public void BuiltInFontResourceName_UsesUnity6000RuntimeFont()
 	{
 		Assert.That(RoomPrototypeLevelOneController.BuiltInFontResourceName, Is.EqualTo("LegacyRuntime.ttf"));

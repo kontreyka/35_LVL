@@ -233,17 +233,25 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		RectTransform canvasRoot = CreateCanvas();
 		RectTransform boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
+		Vector2 squareBoardSize = CalculateSquareBoardSize(boardSize);
 		boardRoot.anchorMin = new Vector2(0.5f, 0.5f);
 		boardRoot.anchorMax = new Vector2(0.5f, 0.5f);
 		boardRoot.pivot = new Vector2(0.5f, 0.5f);
-		boardRoot.sizeDelta = boardSize;
+		boardRoot.sizeDelta = squareBoardSize;
 		boardRoot.anchoredPosition = Vector2.zero;
 
-		Vector2 panelSize = new Vector2((boardSize.x - panelGap) * 0.5f, (boardSize.y - panelGap) * 0.5f);
+		float panelSide = (squareBoardSize.x - panelGap) * 0.5f;
+		Vector2 panelSize = new Vector2(panelSide, panelSide);
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.TopLeft, new Vector2(-(panelSize.x + panelGap) * 0.5f, (panelSize.y + panelGap) * 0.5f), panelSize);
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.TopRight, new Vector2((panelSize.x + panelGap) * 0.5f, (panelSize.y + panelGap) * 0.5f), panelSize);
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.BottomLeft, new Vector2(-(panelSize.x + panelGap) * 0.5f, -(panelSize.y + panelGap) * 0.5f), panelSize);
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.BottomRight, new Vector2((panelSize.x + panelGap) * 0.5f, -(panelSize.y + panelGap) * 0.5f), panelSize);
+	}
+
+	public static Vector2 CalculateSquareBoardSize(Vector2 configuredSize)
+	{
+		float side = Mathf.Max(0f, Mathf.Min(configuredSize.x, configuredSize.y));
+		return new Vector2(side, side);
 	}
 
 	private RectTransform CreateCanvas()
