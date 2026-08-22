@@ -27,6 +27,7 @@ public class LoadingSceneController : MonoBehaviour
 	[SerializeField] private float secondFrameTime = 0.6f;
 	[SerializeField] private float thirdFrameTime = 0.8f;
 	[SerializeField] private float transitionDuration = 0.4f;
+	[SerializeField, Min(0.1f)] private float animationSpeedMultiplier = 1.35f;
 	[SerializeField, Min(0f)] private float sceneFadeOutDuration = 0.35f;
 	[SerializeField, Min(0f)] private float sceneFadeInDuration = 0.35f;
 	[SerializeField] private Color sceneFadeColor = Color.white;
@@ -54,29 +55,35 @@ public class LoadingSceneController : MonoBehaviour
 		AsyncOperation loading = SceneManager.LoadSceneAsync(sceneName);
 		loading.allowSceneActivation = false;
 
-		bool hasPlayedCycle = false;
-
-		while (!hasPlayedCycle || loading.progress < 0.9f)
+		while (loading.progress < 0.9f)
 		{
 		// Кадр 1 — птица в клетке
-		yield return new WaitForSecondsRealtime(firstFrameTime);
+		yield return new WaitForSecondsRealtime(firstFrameTime / animationSpeedMultiplier);
+		if (loading.progress >= 0.9f)
+			break;
 
 		// Переход 1 -> 2
-		yield return StartCoroutine(FadeBetween(firstImage, secondImage, transitionDuration));
+		yield return StartCoroutine(FadeBetween(firstImage, secondImage, transitionDuration / animationSpeedMultiplier));
+		if (loading.progress >= 0.9f)
+			break;
 
 		// Кадр 2 — перья в клетке
-		yield return new WaitForSecondsRealtime(secondFrameTime);
+		yield return new WaitForSecondsRealtime(secondFrameTime / animationSpeedMultiplier);
+		if (loading.progress >= 0.9f)
+			break;
 
 		// Переход 2 -> 3
-		yield return StartCoroutine(FadeBetween(secondImage, thirdImage, transitionDuration));
+		yield return StartCoroutine(FadeBetween(secondImage, thirdImage, transitionDuration / animationSpeedMultiplier));
+		if (loading.progress >= 0.9f)
+			break;
 
 		// Кадр 3 — перья упали
-		yield return new WaitForSecondsRealtime(thirdFrameTime);
+		yield return new WaitForSecondsRealtime(thirdFrameTime / animationSpeedMultiplier);
+		if (loading.progress >= 0.9f)
+			break;
 
 		// Ждём, пока сцена будет почти готова
-			while (loading.progress < 0.9f)
-				yield return null;
-			hasPlayedCycle = true;
+			yield return StartCoroutine(FadeBetween(thirdImage, firstImage, transitionDuration / animationSpeedMultiplier));
 		}
 
 		yield return SceneTransitionOverlay.FadeOutForSceneChange(

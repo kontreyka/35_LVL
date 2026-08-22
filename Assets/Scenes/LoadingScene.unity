@@ -156,6 +156,7 @@ MonoBehaviour:
   secondFrameTime: 0.8
   thirdFrameTime: 0.8
   transitionDuration: 0.6
+  animationSpeedMultiplier: 1.35
 --- !u!4 &81189149
 Transform:
   m_ObjectHideFlags: 0
