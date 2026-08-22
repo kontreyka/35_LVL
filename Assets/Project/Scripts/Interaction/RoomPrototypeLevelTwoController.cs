@@ -1,0 +1,606 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
+
+public static class RoomPrototypeLevelTwoSlot
+{
+	public const int TopLeft = 0;
+	public const int TopRight = 1;
+	public const int BottomLeft = 2;
+	public const int BottomRight = 3;
+}
+
+public static class RoomPrototypeLevelTwoLayoutModel
+{
+	public static bool AreOrthogonallyAdjacent(int firstSlot, int secondSlot)
+	{
+		int firstX = firstSlot % 2;
+		int firstY = firstSlot / 2;
+		int secondX = secondSlot % 2;
+		int secondY = secondSlot / 2;
+		return Mathf.Abs(firstX - secondX) + Mathf.Abs(firstY - secondY) == 1;
+	}
+
+	public static int ChooseDisplacementSlot(int occupiedSlot, int draggedOriginSlot, int emptySlot)
+	{
+		if (AreOrthogonallyAdjacent(occupiedSlot, draggedOriginSlot))
+		{
+			return draggedOriginSlot;
+		}
+
+		if (AreOrthogonallyAdjacent(occupiedSlot, emptySlot))
+		{
+			return emptySlot;
+		}
+
+		throw new ArgumentException("An occupied slot must have an orthogonally adjacent free slot.");
+	}
+}
+
+public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
+{
+	private const int RoomColumns = 4;
+	private const int RoomRows = 2;
+	private const string BuiltInFontResourceName = "LegacyRuntime.ttf";
+
+	[SerializeField] private Sprite backgroundSprite = null;
+	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
+	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
+	[SerializeField] private float panelGap = 8f;
+	[SerializeField] private float animationDuration = 0.28f;
+	[SerializeField] private float dragStartDistance = 14f;
+	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
+
+	private readonly List<PanelView> panels = new List<PanelView>();
+	private Font interfaceFont;
+	private RectTransform boardRoot;
+	private Vector2 panelSize;
+	private bool interactionLocked;
+	private PanelView pressedPanel;
+	private Vector2 pointerDownScreenPosition;
+	private bool isDragging;
+
+	private void Start()
+	{
+		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
+		EnsureEventSystem();
+
+		RectTransform canvasRoot = CreateCanvas();
+		boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
+		Vector2 squareBoardSize = CalculateSquareBoardSize(boardSize);
+		boardRoot.sizeDelta = squareBoardSize;
+		boardRoot.anchoredPosition = Vector2.zero;
+
+		float side = (squareBoardSize.x - panelGap) * 0.5f;
+		panelSize = new Vector2(side, side);
+
+		CreatePanel(0, RoomPrototypeLevelTwoSlot.TopRight, 0, 0);
+		CreatePanel(1, RoomPrototypeLevelTwoSlot.TopLeft, 2, 0);
+		CreatePanel(2, RoomPrototypeLevelTwoSlot.BottomLeft, 1, 0);
+	}
+
+	public void OnPanelPointerDown(int panelId, PointerEventData eventData)
+	{
+		if (interactionLocked || isDragging)
+		{
+			return;
+		}
+
+		pressedPanel = FindPanel(panelId);
+		if (pressedPanel == null)
+		{
+			return;
+		}
+
+		pointerDownScreenPosition = eventData.position;
+	}
+
+	public void OnPanelDrag(int panelId, PointerEventData eventData)
+	{
+		if (interactionLocked || pressedPanel == null || pressedPanel.Id != panelId)
+		{
+			return;
+		}
+
+		if (!isDragging && (eventData.position - pointerDownScreenPosition).sqrMagnitude >= dragStartDistance * dragStartDistance)
+		{
+			isDragging = true;
+			pressedPanel.Root.SetAsLastSibling();
+			pressedPanel.Root.localScale = Vector3.one * 1.045f;
+			pressedPanel.CanvasGroup.alpha = 0.94f;
+		}
+
+		if (!isDragging)
+		{
+			return;
+		}
+
+		if (RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, eventData.position, null, out Vector2 localPosition))
+		{
+			pressedPanel.Root.anchoredPosition = localPosition;
+		}
+	}
+
+	public void OnPanelPointerUp(int panelId, PointerEventData eventData)
+	{
+		if (pressedPanel == null || pressedPanel.Id != panelId)
+		{
+			return;
+		}
+
+		FinishPointer(eventData.position);
+	}
+
+	public void OnPanelEndDrag(int panelId, PointerEventData eventData)
+	{
+		if (pressedPanel != null && pressedPanel.Id == panelId)
+		{
+			FinishPointer(eventData.position);
+		}
+	}
+
+	private void FinishPointer(Vector2 screenPosition)
+	{
+		PanelView panel = pressedPanel;
+		pressedPanel = null;
+
+		if (!isDragging)
+		{
+			ToggleZoom(panel);
+			return;
+		}
+
+		isDragging = false;
+		panel.Root.localScale = Vector3.one;
+		panel.CanvasGroup.alpha = 1f;
+		int targetSlot = GetClosestSlot(screenPosition);
+		MovePanelToSlot(panel, targetSlot);
+	}
+
+	private void ToggleZoom(PanelView panel)
+	{
+		if (interactionLocked || panel.Animation != null)
+		{
+			return;
+		}
+
+		Viewport target = panel.IsZoomed
+			? new Viewport(panel.RegionX, panel.RegionY, 2, 2)
+			: new Viewport(panel.RegionX, panel.RegionY, 1, 1);
+		panel.IsZoomed = !panel.IsZoomed;
+		ClearControls(panel);
+		panel.Animation = StartCoroutine(AnimateViewport(panel, target));
+	}
+
+	private void Navigate(PanelView panel, Direction direction)
+	{
+		if (interactionLocked || !panel.IsZoomed || panel.Animation != null)
+		{
+			return;
+		}
+
+		float x = panel.Viewport.X;
+		float y = panel.Viewport.Y;
+		switch (direction)
+		{
+			case Direction.Left: x--; break;
+			case Direction.Right: x++; break;
+			case Direction.Up: y--; break;
+			case Direction.Down: y++; break;
+		}
+
+		if (x < panel.RegionX || x > panel.RegionX + 1 || y < panel.RegionY || y > panel.RegionY + 1)
+		{
+			return;
+		}
+
+		ClearControls(panel);
+		panel.Animation = StartCoroutine(AnimateViewport(panel, new Viewport(x, y, 1, 1)));
+	}
+
+	private void MovePanelToSlot(PanelView draggedPanel, int targetSlot)
+	{
+		int originSlot = draggedPanel.Slot;
+		if (targetSlot == originSlot)
+		{
+			StartCoroutine(AnimatePanelsToSlots(new[] { draggedPanel }));
+			return;
+		}
+
+		PanelView occupiedPanel = FindPanelInSlot(targetSlot);
+		if (occupiedPanel == null)
+		{
+			draggedPanel.Slot = targetSlot;
+			StartCoroutine(AnimatePanelsToSlots(new[] { draggedPanel }));
+			return;
+		}
+
+		int permanentEmptySlot = FindEmptySlot();
+		int displacementSlot = RoomPrototypeLevelTwoLayoutModel.ChooseDisplacementSlot(
+			targetSlot,
+			originSlot,
+			permanentEmptySlot
+		);
+		draggedPanel.Slot = targetSlot;
+		occupiedPanel.Slot = displacementSlot;
+		StartCoroutine(AnimatePanelsToSlots(new[] { draggedPanel, occupiedPanel }));
+	}
+
+	private IEnumerator AnimatePanelsToSlots(IReadOnlyList<PanelView> movingPanels)
+	{
+		interactionLocked = true;
+		Vector2[] starts = new Vector2[movingPanels.Count];
+		Vector2[] targets = new Vector2[movingPanels.Count];
+		for (int i = 0; i < movingPanels.Count; i++)
+		{
+			starts[i] = movingPanels[i].Root.anchoredPosition;
+			targets[i] = GetSlotPosition(movingPanels[i].Slot);
+		}
+
+		float elapsed = 0f;
+		while (elapsed < animationDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / animationDuration));
+			for (int i = 0; i < movingPanels.Count; i++)
+			{
+				movingPanels[i].Root.anchoredPosition = Vector2.LerpUnclamped(starts[i], targets[i], t);
+			}
+			yield return null;
+		}
+
+		for (int i = 0; i < movingPanels.Count; i++)
+		{
+			movingPanels[i].Root.anchoredPosition = targets[i];
+		}
+
+		interactionLocked = false;
+	}
+
+	private IEnumerator AnimateViewport(PanelView panel, Viewport target)
+	{
+		interactionLocked = true;
+		Viewport start = panel.Viewport;
+		float elapsed = 0f;
+		while (elapsed < animationDuration)
+		{
+			elapsed += Time.unscaledDeltaTime;
+			float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / animationDuration));
+			ApplyViewport(panel, Viewport.Lerp(start, target, t));
+			yield return null;
+		}
+
+		panel.Viewport = target;
+		ApplyViewport(panel, target);
+		panel.Animation = null;
+		interactionLocked = false;
+		RefreshControls(panel);
+	}
+
+	private void CreatePanel(int id, int slot, int regionX, int regionY)
+	{
+		RectTransform root = CreateRectTransform($"Panel {id}", boardRoot);
+		root.sizeDelta = panelSize;
+		root.anchoredPosition = GetSlotPosition(slot);
+		Image frame = root.gameObject.AddComponent<Image>();
+		frame.color = frameColor;
+		frame.raycastTarget = true;
+
+		CanvasGroup canvasGroup = root.gameObject.AddComponent<CanvasGroup>();
+		RectTransform content = CreateRectTransform("Content", root);
+		content.anchorMin = Vector2.zero;
+		content.anchorMax = Vector2.one;
+		content.offsetMin = new Vector2(4f, 4f);
+		content.offsetMax = new Vector2(-4f, -4f);
+		content.gameObject.AddComponent<RectMask2D>();
+
+		Image roomSlice = CreateImage("Room Slice", content, Color.white);
+		roomSlice.sprite = backgroundSprite;
+		roomSlice.preserveAspect = false;
+		RectTransform background = roomSlice.rectTransform;
+		background.anchorMin = new Vector2(0.5f, 0.5f);
+		background.anchorMax = new Vector2(0.5f, 0.5f);
+		background.pivot = new Vector2(0.5f, 0.5f);
+		roomSlice.raycastTarget = false;
+
+		PanelView panel = new PanelView
+		{
+			Id = id,
+			Slot = slot,
+			RegionX = regionX,
+			RegionY = regionY,
+			Root = root,
+			Content = content,
+			Background = background,
+			CanvasGroup = canvasGroup,
+			Viewport = new Viewport(regionX, regionY, 2, 2)
+		};
+		panels.Add(panel);
+
+		RoomPrototypeLevelTwoPanelDrag dragHandler = root.gameObject.AddComponent<RoomPrototypeLevelTwoPanelDrag>();
+		dragHandler.Initialize(this, id);
+		ApplyViewport(panel, panel.Viewport);
+	}
+
+	private void ApplyViewport(PanelView panel, Viewport viewport)
+	{
+		Vector2 contentSize = panel.Content.rect.size;
+		if (contentSize.x <= 0f || contentSize.y <= 0f)
+		{
+			contentSize = panel.Content.sizeDelta;
+		}
+
+		Vector2 imageSize = new Vector2(
+			contentSize.x * RoomColumns / viewport.Width,
+			contentSize.y * RoomRows / viewport.Height
+		);
+		float centerX = (viewport.X + viewport.Width * 0.5f) / RoomColumns;
+		float centerY = (viewport.Y + viewport.Height * 0.5f) / RoomRows;
+		Vector2 offset = new Vector2((centerX - 0.5f) * imageSize.x, (0.5f - centerY) * imageSize.y);
+		panel.Background.sizeDelta = imageSize;
+		panel.Background.anchoredPosition = -offset;
+	}
+
+	private void RefreshControls(PanelView panel)
+	{
+		ClearControls(panel);
+		if (!panel.IsZoomed)
+		{
+			return;
+		}
+
+		TryCreateArrow(panel, Direction.Left, panel.Viewport.X > panel.RegionX);
+		TryCreateArrow(panel, Direction.Right, panel.Viewport.X < panel.RegionX + 1);
+		TryCreateArrow(panel, Direction.Up, panel.Viewport.Y > panel.RegionY);
+		TryCreateArrow(panel, Direction.Down, panel.Viewport.Y < panel.RegionY + 1);
+	}
+
+	private void TryCreateArrow(PanelView panel, Direction direction, bool allowed)
+	{
+		if (!allowed)
+		{
+			return;
+		}
+
+		Image image = CreateImage($"{direction} Arrow", panel.Root, new Color(0.08f, 0.08f, 0.075f, 0.86f));
+		RectTransform rect = image.rectTransform;
+		rect.sizeDelta = new Vector2(46f, 46f);
+		PlaceArrow(rect, direction);
+		Button button = image.gameObject.AddComponent<Button>();
+		button.targetGraphic = image;
+		button.onClick.AddListener(() => Navigate(panel, direction));
+		Text label = CreateText("Label", rect, GetArrowText(direction), 30, Color.white);
+		label.raycastTarget = false;
+		label.rectTransform.anchorMin = Vector2.zero;
+		label.rectTransform.anchorMax = Vector2.one;
+		label.rectTransform.offsetMin = Vector2.zero;
+		label.rectTransform.offsetMax = Vector2.zero;
+		panel.Controls.Add(image.gameObject);
+	}
+
+	private void ClearControls(PanelView panel)
+	{
+		for (int i = 0; i < panel.Controls.Count; i++)
+		{
+			Destroy(panel.Controls[i]);
+		}
+		panel.Controls.Clear();
+	}
+
+	private int GetClosestSlot(Vector2 screenPosition)
+	{
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 localPosition);
+		int closestSlot = RoomPrototypeLevelTwoSlot.TopLeft;
+		float closestDistance = float.MaxValue;
+		for (int slot = RoomPrototypeLevelTwoSlot.TopLeft; slot <= RoomPrototypeLevelTwoSlot.BottomRight; slot++)
+		{
+			float distance = (GetSlotPosition(slot) - localPosition).sqrMagnitude;
+			if (distance < closestDistance)
+			{
+				closestDistance = distance;
+				closestSlot = slot;
+			}
+		}
+		return closestSlot;
+	}
+
+	private Vector2 GetSlotPosition(int slot)
+	{
+		float halfStep = (panelSize.x + panelGap) * 0.5f;
+		switch (slot)
+		{
+			case RoomPrototypeLevelTwoSlot.TopLeft: return new Vector2(-halfStep, halfStep);
+			case RoomPrototypeLevelTwoSlot.TopRight: return new Vector2(halfStep, halfStep);
+			case RoomPrototypeLevelTwoSlot.BottomLeft: return new Vector2(-halfStep, -halfStep);
+			case RoomPrototypeLevelTwoSlot.BottomRight: return new Vector2(halfStep, -halfStep);
+			default: throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
+		}
+	}
+
+	private int FindEmptySlot()
+	{
+		for (int slot = RoomPrototypeLevelTwoSlot.TopLeft; slot <= RoomPrototypeLevelTwoSlot.BottomRight; slot++)
+		{
+			if (FindPanelInSlot(slot) == null)
+			{
+				return slot;
+			}
+		}
+		throw new InvalidOperationException("The level two board must have one free slot.");
+	}
+
+	private PanelView FindPanelInSlot(int slot)
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			if (panels[i].Slot == slot)
+			{
+				return panels[i];
+			}
+		}
+		return null;
+	}
+
+	private PanelView FindPanel(int id)
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			if (panels[i].Id == id)
+			{
+				return panels[i];
+			}
+		}
+		return null;
+	}
+
+	private RectTransform CreateCanvas()
+	{
+		GameObject canvasObject = new GameObject("Room Prototype Level Two Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+		canvasObject.transform.SetParent(transform, false);
+		Canvas canvas = canvasObject.GetComponent<Canvas>();
+		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
+		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+		scaler.referenceResolution = referenceResolution;
+		scaler.matchWidthOrHeight = 0.5f;
+		RectTransform rect = canvasObject.GetComponent<RectTransform>();
+		rect.anchorMin = Vector2.zero;
+		rect.anchorMax = Vector2.one;
+		rect.offsetMin = Vector2.zero;
+		rect.offsetMax = Vector2.zero;
+		return rect;
+	}
+
+	private void EnsureEventSystem()
+	{
+		EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
+		if (eventSystem == null)
+		{
+			GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
+			eventSystemObject.transform.SetParent(transform, false);
+			eventSystem = eventSystemObject.GetComponent<EventSystem>();
+		}
+		InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+		if (inputModule == null)
+		{
+			inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+		}
+		inputModule.AssignDefaultActions();
+	}
+
+	private static Vector2 CalculateSquareBoardSize(Vector2 configuredSize)
+	{
+		float side = Mathf.Max(0f, Mathf.Min(configuredSize.x, configuredSize.y));
+		return new Vector2(side, side);
+	}
+
+	private static RectTransform CreateRectTransform(string name, Transform parent)
+	{
+		GameObject gameObject = new GameObject(name, typeof(RectTransform));
+		RectTransform rect = gameObject.GetComponent<RectTransform>();
+		rect.SetParent(parent, false);
+		rect.anchorMin = new Vector2(0.5f, 0.5f);
+		rect.anchorMax = new Vector2(0.5f, 0.5f);
+		rect.pivot = new Vector2(0.5f, 0.5f);
+		return rect;
+	}
+
+	private static Image CreateImage(string name, RectTransform parent, Color color)
+	{
+		RectTransform rect = CreateRectTransform(name, parent);
+		Image image = rect.gameObject.AddComponent<Image>();
+		image.color = color;
+		image.raycastTarget = false;
+		return image;
+	}
+
+	private Text CreateText(string name, RectTransform parent, string text, int fontSize, Color color)
+	{
+		RectTransform rect = CreateRectTransform(name, parent);
+		Text label = rect.gameObject.AddComponent<Text>();
+		label.font = interfaceFont;
+		label.text = text;
+		label.fontSize = fontSize;
+		label.alignment = TextAnchor.MiddleCenter;
+		label.color = color;
+		return label;
+	}
+
+	private void PlaceArrow(RectTransform rect, Direction direction)
+	{
+		float edge = panelSize.x * 0.5f - 34f;
+		switch (direction)
+		{
+			case Direction.Left: rect.anchoredPosition = new Vector2(-edge, 0f); break;
+			case Direction.Right: rect.anchoredPosition = new Vector2(edge, 0f); break;
+			case Direction.Up: rect.anchoredPosition = new Vector2(0f, edge); break;
+			case Direction.Down: rect.anchoredPosition = new Vector2(0f, -edge); break;
+		}
+	}
+
+	private static string GetArrowText(Direction direction)
+	{
+		switch (direction)
+		{
+			case Direction.Left: return "<";
+			case Direction.Right: return ">";
+			case Direction.Up: return "^";
+			case Direction.Down: return "v";
+			default: throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+		}
+	}
+
+	private enum Direction
+	{
+		Left,
+		Right,
+		Up,
+		Down
+	}
+
+	private readonly struct Viewport
+	{
+		public readonly float X;
+		public readonly float Y;
+		public readonly float Width;
+		public readonly float Height;
+
+		public Viewport(float x, float y, float width, float height)
+		{
+			X = x;
+			Y = y;
+			Width = width;
+			Height = height;
+		}
+
+		public static Viewport Lerp(Viewport from, Viewport to, float t)
+		{
+			return new Viewport(
+				Mathf.Lerp(from.X, to.X, t),
+				Mathf.Lerp(from.Y, to.Y, t),
+				Mathf.Lerp(from.Width, to.Width, t),
+				Mathf.Lerp(from.Height, to.Height, t)
+			);
+		}
+	}
+
+	private sealed class PanelView
+	{
+		public int Id;
+		public int Slot;
+		public int RegionX;
+		public int RegionY;
+		public bool IsZoomed;
+		public RectTransform Root;
+		public RectTransform Content;
+		public RectTransform Background;
+		public CanvasGroup CanvasGroup;
+		public Viewport Viewport;
+		public Coroutine Animation;
+		public readonly List<GameObject> Controls = new List<GameObject>();
+	}
+}

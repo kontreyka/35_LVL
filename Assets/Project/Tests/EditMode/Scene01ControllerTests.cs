@@ -557,4 +557,20 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(bottomRightState, RoomPrototypePanelDirection.Up, out RoomPrototypePanelState topRightFromBottomState), Is.True);
 		Assert.That(topRightFromBottomState.Viewport, Is.EqualTo(new RoomPrototypeViewport(2, 0, 1, 1)));
 	}
+
+	[Test]
+	public void LevelTwoDisplacement_UsesAnOrthogonalFreeSlotInsteadOfADiagonal()
+	{
+		int displacedSlot = RoomPrototypeLevelTwoLayoutModel.ChooseDisplacementSlot(
+			RoomPrototypeLevelTwoSlot.TopRight,
+			RoomPrototypeLevelTwoSlot.BottomLeft,
+			RoomPrototypeLevelTwoSlot.BottomRight
+		);
+
+		Assert.That(displacedSlot, Is.EqualTo(RoomPrototypeLevelTwoSlot.BottomRight));
+		Assert.That(RoomPrototypeLevelTwoLayoutModel.AreOrthogonallyAdjacent(
+			RoomPrototypeLevelTwoSlot.TopRight,
+			displacedSlot
+		), Is.True);
+	}
 }
