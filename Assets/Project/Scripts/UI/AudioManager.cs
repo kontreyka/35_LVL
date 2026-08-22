@@ -22,6 +22,8 @@ public class AudioManager : MonoBehaviour
 		}
 
 		Instance = this;
+		PreloadUiClip(hoverClip);
+		PreloadUiClip(confirmClip);
 
 		// Не уничтожать при смене сцены.
 		DontDestroyOnLoad(gameObject);
@@ -45,11 +47,29 @@ public class AudioManager : MonoBehaviour
 		audioSource.spatialBlend = 0f;
 	}
 
+	public static void ConfigureMainMenuButtonColors(Button button)
+	{
+		if (button == null)
+		{
+			return;
+		}
+
+		ColorBlock colors = button.colors;
+		colors.normalColor = new Color(0.55f, 0.58f, 0.64f, 1f);
+		colors.highlightedColor = new Color(0.12f, 0.42f, 0.92f, 1f);
+		colors.pressedColor = new Color(0.05f, 0.17f, 0.48f, 1f);
+		colors.selectedColor = colors.normalColor;
+		colors.disabledColor = new Color(0.3f, 0.32f, 0.36f, 0.5f);
+		colors.fadeDuration = 0.04f;
+		button.colors = colors;
+	}
+
 	private void ConfigureMainMenuButtons()
 	{
 		Button[] buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 		foreach (Button button in buttons)
 		{
+			ConfigureMainMenuButtonColors(button);
 			EventTrigger trigger = button.GetComponent<EventTrigger>();
 			if (trigger == null)
 			{
@@ -68,6 +88,14 @@ public class AudioManager : MonoBehaviour
 
 			button.onClick.RemoveListener(PlayConfirm);
 			button.onClick.AddListener(PlayConfirm);
+		}
+	}
+
+	private static void PreloadUiClip(AudioClip clip)
+	{
+		if (clip != null && clip.loadState == AudioDataLoadState.Unloaded)
+		{
+			clip.LoadAudioData();
 		}
 	}
 

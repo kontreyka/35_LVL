@@ -508,6 +508,22 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void ConfigureMainMenuButtonColors_UsesGrayNormalBlueHoverAndDarkBluePress()
+	{
+		GameObject buttonObject = new GameObject("Test Menu Button", typeof(Image), typeof(Button));
+		Button button = buttonObject.GetComponent<Button>();
+
+		AudioManager.ConfigureMainMenuButtonColors(button);
+
+		ColorBlock colors = button.colors;
+		Assert.That(colors.normalColor, Is.EqualTo(new Color(0.55f, 0.58f, 0.64f, 1f)));
+		Assert.That(colors.highlightedColor, Is.EqualTo(new Color(0.12f, 0.42f, 0.92f, 1f)));
+		Assert.That(colors.pressedColor, Is.EqualTo(new Color(0.05f, 0.17f, 0.48f, 1f)));
+		Assert.That(colors.selectedColor, Is.EqualTo(colors.normalColor));
+		Object.DestroyImmediate(buttonObject);
+	}
+
+	[Test]
 	public void TryNavigate_BottomLeftZoomMovesOneCellAtATimeInEveryValidDirection()
 	{
 		RoomPrototypePanelState topLeftState = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);
