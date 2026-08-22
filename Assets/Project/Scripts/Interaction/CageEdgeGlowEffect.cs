@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(SpriteRenderer))]
 public sealed class CageEdgeGlowEffect : MonoBehaviour
 {
+	private const float DefaultAuraPulseSpeed = 0.20833334f;
+
 	[Header("Aura Main Controls")]
 	[FormerlySerializedAs("maxGlowIntensity")]
 	[Tooltip("Основная интенсивность желтоватой ауры. Чем больше значение, тем ярче свечение.")]
@@ -19,7 +21,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	[FormerlySerializedAs("particleRate")]
 	[Tooltip("Количество частиц, появляющихся по краям за секунду.")]
-	[Range(0f, 60f)]
+	[Range(0f, 250f)]
 	[SerializeField] private float particleCount = 9f;
 
 	[Header("Aura Placement")]
@@ -28,7 +30,12 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	[Header("Aura Details")]
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
-	[SerializeField] private float glowPulseDuration = 4.8f;
+
+	[Tooltip("Скорость пульсации ареола в циклах за секунду. 0 выключает пульсацию и держит ареол на полной интенсивности.")]
+	[Range(0f, 3f)]
+	[SerializeField] private float auraPulseSpeed = DefaultAuraPulseSpeed;
+
+	[SerializeField, HideInInspector] private float glowPulseDuration;
 	[SerializeField] private float alphaThreshold = 0.2f;
 	[SerializeField] private int glowSortingOffset = -1;
 
@@ -58,17 +65,24 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private void Awake()
 	{
+		ConvertLegacyPulseDuration();
 		Setup();
 	}
 
 	private void OnEnable()
 	{
+		ConvertLegacyPulseDuration();
 		Setup();
 
 		if (edgeParticles != null)
 		{
 			edgeParticles.Play();
 		}
+	}
+
+	private void OnValidate()
+	{
+		ConvertLegacyPulseDuration();
 	}
 
 	private void Update()
@@ -337,8 +351,12 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 	private float GetSlowPulse()
 	{
-		float duration = Mathf.Max(0.01f, glowPulseDuration);
-		return (Mathf.Sin(Time.time * Mathf.PI * 2f / duration) + 1f) * 0.5f;
+		float speed = Mathf.Max(0f, auraPulseSpeed);
+
+		if (speed <= Mathf.Epsilon)
+			return 1f;
+
+		return (Mathf.Sin(Time.time * Mathf.PI * 2f * speed) + 1f) * 0.5f;
 	}
 
 	private int GetParticleCapacity()
@@ -350,6 +368,19 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	private Vector3 GetAuraOffsetPosition()
 	{
 		return new Vector3(auraOffset.x, auraOffset.y, 0f);
+	}
+
+	private void ConvertLegacyPulseDuration()
+	{
+		if (glowPulseDuration <= 0f)
+			return;
+
+		if (Mathf.Approximately(auraPulseSpeed, DefaultAuraPulseSpeed))
+		{
+			auraPulseSpeed = 1f / Mathf.Max(0.01f, glowPulseDuration);
+		}
+
+		glowPulseDuration = 0f;
 	}
 
 	private static Vector3 TexturePixelToLocalPosition(Sprite sprite, Vector2Int pixel)

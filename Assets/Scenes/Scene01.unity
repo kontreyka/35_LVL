@@ -1338,7 +1338,8 @@ MonoBehaviour:
   particleCount: 60
   auraOffset: {x: 0, y: 0}
   glowColor: {r: 1, g: 0.86, b: 0.48, a: 0.5}
-  glowPulseDuration: 4.8
+  auraPulseSpeed: 0.20833334
+  glowPulseDuration: 0
   alphaThreshold: 0.2
   glowSortingOffset: -1
   particleColor: {r: 1, g: 0.9, b: 0.55, a: 0.42}
