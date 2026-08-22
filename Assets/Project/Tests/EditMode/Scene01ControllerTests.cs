@@ -1,6 +1,8 @@
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class SpriteContourSamplerTests
 {
@@ -218,6 +220,100 @@ public sealed class RoomPrototypeNavigationTests
 	public void BuiltInFontResourceName_UsesUnity6000RuntimeFont()
 	{
 		Assert.That(RoomPrototypeLevelOneController.BuiltInFontResourceName, Is.EqualTo("LegacyRuntime.ttf"));
+	}
+
+	[Test]
+	public void BuiltPrototype_HidesSectorLabelsAndLeavesOnlyButtonsBlockingRaycasts()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			Text[] textLabels = root.GetComponentsInChildren<Text>(true);
+			Assert.That(textLabels.Any(label => label.name == "Panel Label"), Is.False);
+
+			Button[] tapButtons = root.GetComponentsInChildren<Button>(true)
+				.Where(button => button.name == "Tap Area")
+				.ToArray();
+
+			Assert.That(tapButtons, Has.Length.EqualTo(4));
+			Assert.That(tapButtons.All(button => button.targetGraphic != null && button.targetGraphic.raycastTarget), Is.True);
+
+			Graphic[] nonButtonRaycastBlockers = root.GetComponentsInChildren<Graphic>(true)
+				.Where(graphic => graphic.raycastTarget && graphic.GetComponent<Button>() == null)
+				.ToArray();
+
+			Assert.That(nonButtonRaycastBlockers, Is.Empty);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
+	public void RoomPrototypeBackground_DoesNotContainFullSectorGuideLines()
+	{
+		string path = Path.Combine(Application.dataPath, "Project/ART/UI/интерьер_с_правильным_делением_на_8.png");
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+
+		try
+		{
+			Assert.That(ImageConversion.LoadImage(texture, File.ReadAllBytes(path)), Is.True);
+
+			int fullHeightRedColumns = 0;
+			for (int x = 0; x < texture.width; x++)
+			{
+				int redPixels = 0;
+				for (int y = 0; y < texture.height; y++)
+				{
+					if (IsSectorGuidePixel(texture.GetPixel(x, y)))
+					{
+						redPixels++;
+					}
+				}
+
+				if (redPixels > texture.height * 0.85f)
+				{
+					fullHeightRedColumns++;
+				}
+			}
+
+			int fullWidthRedRows = 0;
+			for (int y = 0; y < texture.height; y++)
+			{
+				int redPixels = 0;
+				for (int x = 0; x < texture.width; x++)
+				{
+					if (IsSectorGuidePixel(texture.GetPixel(x, y)))
+					{
+						redPixels++;
+					}
+				}
+
+				if (redPixels > texture.width * 0.85f)
+				{
+					fullWidthRedRows++;
+				}
+			}
+
+			Assert.That(fullHeightRedColumns, Is.EqualTo(0));
+			Assert.That(fullWidthRedRows, Is.EqualTo(0));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	private static bool IsSectorGuidePixel(Color pixel)
+	{
+		return pixel.r > 0.5f
+			&& pixel.g < 0.45f
+			&& pixel.b < 0.45f
+			&& pixel.r > pixel.g + 0.15f
+			&& pixel.r > pixel.b + 0.15f;
 	}
 
 	[Test]

@@ -283,6 +283,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		root.anchoredPosition = position;
 		Image frame = root.gameObject.AddComponent<Image>();
 		frame.color = frameColor;
+		frame.raycastTarget = false;
 
 		RectTransform content = CreateRectTransform("Viewport", root);
 		content.anchorMin = Vector2.zero;
@@ -322,14 +323,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		tapRect.offsetMax = Vector2.zero;
 		tapButton.onClick.AddListener(() => ZoomPanel(panel));
 		panel.TapButton = tapButton;
-
-		panel.Label = CreateText("Panel Label", root, string.Empty, 18, TextAnchor.UpperLeft, Color.white);
-		RectTransform labelRect = panel.Label.rectTransform;
-		labelRect.anchorMin = new Vector2(0f, 1f);
-		labelRect.anchorMax = new Vector2(1f, 1f);
-		labelRect.pivot = new Vector2(0f, 1f);
-		labelRect.offsetMin = new Vector2(12f, -44f);
-		labelRect.offsetMax = new Vector2(-12f, -10f);
 
 		panels[slot] = panel;
 		ApplyState(panel, panel.State, false);
@@ -431,7 +424,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		panel.Background.sizeDelta = imageSize;
 		panel.Background.anchoredPosition = -offset;
 		UpdateMarkerViews(panel, viewport, panelSize);
-		UpdateLabel(panel, viewport);
 	}
 
 	private void UpdateMarkerViews(PanelView panel, Vector4 viewport, Vector2 panelSize)
@@ -476,19 +468,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			&& markerMinX <= viewport.x + viewport.z
 			&& markerMaxY >= viewport.y
 			&& markerMinY <= viewport.y + viewport.w;
-	}
-
-	private void UpdateLabel(PanelView panel, Vector4 viewport)
-	{
-		RoomPrototypeViewport roundedViewport = new RoomPrototypeViewport(
-			Mathf.RoundToInt(viewport.x),
-			Mathf.RoundToInt(viewport.y),
-			Mathf.RoundToInt(viewport.z),
-			Mathf.RoundToInt(viewport.w)
-		);
-
-		string zoomLabel = panel.State.IsZoomed ? panel.State.Label : "ROOM";
-		panel.Label.text = $"{GetSlotShortName(panel.Slot)}  {zoomLabel}  {RoomPrototypeLevelOnePanelModel.FormatViewport(roundedViewport)}";
 	}
 
 	private void RefreshControls(PanelView panel)
@@ -579,23 +558,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.32f, 0.52f), new Color(0.95f, 0.67f, 0.16f, 0.42f)));
 	}
 
-	private static string GetSlotShortName(RoomPrototypePanelSlot slot)
-	{
-		switch (slot)
-		{
-			case RoomPrototypePanelSlot.TopLeft:
-				return "TL";
-			case RoomPrototypePanelSlot.TopRight:
-				return "TR";
-			case RoomPrototypePanelSlot.BottomLeft:
-				return "BL";
-			case RoomPrototypePanelSlot.BottomRight:
-				return "BR";
-			default:
-				throw new ArgumentOutOfRangeException(nameof(slot), slot, null);
-		}
-	}
-
 	private static string GetArrowText(RoomPrototypePanelDirection direction)
 	{
 		switch (direction)
@@ -630,6 +592,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		RectTransform rectTransform = image.rectTransform;
 		rectTransform.sizeDelta = size;
 		Button button = image.gameObject.AddComponent<Button>();
+		image.raycastTarget = true;
+		button.targetGraphic = image;
 		ColorBlock colors = button.colors;
 		colors.normalColor = background;
 		colors.highlightedColor = new Color(background.r + 0.08f, background.g + 0.08f, background.b + 0.08f, background.a);
@@ -657,6 +621,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		RectTransform rectTransform = CreateRectTransform(name, parent);
 		Image image = rectTransform.gameObject.AddComponent<Image>();
 		image.color = color;
+		image.raycastTarget = false;
 		return image;
 	}
 
@@ -746,7 +711,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		public RectTransform Root;
 		public RectTransform Content;
 		public RectTransform Background;
-		public Text Label;
 		public Button TapButton;
 		public RoomPrototypePanelState State;
 		public Coroutine Animation;
