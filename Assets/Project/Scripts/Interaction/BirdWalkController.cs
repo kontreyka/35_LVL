@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -12,7 +13,8 @@ public sealed class BirdWalkController : MonoBehaviour
 	[SerializeField] private SpriteRenderer platformRenderer = null;
 
 	[Header("Movement")]
-	[SerializeField] private float moveSpeed = 2f;
+	[FormerlySerializedAs("moveSpeed")]
+	[SerializeField] private float stepDistance = 1f;
 	[SerializeField] private float birdFootHalfWidth = 0.35f;
 	[SerializeField] private float platformEdgePadding = 0.05f;
 
@@ -39,9 +41,8 @@ public sealed class BirdWalkController : MonoBehaviour
 		if (Mathf.Abs(horizontalInput) <= Mathf.Epsilon)
 			return;
 
-		Move(horizontalInput);
 		UpdateDirection(horizontalInput);
-		UpdateWalkFrame();
+		TryStep(horizontalInput);
 	}
 
 	private float GetHorizontalInput()
@@ -76,10 +77,20 @@ public sealed class BirdWalkController : MonoBehaviour
 		return Mathf.Clamp(input, -1f, 1f);
 	}
 
-	private void Move(float horizontalInput)
+	private void TryStep(float horizontalInput)
+	{
+		if (Time.time < nextFrameTime)
+			return;
+
+		nextFrameTime = Time.time + Mathf.Max(0.01f, stepFrameDelay);
+		MoveOneStep(horizontalInput);
+		SetFrame(currentFrameIndex + 1);
+	}
+
+	private void MoveOneStep(float horizontalInput)
 	{
 		Vector3 position = transform.position;
-		position.x += horizontalInput * Mathf.Max(0f, moveSpeed) * Time.deltaTime;
+		position.x += Mathf.Sign(horizontalInput) * Mathf.Max(0f, stepDistance);
 		position.x = ClampXToPlatform(position.x);
 		transform.position = position;
 	}
@@ -107,15 +118,6 @@ public sealed class BirdWalkController : MonoBehaviour
 			return;
 
 		birdRenderer.flipX = horizontalInput < 0f;
-	}
-
-	private void UpdateWalkFrame()
-	{
-		if (Time.time < nextFrameTime)
-			return;
-
-		nextFrameTime = Time.time + Mathf.Max(0.01f, stepFrameDelay);
-		SetFrame(currentFrameIndex + 1);
 	}
 
 	private void SetFrame(int frameIndex)
