@@ -71,6 +71,14 @@ public static class RoomPrototypeLevelTwoWorldProjection
 			&& worldPosition.y >= viewport.yMin
 			&& worldPosition.y <= viewport.yMax;
 	}
+
+	public static Vector2 GetWorldPosition(Vector2 normalizedViewportPosition, Rect viewport)
+	{
+		return new Vector2(
+			viewport.xMin + normalizedViewportPosition.x * viewport.width,
+			viewport.yMin + normalizedViewportPosition.y * viewport.height
+		);
+	}
 }
 
 public static class RoomPrototypeLevelTwoClockPuzzleModel
@@ -119,6 +127,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Vector2 clockWorldSize = new Vector2(0.42f, 0.66f);
 	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.66f, 0.67f);
 	[SerializeField] private Color releasedKeyPlaceholderColor = new Color(0.95f, 0.76f, 0.16f, 0.96f);
+	[SerializeField] private Vector2 releasedKeyWorldSize = new Vector2(0.24f, 0.08f);
 	[SerializeField] private float releasedKeyFallDuration = 1.5f;
 	[SerializeField] private Vector2 releasedKeyOverlaySize = new Vector2(78f, 22f);
 	[SerializeField] private float releasedKeyLandingContentY = 0.18f;
@@ -135,9 +144,11 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private Coroutine sharedTruckAnimation;
 	private Coroutine releasedKeyAnimation;
 	private RectTransform releasedKeyOverlay;
+	private SharedWorldObject landedKey;
 	private int portraitStageIndex;
 	private int clockPressCount;
 	private bool keyReleased;
+	private bool keyLanded;
 
 	private void Start()
 	{
@@ -154,6 +165,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		float side = (squareBoardSize.x - panelGap) * 0.5f;
 		panelSize = new Vector2(side, side);
 		sharedTruck = new SharedWorldObject(sharedTruckWorldPosition, sharedTruckWorldSize);
+		landedKey = new SharedWorldObject(Vector2.zero, releasedKeyWorldSize);
 
 		CreatePanel(0, RoomPrototypeLevelTwoSlot.TopRight, 0, 0);
 		CreatePanel(1, RoomPrototypeLevelTwoSlot.TopLeft, 2, 0);
@@ -445,6 +457,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		ApplyViewport(panel, panel.Viewport);
 		CreateSharedTruckView(panel);
 		CreatePortraitView(panel);
+		CreateLandedKeyView(panel);
 		UpdateWorldViews(panel, panel.Viewport);
 	}
 
@@ -472,6 +485,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	{
 		UpdateSharedTruckView(panel, viewport);
 		UpdatePortraitView(panel, viewport);
+		UpdateLandedKeyView(panel, viewport);
 	}
 
 	private void CreateSharedTruckView(PanelView panel)
@@ -577,6 +591,37 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		keyOverlay.rectTransform.SetAsLastSibling();
 		keyOverlay.gameObject.SetActive(false);
 		releasedKeyOverlay = keyOverlay.rectTransform;
+	}
+
+	private void CreateLandedKeyView(PanelView panel)
+	{
+		Image keyView = CreateImage("Landed Key", panel.Content, releasedKeyPlaceholderColor);
+		panel.LandedKey = keyView.rectTransform;
+	}
+
+	private void UpdateLandedKeyView(PanelView panel, Viewport viewport)
+	{
+		if (landedKey == null || panel.LandedKey == null)
+		{
+			return;
+		}
+
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		bool shouldShow = keyLanded && RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(landedKey.Position, visibleWorldRect);
+		panel.LandedKey.gameObject.SetActive(shouldShow);
+		if (!shouldShow)
+		{
+			return;
+		}
+
+		Vector2 contentSize = GetContentSize(panel);
+		panel.LandedKey.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(landedKey.Size, contentSize, visibleWorldRect);
+		panel.LandedKey.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			landedKey.Position,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.LandedKey.localEulerAngles = Vector3.zero;
 	}
 
 	private Vector2 GetContentSize(PanelView panel)
@@ -702,6 +747,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 		releasedKeyOverlay.anchoredPosition = targetPosition;
 		releasedKeyOverlay.localEulerAngles = Vector3.zero;
+		landedKey.Position = GetWorldPositionForBoardPosition(cagePanel, targetPosition);
+		keyLanded = true;
+		RefreshLandedKeyViews();
+		releasedKeyOverlay.gameObject.SetActive(false);
 		releasedKeyAnimation = null;
 		interactionLocked = false;
 	}
@@ -724,6 +773,28 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			(0.5f - normalizedTopLeftPosition.y) * contentSize.y
 		);
 		return boardRoot.InverseTransformPoint(panel.Content.TransformPoint(localPanelPosition));
+	}
+
+	private Vector2 GetWorldPositionForBoardPosition(PanelView panel, Vector2 boardPosition)
+	{
+		Vector2 contentSize = GetContentSize(panel);
+		Vector2 contentLocalPosition = panel.Content.InverseTransformPoint(boardRoot.TransformPoint(boardPosition));
+		Vector2 normalizedPosition = new Vector2(
+			contentLocalPosition.x / contentSize.x + 0.5f,
+			0.5f - contentLocalPosition.y / contentSize.y
+		);
+		return RoomPrototypeLevelTwoWorldProjection.GetWorldPosition(
+			normalizedPosition,
+			new Rect(panel.Viewport.X, panel.Viewport.Y, panel.Viewport.Width, panel.Viewport.Height)
+		);
+	}
+
+	private void RefreshLandedKeyViews()
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			UpdateLandedKeyView(panels[i], panels[i].Viewport);
+		}
 	}
 
 	private void RunSharedTruckDemo()
@@ -1015,6 +1086,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		public RectTransform Background;
 		public RectTransform SharedTruckPlaceholder;
 		public Image PortraitStage;
+		public RectTransform LandedKey;
 		public CanvasGroup CanvasGroup;
 		public Viewport Viewport;
 		public Coroutine Animation;
