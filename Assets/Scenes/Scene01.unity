@@ -1350,7 +1350,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u2699"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
   m_sharedMaterial: {fileID: 1188796302863410197, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
@@ -1714,6 +1714,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78ba580429589fc4eb4484611ebbc4df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameSceneUIController
+  settingsPanel: {fileID: 0}
+  settingsButton: {fileID: 0}
+  exitButton: {fileID: 0}
+  canvasSortingOrder: 100
+  fadeOutDuration: 0.35
+  fadeInDuration: 0.35
 --- !u!1 &1438578630
 GameObject:
   m_ObjectHideFlags: 0
