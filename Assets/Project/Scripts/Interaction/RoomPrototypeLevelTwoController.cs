@@ -117,10 +117,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Vector2 portraitWorldSize = new Vector2(0.68f, 0.9f);
 	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.73f, 0.43f);
 	[SerializeField] private Vector2 clockWorldSize = new Vector2(0.42f, 0.66f);
-	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.76f, 0.38f);
+	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.66f, 0.67f);
 	[SerializeField] private Color releasedKeyPlaceholderColor = new Color(0.95f, 0.76f, 0.16f, 0.96f);
-	[SerializeField] private float releasedKeyFallDuration = 0.9f;
-	[SerializeField] private Vector2 releasedKeyOverlaySize = new Vector2(54f, 16f);
+	[SerializeField] private float releasedKeyFallDuration = 1.5f;
+	[SerializeField] private Vector2 releasedKeyOverlaySize = new Vector2(78f, 22f);
 	[SerializeField] private float releasedKeyLandingContentY = 0.18f;
 
 	private readonly List<PanelView> panels = new List<PanelView>();
@@ -685,6 +685,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		Vector2 startPosition = GetBoardPositionForWorld(portraitPanel, releasedKeyStartWorldPosition);
 		Vector2 tablePosition = GetBoardPositionForPanelContent(cagePanel, new Vector2(0.5f, releasedKeyLandingContentY));
 		Vector2 targetPosition = RoomPrototypeLevelTwoClockPuzzleModel.GetStraightDropTarget(startPosition, tablePosition);
+		releasedKeyOverlay.SetAsLastSibling();
 		releasedKeyOverlay.gameObject.SetActive(true);
 		releasedKeyOverlay.anchoredPosition = startPosition;
 		releasedKeyOverlay.localEulerAngles = new Vector3(0f, 0f, -82f);
