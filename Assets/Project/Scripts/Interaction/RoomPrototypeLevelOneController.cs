@@ -166,19 +166,40 @@ public static class RoomPrototypeLevelOnePanelModel
 
 		if (state.Slot == RoomPrototypePanelSlot.BottomLeft)
 		{
-			if (state.Viewport.Equals(new RoomPrototypeViewport(0, 0, 1, 1))
-				&& (direction == RoomPrototypePanelDirection.Right || direction == RoomPrototypePanelDirection.Down))
+			int nextX = state.Viewport.X;
+			int nextY = state.Viewport.Y;
+
+			switch (direction)
 			{
-				nextState = new RoomPrototypePanelState(state.Slot, new RoomPrototypeViewport(1, 1, 1, 1), true, "TRUCK");
-				return true;
+				case RoomPrototypePanelDirection.Left:
+					nextX--;
+					break;
+				case RoomPrototypePanelDirection.Right:
+					nextX++;
+					break;
+				case RoomPrototypePanelDirection.Up:
+					nextY--;
+					break;
+				case RoomPrototypePanelDirection.Down:
+					nextY++;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
 			}
 
-			if (state.Viewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1))
-				&& (direction == RoomPrototypePanelDirection.Left || direction == RoomPrototypePanelDirection.Up))
+			if (nextX < 0 || nextX > 1 || nextY < 0 || nextY > 1)
 			{
-				nextState = GetZoomState(state.Slot);
-				return true;
+				return false;
 			}
+
+			RoomPrototypeViewport nextViewport = new RoomPrototypeViewport(nextX, nextY, 1, 1);
+			nextState = new RoomPrototypePanelState(
+				state.Slot,
+				nextViewport,
+				true,
+				nextViewport.Equals(new RoomPrototypeViewport(1, 1, 1, 1)) ? "TRUCK" : "ROOM"
+			);
+			return true;
 		}
 
 		return false;
@@ -208,7 +229,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
-	[SerializeField] private Vector2 boardSize = new Vector2(1320f, 742f);
+	[SerializeField] private Vector2 boardSize = new Vector2(1320f, 918f);
 	[SerializeField] private float panelGap = 8f;
 	[SerializeField] private float animationDuration = 0.28f;
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);

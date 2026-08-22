@@ -372,4 +372,31 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(topLeftZoom, RoomPrototypePanelDirection.Down, out _), Is.False);
 		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(RoomPrototypeLevelOnePanelModel.GetInitialState(RoomPrototypePanelSlot.BottomRight), RoomPrototypePanelDirection.Left, out _), Is.False);
 	}
+
+	[Test]
+	public void TryNavigate_BottomLeftZoomMovesOneCellAtATimeInEveryValidDirection()
+	{
+		RoomPrototypePanelState keyState = RoomPrototypeLevelOnePanelModel.GetZoomState(RoomPrototypePanelSlot.BottomLeft);
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(keyState, RoomPrototypePanelDirection.Right, out RoomPrototypePanelState topRightState), Is.True);
+		Assert.That(topRightState.Viewport, Is.EqualTo(new RoomPrototypeViewport(1, 0, 1, 1)));
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(keyState, RoomPrototypePanelDirection.Down, out RoomPrototypePanelState bottomLeftState), Is.True);
+		Assert.That(bottomLeftState.Viewport, Is.EqualTo(new RoomPrototypeViewport(0, 1, 1, 1)));
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(topRightState, RoomPrototypePanelDirection.Left, out RoomPrototypePanelState keyFromRightState), Is.True);
+		Assert.That(keyFromRightState.Viewport, Is.EqualTo(new RoomPrototypeViewport(0, 0, 1, 1)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(topRightState, RoomPrototypePanelDirection.Down, out RoomPrototypePanelState truckFromRightState), Is.True);
+		Assert.That(truckFromRightState.Viewport, Is.EqualTo(new RoomPrototypeViewport(1, 1, 1, 1)));
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(bottomLeftState, RoomPrototypePanelDirection.Up, out RoomPrototypePanelState keyFromBottomState), Is.True);
+		Assert.That(keyFromBottomState.Viewport, Is.EqualTo(new RoomPrototypeViewport(0, 0, 1, 1)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(bottomLeftState, RoomPrototypePanelDirection.Right, out RoomPrototypePanelState truckFromBottomState), Is.True);
+		Assert.That(truckFromBottomState.Viewport, Is.EqualTo(new RoomPrototypeViewport(1, 1, 1, 1)));
+
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(truckFromRightState, RoomPrototypePanelDirection.Left, out RoomPrototypePanelState bottomLeftFromTruckState), Is.True);
+		Assert.That(bottomLeftFromTruckState.Viewport, Is.EqualTo(new RoomPrototypeViewport(0, 1, 1, 1)));
+		Assert.That(RoomPrototypeLevelOnePanelModel.TryNavigate(truckFromRightState, RoomPrototypePanelDirection.Up, out RoomPrototypePanelState topRightFromTruckState), Is.True);
+		Assert.That(topRightFromTruckState.Viewport, Is.EqualTo(new RoomPrototypeViewport(1, 0, 1, 1)));
+	}
 }
