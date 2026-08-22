@@ -99,7 +99,7 @@ public static class RoomPrototypeLevelOnePanelModel
 			case RoomPrototypePanelSlot.TopLeft:
 				return new RoomPrototypeViewport(1, 0, 2, 2);
 			case RoomPrototypePanelSlot.BottomLeft:
-				return new RoomPrototypeViewport(0, 0, 2, 2);
+				return new RoomPrototypeViewport(1, 0, 2, 2);
 			case RoomPrototypePanelSlot.TopRight:
 				return new RoomPrototypeViewport(2, 0, 2, 2);
 			case RoomPrototypePanelSlot.BottomRight:
@@ -121,7 +121,7 @@ public static class RoomPrototypeLevelOnePanelModel
 			case RoomPrototypePanelSlot.TopLeft:
 				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(1, 0, 1, 1), true, "CUPBOARD");
 			case RoomPrototypePanelSlot.BottomLeft:
-				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(0, 0, 1, 1), true, "KEY ROUTE");
+				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(1, 0, 1, 1), true, "ROOM");
 			case RoomPrototypePanelSlot.TopRight:
 				return new RoomPrototypePanelState(slot, new RoomPrototypeViewport(3, 0, 1, 1), true, "CAGE");
 			case RoomPrototypePanelSlot.BottomRight:
@@ -187,7 +187,7 @@ public static class RoomPrototypeLevelOnePanelModel
 					throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
 			}
 
-			if (nextX < 0 || nextX > 1 || nextY < 0 || nextY > 1)
+			if (nextX < 1 || nextX > 2 || nextY < 0 || nextY > 1)
 			{
 				return false;
 			}
