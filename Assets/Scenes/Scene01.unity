@@ -1336,6 +1336,7 @@ MonoBehaviour:
   auraIntensity: 0.25
   auraSizePixels: 60
   particleCount: 60
+  auraOffset: {x: 0, y: 0}
   glowColor: {r: 1, g: 0.86, b: 0.48, a: 0.5}
   glowPulseDuration: 4.8
   alphaThreshold: 0.2

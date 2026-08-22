@@ -22,6 +22,10 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	[Range(0f, 60f)]
 	[SerializeField] private float particleCount = 9f;
 
+	[Header("Aura Placement")]
+	[Tooltip("Локальное смещение ареола и частиц относительно спрайта клетки. X > 0 двигает вправо, Y > 0 двигает вверх.")]
+	[SerializeField] private Vector2 auraOffset = Vector2.zero;
+
 	[Header("Aura Details")]
 	[SerializeField] private Color glowColor = new Color(1f, 0.86f, 0.48f, 0.5f);
 	[SerializeField] private float glowPulseDuration = 4.8f;
@@ -87,6 +91,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		EnsureGlowRenderer();
 		EnsureParticleSystem();
+		SyncAuraTransforms();
 		UpdateParticleSystemCapacity();
 		RefreshContourIfNeeded();
 	}
@@ -98,7 +103,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		GameObject glowObject = new GameObject("Cage_SoftEdgeGlow");
 		glowObject.transform.SetParent(transform, false);
-		glowObject.transform.localPosition = Vector3.zero;
+		glowObject.transform.localPosition = GetAuraOffsetPosition();
 
 		glowRenderer = glowObject.AddComponent<SpriteRenderer>();
 		SyncGlowRenderer();
@@ -111,7 +116,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		GameObject particleObject = new GameObject("Cage_EdgeParticles");
 		particleObject.transform.SetParent(transform, false);
-		particleObject.transform.localPosition = Vector3.zero;
+		particleObject.transform.localPosition = GetAuraOffsetPosition();
 		edgeParticles = particleObject.AddComponent<ParticleSystem>();
 
 		ParticleSystem.MainModule main = edgeParticles.main;
@@ -160,12 +165,28 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 		if (glowRenderer == null || sourceRenderer == null)
 			return;
 
+		glowRenderer.transform.localPosition = GetAuraOffsetPosition();
 		glowRenderer.sprite = generatedGlowSprite;
 		glowRenderer.enabled = generatedGlowSprite != null;
 		glowRenderer.flipX = sourceRenderer.flipX;
 		glowRenderer.flipY = sourceRenderer.flipY;
 		glowRenderer.sortingLayerID = sourceRenderer.sortingLayerID;
 		glowRenderer.sortingOrder = sourceRenderer.sortingOrder + glowSortingOffset;
+	}
+
+	private void SyncAuraTransforms()
+	{
+		Vector3 offsetPosition = GetAuraOffsetPosition();
+
+		if (glowRenderer != null)
+		{
+			glowRenderer.transform.localPosition = offsetPosition;
+		}
+
+		if (edgeParticles != null)
+		{
+			edgeParticles.transform.localPosition = offsetPosition;
+		}
 	}
 
 	private void UpdateGlowVisual()
@@ -299,7 +320,7 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 
 		ParticleSystem.EmitParams emitParams = new ParticleSystem.EmitParams
 		{
-			position = transform.TransformPoint(localPosition + new Vector3(jitter.x, jitter.y, 0f)),
+			position = transform.TransformPoint(localPosition + GetAuraOffsetPosition() + new Vector3(jitter.x, jitter.y, 0f)),
 			velocity = new Vector3(drift.x, drift.y, 0f),
 			startSize = Random.Range(particleSizeRange.x, particleSizeRange.y),
 			startLifetime = Random.Range(particleLifetimeRange.x, particleLifetimeRange.y),
@@ -324,6 +345,11 @@ public sealed class CageEdgeGlowEffect : MonoBehaviour
 	{
 		float longestLifetime = Mathf.Max(particleLifetimeRange.x, particleLifetimeRange.y, 1f);
 		return Mathf.Max(16, Mathf.CeilToInt(particleCount * longestLifetime * 2f));
+	}
+
+	private Vector3 GetAuraOffsetPosition()
+	{
+		return new Vector3(auraOffset.x, auraOffset.y, 0f);
 	}
 
 	private static Vector3 TexturePixelToLocalPosition(Sprite sprite, Vector2Int pixel)
