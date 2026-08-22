@@ -122,7 +122,18 @@ public sealed class Scene01CageMusicProximity : MonoBehaviour
 		return Mathf.Lerp(clampedMinimum, 1f, heat);
 	}
 
+	public void DisableProximityAndRestoreVolume()
+	{
+		RestoreInitialMusicVolume();
+		enabled = false;
+	}
+
 	private void OnDisable()
+	{
+		RestoreInitialMusicVolume();
+	}
+
+	private void RestoreInitialMusicVolume()
 	{
 		if (musicSource != null)
 		{
