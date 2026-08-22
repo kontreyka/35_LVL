@@ -74,7 +74,8 @@ public class LoadingSceneController : MonoBehaviour
 		yield return new WaitForSecondsRealtime(thirdFrameTime);
 
 		// Ждём, пока сцена будет почти готова
-			yield return StartCoroutine(FadeBetween(thirdImage, firstImage, transitionDuration));
+			while (loading.progress < 0.9f)
+				yield return null;
 			hasPlayedCycle = true;
 		}
 
