@@ -599,20 +599,21 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			yield break;
 		}
 
-		Vector2 startPosition = GetCanvasPosition(truckMarker.RectTransform);
-		float travelDistance = Mathf.Max(80f, truckPanel.Root.rect.width * 0.7f);
+		Vector2 startPosition = truckMarker.RectTransform.anchoredPosition;
+		float travelDistance = Mathf.Max(80f, truckPanel.Content.rect.width * 0.7f);
 		Vector2 targetPosition = startPosition + new Vector2(travelDistance, 0f);
 		Vector2 markerSize = truckMarker.RectTransform.rect.size;
 		truckIsDriving = true;
 		truckMarker.RectTransform.gameObject.SetActive(false);
 
-		Image movingTruck = CreateImage("Moving Truck", canvasRoot, truckMarker.Marker.Color);
+		Image movingTruck = CreateImage("Moving Truck", truckPanel.Content, truckMarker.Marker.Color);
 		RectTransform movingTruckRect = movingTruck.rectTransform;
 		movingTruckRect.anchorMin = new Vector2(0.5f, 0.5f);
 		movingTruckRect.anchorMax = new Vector2(0.5f, 0.5f);
 		movingTruckRect.pivot = new Vector2(0.5f, 0.5f);
 		movingTruckRect.sizeDelta = markerSize;
 		movingTruckRect.anchoredPosition = startPosition;
+		movingTruckRect.SetAsLastSibling();
 
 		Text label = CreateText("Text", movingTruckRect, truckMarker.Marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
 		label.fontStyle = FontStyle.Bold;
