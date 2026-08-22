@@ -51,6 +51,10 @@ public class LoadingSceneController : MonoBehaviour
 		AsyncOperation loading = SceneManager.LoadSceneAsync(sceneName);
 		loading.allowSceneActivation = false;
 
+		bool hasPlayedCycle = false;
+
+		while (!hasPlayedCycle || loading.progress < 0.9f)
+		{
 		// Кадр 1 — птица в клетке
 		yield return new WaitForSecondsRealtime(firstFrameTime);
 
@@ -67,9 +71,8 @@ public class LoadingSceneController : MonoBehaviour
 		yield return new WaitForSecondsRealtime(thirdFrameTime);
 
 		// Ждём, пока сцена будет почти готова
-		while (loading.progress < 0.9f)
-		{
-			yield return null;
+			yield return StartCoroutine(FadeBetween(thirdImage, firstImage, transitionDuration));
+			hasPlayedCycle = true;
 		}
 
 		loading.allowSceneActivation = true;
