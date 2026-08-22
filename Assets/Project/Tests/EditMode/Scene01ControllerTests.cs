@@ -2,6 +2,8 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 public sealed class SpriteContourSamplerTests
@@ -245,6 +247,36 @@ public sealed class RoomPrototypeNavigationTests
 				.ToArray();
 
 			Assert.That(nonButtonRaycastBlockers, Is.Empty);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
+	public void BuiltPrototype_CreatesInputSystemEventModuleForPanelClicks()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			EventSystem eventSystem = root.GetComponentInChildren<EventSystem>(true);
+			Assert.That(eventSystem, Is.Not.Null);
+
+			InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+			Assert.That(inputModule, Is.Not.Null);
+			Assert.That(inputModule.enabled, Is.True);
+			Assert.That(inputModule.actionsAsset, Is.Not.Null);
+			Assert.That(inputModule.point?.action, Is.Not.Null);
+			Assert.That(inputModule.leftClick?.action, Is.Not.Null);
+
+			BaseInputModule[] enabledNonInputSystemModules = eventSystem.GetComponents<BaseInputModule>()
+				.Where(module => module.enabled && !(module is InputSystemUIInputModule))
+				.ToArray();
+
+			Assert.That(enabledNonInputSystemModules, Is.Empty);
 		}
 		finally
 		{

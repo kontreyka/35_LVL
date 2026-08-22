@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 public enum RoomPrototypePanelSlot
@@ -577,13 +578,31 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void EnsureEventSystem()
 	{
-		if (FindFirstObjectByType<EventSystem>() != null)
+		EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
+		if (eventSystem == null)
 		{
-			return;
+			GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
+			eventSystemObject.transform.SetParent(transform, false);
+			eventSystem = eventSystemObject.GetComponent<EventSystem>();
 		}
 
-		GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
-		eventSystemObject.transform.SetParent(transform, false);
+		InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+		if (inputModule == null)
+		{
+			inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+		}
+
+		inputModule.enabled = true;
+		inputModule.AssignDefaultActions();
+
+		BaseInputModule[] inputModules = eventSystem.GetComponents<BaseInputModule>();
+		foreach (BaseInputModule module in inputModules)
+		{
+			if (module != inputModule)
+			{
+				module.enabled = false;
+			}
+		}
 	}
 
 	private Button CreateButton(string name, RectTransform parent, string text, Color background, Color foreground, Vector2 size)
