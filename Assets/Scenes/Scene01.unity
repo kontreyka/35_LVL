@@ -1429,6 +1429,7 @@ MonoBehaviour:
   particleCount: 95
   auraOffset: {x: 2.5, y: 0.3}
   auraFadeOutDuration: 1.4
+  auraReturnDelay: 0.35
   glowColor: {r: 1, g: 1, b: 1, a: 0.5}
   auraPulseSpeed: 0.43
   glowPulseDuration: 0

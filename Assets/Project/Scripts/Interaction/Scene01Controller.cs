@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 public interface ICageAuraFadeTarget
 {
-	void FadeOutForever();
+	void FadeOutAndReturn();
 }
 
 public class Scene01Controller : MonoBehaviour
@@ -28,7 +28,7 @@ public class Scene01Controller : MonoBehaviour
 	[SerializeField] private Transform windowTarget = null;
 
 	[Header("Cage Aura")]
-	[Tooltip("Компонент ареола клетки. На первом клике по клетке будет плавно выключен навсегда.")]
+	[Tooltip("Компонент ареола клетки. На первых трех кликах по клетке будет кратко гаснуть и возвращаться.")]
 	[SerializeField] private MonoBehaviour cageAuraEffect = null;
 
 	[Header("Zoom")]
@@ -94,7 +94,7 @@ public class Scene01Controller : MonoBehaviour
 
 		if (ShouldFadeCageAuraForClickStepIndex((int)clickStep))
 		{
-			FadeCageAuraForever();
+			FadeCageAuraAndReturn();
 		}
 
 		switch (clickStep)
@@ -113,10 +113,11 @@ public class Scene01Controller : MonoBehaviour
 
 	public static bool ShouldFadeCageAuraForClickStepIndex(int clickStepIndex)
 	{
-		return clickStepIndex == (int)ClickStep.FocusWindow;
+		return clickStepIndex >= (int)ClickStep.FocusWindow
+			&& clickStepIndex <= (int)ClickStep.ZoomOut;
 	}
 
-	private void FadeCageAuraForever()
+	private void FadeCageAuraAndReturn()
 	{
 		if (TryFadeCageAura(cageAuraEffect))
 			return;
@@ -138,7 +139,7 @@ public class Scene01Controller : MonoBehaviour
 		if (behaviour is not ICageAuraFadeTarget fadeTarget)
 			return false;
 
-		fadeTarget.FadeOutForever();
+		fadeTarget.FadeOutAndReturn();
 		return true;
 	}
 
