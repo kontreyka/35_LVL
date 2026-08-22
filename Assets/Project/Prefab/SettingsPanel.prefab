@@ -1538,6 +1538,7 @@ GameObject:
   - component: {fileID: 9000012812296928924}
   - component: {fileID: 4732457968162311281}
   - component: {fileID: 422919520271554025}
+  - component: {fileID: 7645451307847675981}
   m_Layer: 5
   m_Name: SettingsPanel
   m_TagString: Untagged
@@ -1618,6 +1619,18 @@ MonoBehaviour:
   audioMixer: {fileID: 24100000, guid: 11dba1fc1248c794ba3fb14124b88008, type: 2}
   musicSlider: {fileID: 4509899647879071898}
   sfxSlider: {fileID: 8635855763450700729}
+--- !u!114 &7645451307847675981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7990406998151471677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6344762020974cddaf88ba19ca992181, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::ModalSettingsPanel
 --- !u!1 &8219501069497525098
 GameObject:
   m_ObjectHideFlags: 0
