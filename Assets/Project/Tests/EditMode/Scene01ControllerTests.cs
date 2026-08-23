@@ -557,6 +557,49 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_UsesInspectorAssignedKeyRackAndAppleSprites()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo keyRackSpriteField = typeof(RoomPrototypeLevelOneController).GetField(
+			"keyRackSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		System.Reflection.FieldInfo appleSpriteField = typeof(RoomPrototypeLevelOneController).GetField(
+			"appleSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite keyRackSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+		Sprite appleSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(keyRackSpriteField, Is.Not.Null, "The key rack sprite must be assignable in the Inspector.");
+			Assert.That(appleSpriteField, Is.Not.Null, "The apple sprite must be assignable in the Inspector.");
+			keyRackSpriteField.SetValue(controller, keyRackSprite);
+			appleSpriteField.SetValue(controller, appleSprite);
+			root.SetActive(true);
+
+			Image keyRack = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "KEY RACK" && image.gameObject.activeInHierarchy);
+			Image apple = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "APPLE" && image.gameObject.activeInHierarchy && GetOwningPanelName(image.rectTransform) == "BottomRight Panel");
+
+			Assert.That(keyRack.sprite, Is.SameAs(keyRackSprite));
+			Assert.That(apple.sprite, Is.SameAs(appleSprite));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(keyRackSprite);
+			UnityEngine.Object.DestroyImmediate(appleSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_ShowsAppleInBothRightViewsButOnlyTheBottomRightOneCanBeClicked()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

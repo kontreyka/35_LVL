@@ -314,6 +314,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private Sprite keyRackSprite = null;
+	[SerializeField] private Sprite appleSprite = null;
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite birdSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
@@ -326,6 +328,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Vector2 cageRoomSize = new Vector2(0.42f, 0.83f);
 	[SerializeField] private Vector2 birdRoomPosition = new Vector2(3.42f, 0.72f);
 	[SerializeField] private Vector2 birdRoomSize = new Vector2(0.27f, 0.4f);
+	[SerializeField] private Vector2 keyRackRoomPosition = new Vector2(0.39f, 0.55f);
+	[SerializeField] private Vector2 keyRackRoomSize = new Vector2(0.34f, 0.42f);
 	[Header("Level 01 Interactive Object Layout")]
 	[SerializeField] private Vector2 keyRoomPosition = new Vector2(0.39f, 0.62f);
 	[SerializeField] private Vector2 keyRoomSize = new Vector2(0.12f, 0.24f);
@@ -1439,6 +1443,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private void BuildMarkers()
 	{
 		roomMarkers.Clear();
+		roomMarkers.Add(new RoomMarker("KEY RACK", MarkerShape.Rectangle, keyRackRoomPosition, keyRackRoomSize, Color.white, RoomPrototypePanelSlot.TopLeft));
 		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, keyRoomPosition, keyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f)));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f)));
@@ -1590,6 +1595,10 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		switch (marker.Label)
 		{
+			case "KEY RACK":
+				return keyRackSprite;
+			case "APPLE":
+				return appleSprite;
 			case "TABLE":
 				return tableSprite;
 			case "BIRD":
