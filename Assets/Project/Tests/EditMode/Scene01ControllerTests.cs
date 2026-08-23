@@ -290,6 +290,13 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreeBird_MirrorsOnlyWhileFlyingRight()
+	{
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetSkyBirdHorizontalScale(true), Is.EqualTo(-1f));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetSkyBirdHorizontalScale(false), Is.EqualTo(1f));
+	}
+
+	[Test]
 	public void LevelThreeFlower_GrowsOnlyBelowZoomedCageAfterCatchingKey()
 	{
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
@@ -320,6 +327,78 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetFlowerPullProgress(100f, 400f, 200f), Is.EqualTo(1f));
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.IsFlowerPullComplete(0.79f, 0.8f), Is.False);
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.IsFlowerPullComplete(0.8f, 0.8f), Is.True);
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_MovesAConstantSizePlantInsteadOfStretchingIt()
+	{
+		Vector2 originalBottom = new Vector2(83f, -120f);
+		Vector2 plantSize = new Vector2(32f, 160f);
+		Vector2 start = RoomPrototypeLevelThreePuzzleModel.GetPlantPullStartTip(originalBottom, plantSize);
+		Vector2 targetTip = new Vector2(start.x, 700f);
+
+		Rect startLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 0f);
+		Rect halfwayLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 0.5f);
+		Rect completedLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 1f);
+
+		Assert.That(startLayout.position, Is.EqualTo(originalBottom));
+		Assert.That(startLayout.size, Is.EqualTo(plantSize));
+		Assert.That(halfwayLayout.size, Is.EqualTo(plantSize));
+		Assert.That(completedLayout.size, Is.EqualTo(plantSize));
+		Assert.That(halfwayLayout.x, Is.EqualTo(originalBottom.x).Within(0.001f));
+		Assert.That(completedLayout.x, Is.EqualTo(originalBottom.x).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreePlantDisplaySize_ScalesTheOriginalSpriteProportionally()
+	{
+		Vector2 size = RoomPrototypeLevelThreePuzzleModel.GetPlantDisplaySize(
+			new Vector2(80f, 200f),
+			0.14f,
+			2f
+		);
+
+		Assert.That(size.x, Is.EqualTo(56f).Within(0.001f));
+		Assert.That(size.y, Is.EqualTo(400f).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_PlacesKeyOnTableWhilePlantTipFinishesAboveIt()
+	{
+		float tableSurfaceY = 620f;
+		float plantTipY = RoomPrototypeLevelThreePuzzleModel.GetPlantTipTargetY(tableSurfaceY, 28f);
+
+		Assert.That(plantTipY, Is.EqualTo(648f).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_MaskStartsAtThePotThroat()
+	{
+		Rect mask = RoomPrototypeLevelThreePuzzleModel.GetPlantPullMaskLayout(
+			new Vector2(100f, 50f),
+			400f,
+			800f
+		);
+
+		Assert.That(mask.xMin, Is.EqualTo(-300f).Within(0.001f));
+		Assert.That(mask.xMax, Is.EqualTo(500f).Within(0.001f));
+		Assert.That(mask.yMin, Is.EqualTo(50f).Within(0.001f));
+		Assert.That(mask.yMax, Is.EqualTo(400f).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_KeyKeepsItsOffsetFromThePlantTipUntilCompletion()
+	{
+		Vector2 offset = new Vector2(26f, -8f);
+
+		Assert.That(
+			RoomPrototypeLevelThreePuzzleModel.GetKeyPositionOnPlant(new Vector2(100f, 200f), offset),
+			Is.EqualTo(new Vector2(126f, 192f))
+		);
+		Assert.That(
+			RoomPrototypeLevelThreePuzzleModel.GetKeyPositionOnPlant(new Vector2(100f, 700f), offset),
+			Is.EqualTo(new Vector2(126f, 692f))
+		);
 	}
 
 	[Test]
@@ -596,6 +675,123 @@ public sealed class RoomPrototypeNavigationTests
 			UnityEngine.Object.DestroyImmediate(keyRackSprite);
 			UnityEngine.Object.DestroyImmediate(appleSprite);
 			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
+	public void LevelThreePrototype_UsesMaskedPlantBehindInspectorAssignedPot()
+	{
+		GameObject root = new GameObject("Level Three Plant Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelThreeController controller = root.AddComponent<RoomPrototypeLevelThreeController>();
+		System.Reflection.FieldInfo potSpriteField = typeof(RoomPrototypeLevelThreeController).GetField(
+			"flowerPotSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		System.Reflection.FieldInfo plantSpriteField = typeof(RoomPrototypeLevelThreeController).GetField(
+			"plantSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite potSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+		Sprite plantSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(potSpriteField, Is.Not.Null, "The flower pot sprite must be assignable in the Inspector.");
+			Assert.That(plantSpriteField, Is.Not.Null, "The plant sprite must be assignable in the Inspector.");
+			potSpriteField.SetValue(controller, potSprite);
+			plantSpriteField.SetValue(controller, plantSprite);
+			root.SetActive(true);
+
+			Image pot = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Flower Pot" && image.gameObject.activeInHierarchy);
+			Image plant = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Plant" && image.gameObject.activeInHierarchy);
+
+			Assert.That(pot.sprite, Is.SameAs(potSprite));
+			Assert.That(plant.sprite, Is.SameAs(plantSprite));
+			RectMask2D plantMask = plant.GetComponentInParent<RectMask2D>();
+			Assert.That(plantMask, Is.Not.Null);
+			Assert.That(plantMask.transform.parent, Is.SameAs(pot.transform.parent));
+			Assert.That(plantMask.transform.GetSiblingIndex(), Is.LessThan(pot.transform.GetSiblingIndex()));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(potSprite);
+			UnityEngine.Object.DestroyImmediate(plantSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
+	public void LevelThreePrototype_UsesAssignedSkyBirdSpriteWithoutTextLabel()
+	{
+		GameObject root = new GameObject("Level Three Sky Bird Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelThreeController controller = root.AddComponent<RoomPrototypeLevelThreeController>();
+		System.Reflection.FieldInfo skyBirdSpriteField = typeof(RoomPrototypeLevelThreeController).GetField(
+			"skyBirdSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite birdSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(skyBirdSpriteField, Is.Not.Null, "The sky bird sprite must be assignable in the Inspector.");
+			skyBirdSpriteField.SetValue(controller, birdSprite);
+			root.SetActive(true);
+
+			Image bird = root.GetComponentsInChildren<Image>(true).Single(image => image.name == "Bird");
+			Assert.That(bird.sprite, Is.SameAs(birdSprite));
+			Assert.That(bird.GetComponentsInChildren<Text>(true), Is.Empty);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(birdSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
+	public void LevelThreePrototype_ExposesPlantMaskAndPlantOffsetsInInspector()
+	{
+		string[] requiredFields = { "plantMaskWorldOffset", "plantLocalOffset" };
+
+		foreach (string fieldName in requiredFields)
+		{
+			System.Reflection.FieldInfo field = typeof(RoomPrototypeLevelThreeController).GetField(
+				fieldName,
+				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+			);
+			Assert.That(field, Is.Not.Null, $"The {fieldName} must be editable in the Inspector.");
+		}
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_KeepsTheMovingPlantBehindThePot()
+	{
+		GameObject root = new GameObject("Level Three Pull Layer Test Root");
+		root.AddComponent<RoomPrototypeLevelThreeController>();
+
+		try
+		{
+			Image movingPlant = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Growing Plant");
+			Image foregroundPot = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Pulled Flower Pot");
+
+			RectMask2D pullMask = movingPlant.GetComponentInParent<RectMask2D>();
+			Assert.That(pullMask, Is.Not.Null);
+			Assert.That(pullMask.transform.parent, Is.SameAs(foregroundPot.transform.parent));
+			Assert.That(pullMask.transform.GetSiblingIndex(), Is.LessThan(foregroundPot.transform.GetSiblingIndex()));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
 		}
 	}
 

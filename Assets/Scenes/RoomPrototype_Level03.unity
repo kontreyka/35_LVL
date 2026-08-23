@@ -18,6 +18,8 @@ RenderSettings:
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.01
+  m_LinearFogStart: 0
+  m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
@@ -35,6 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
+  m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -49,6 +52,47 @@ LightmapSettings:
     m_EnvironmentLightingMode: 0
     m_EnableBakedLightmaps: 0
     m_EnableRealtimeLightmaps: 0
+  m_LightmapEditorSettings:
+    serializedVersion: 12
+    m_Resolution: 2
+    m_BakeResolution: 40
+    m_AtlasSize: 1024
+    m_AO: 0
+    m_AOMaxDistance: 1
+    m_CompAOExponent: 1
+    m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
+    m_Padding: 2
+    m_LightmapParameters: {fileID: 0}
+    m_LightmapsBakeMode: 1
+    m_TextureCompression: 1
+    m_ReflectionCompression: 2
+    m_MixedBakeMode: 2
+    m_BakeBackend: 2
+    m_PVRSampling: 1
+    m_PVRDirectSampleCount: 32
+    m_PVRSampleCount: 512
+    m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 256
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 1
+    m_PVRDenoiserTypeDirect: 1
+    m_PVRDenoiserTypeIndirect: 1
+    m_PVRDenoiserTypeAO: 1
+    m_PVRFilterTypeDirect: 0
+    m_PVRFilterTypeIndirect: 0
+    m_PVRFilterTypeAO: 0
+    m_PVREnvironmentMIS: 1
+    m_PVRCulling: 1
+    m_PVRFilteringGaussRadiusDirect: 1
+    m_PVRFilteringGaussRadiusIndirect: 1
+    m_PVRFilteringGaussRadiusAO: 1
+    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+    m_PVRFilteringAtrousPositionSigmaIndirect: 2
+    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
@@ -72,6 +116,8 @@ NavMeshSettings:
     buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
+    debug:
+      m_Flags: 0
   m_NavMeshData: {fileID: 0}
 --- !u!1 &100000
 GameObject:
@@ -207,13 +253,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5298b7e923c4bb1a372f988ad48fd89, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   roomSprite: {fileID: -561553066458880801, guid: 971768d8e59aaca40a4c4ac21bdb48a1, type: 3}
   skySprite: {fileID: 3779090305159470298, guid: c1116f1197c57d948b2a45b15e849077, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
+  flowerPotSprite: {fileID: 21300000, guid: 8743205427d4486591602716c359a9b3, type: 3}
+  plantSprite: {fileID: 1085217530023771619, guid: d4821c9738fa4fa6879d52c3228d40c8, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
   birdSprite: {fileID: -7708513443867668911, guid: 9e76d1ea8af2c634cafa4bf4c5ac78f0, type: 3}
+  skyBirdSprite: {fileID: -5064401156898091283, guid: fbe6fb33572cdee409e785804df1e6d1, type: 3}
   cageSprite: {fileID: 8203646131500868436, guid: 0729a37dc34435944a9215c279cf8379, type: 3}
   tableWorldPosition: {x: 3.42, y: 1.5}
   tableWorldSize: {x: 0.55, y: 0.95}
@@ -221,6 +270,15 @@ MonoBehaviour:
   birdWorldSize: {x: 17.35, y: 0.61}
   cageWorldPosition: {x: 3.42, y: 0.7}
   cageWorldSize: {x: 0.9, y: 0.9}
+  flowerWorldPosition: {x: 1.67, y: 0.42}
+  flowerWorldSize: {x: 0.8, y: 0.5}
+  plantWorldSize: {x: 0.22, y: 0.8}
+  plantScaleMultiplier: 2
+  plantMaskWorldOffset: {x: 0, y: 0.16}
+  plantLocalOffset: {x: 2.57, y: 0}
+  initialPlantVisibleFraction: 0.301
+  caughtKeyWorldPosition: {x: 1.63, y: 0.5}
+  caughtKeyWorldHeight: 0.28
   levelMusic: {fileID: 8300000, guid: f5f61a289197cde43ba0e88af502c731, type: 3}
   levelMusicVolume: 0.45
   interactionClickSound: {fileID: 8300000, guid: 26088a0dd56e7914cbe06f3aabf6f696, type: 3}
@@ -235,8 +293,17 @@ MonoBehaviour:
   dragStartDistance: 14
   keyFallDuration: 1.25
   flowerGrowDuration: 1.1
-  flowerPullCompletionThreshold: 0.82
-  flowerReturnDuration: 0.28
+  flowerPullCompletionThreshold: 0.883
+  flowerReturnDuration: 0.4
+  plantTipHeightAboveTable: 28
+  potThroatHeightFraction: 0.25
+  keyPullOffset: {x: 48, y: -8}
   frameColor: {r: 1, g: 1, b: 1, a: 1}
   flowerColor: {r: 0.36, g: 0.78, b: 0.26, a: 0.95}
   keyColor: {r: 0.96, g: 0.75, b: 0.13, a: 0.98}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 100001}
+  - {fileID: 200001}

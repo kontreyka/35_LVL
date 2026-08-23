@@ -60,6 +60,52 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return progress >= Mathf.Clamp01(completionThreshold);
 	}
 
+	public static float GetSkyBirdHorizontalScale(bool flyingRight)
+	{
+		return flyingRight ? -1f : 1f;
+	}
+
+	public static Rect GetPlantPullLayout(Vector2 startTip, Vector2 targetTip, Vector2 plantSize, float progress)
+	{
+		Vector2 tip = Vector2.Lerp(startTip, targetTip, Mathf.Clamp01(progress));
+		return new Rect(tip - Vector2.up * plantSize.y, plantSize);
+	}
+
+	public static Vector2 GetPlantPullStartTip(Vector2 plantBottom, Vector2 plantSize)
+	{
+		return plantBottom + Vector2.up * plantSize.y;
+	}
+
+	public static Vector2 GetPlantDisplaySize(Vector2 maskSize, float spriteAspectRatio, float scaleMultiplier)
+	{
+		float scale = Mathf.Max(1f, scaleMultiplier);
+		return new Vector2(
+			maskSize.y * Mathf.Max(0f, spriteAspectRatio) * scale,
+			maskSize.y * scale
+		);
+	}
+
+	public static float GetPlantTipTargetY(float tableSurfaceY, float heightAboveTable)
+	{
+		return tableSurfaceY + Mathf.Max(0f, heightAboveTable);
+	}
+
+	public static Rect GetPlantPullMaskLayout(Vector2 potThroatPosition, float maskTopY, float maskWidth)
+	{
+		float top = Mathf.Max(potThroatPosition.y, maskTopY);
+		return Rect.MinMaxRect(
+			potThroatPosition.x - maskWidth * 0.5f,
+			potThroatPosition.y,
+			potThroatPosition.x + maskWidth * 0.5f,
+			top
+		);
+	}
+
+	public static Vector2 GetKeyPositionOnPlant(Vector2 plantTip, Vector2 keyOffset)
+	{
+		return plantTip + keyOffset;
+	}
+
 	private static bool IsDirectlyAbove(int upperSlot, int lowerSlot)
 	{
 		return (upperSlot == RoomPrototypeLevelTwoSlot.TopLeft && lowerSlot == RoomPrototypeLevelTwoSlot.BottomLeft)
@@ -78,9 +124,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Sprite roomSprite = null;
 	[SerializeField] private Sprite skySprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private Sprite flowerPotSprite = null;
+	[SerializeField] private Sprite plantSprite = null;
 	[Header("Level 03 Room Object Layout")]
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite birdSprite = null;
+	[SerializeField] private Sprite skyBirdSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
 	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
@@ -91,6 +140,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[Header("Level 03 Interactive Object Layout")]
 	[SerializeField] private Vector2 flowerWorldPosition = new Vector2(1.55f, 0.42f);
 	[SerializeField] private Vector2 flowerWorldSize = new Vector2(0.34f, 0.24f);
+	[SerializeField] private Vector2 plantWorldSize = new Vector2(0.22f, 0.58f);
+	[SerializeField, Min(1f)] private float plantScaleMultiplier = 2f;
+	[SerializeField] private Vector2 plantMaskWorldOffset = Vector2.zero;
+	[SerializeField] private Vector2 plantLocalOffset = Vector2.zero;
+	[SerializeField, Range(0.05f, 1f)] private float initialPlantVisibleFraction = 0.1f;
 	[SerializeField] private Vector2 caughtKeyWorldPosition = new Vector2(1.63f, 0.34f);
 	[SerializeField] private float caughtKeyWorldHeight = 0.28f;
 	[SerializeField] private AudioClip levelMusic = null;
@@ -110,6 +164,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private float flowerGrowDuration = 1.1f;
 	[SerializeField, Range(0.5f, 1f)] private float flowerPullCompletionThreshold = 0.82f;
 	[SerializeField] private float flowerReturnDuration = 0.28f;
+	[SerializeField] private float plantTipHeightAboveTable = 28f;
+	[SerializeField, Range(0f, 0.5f)] private float potThroatHeightFraction = 0.25f;
+	[SerializeField] private Vector2 keyPullOffset = new Vector2(48f, -8f);
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
 	[SerializeField] private Color flowerColor = new Color(0.36f, 0.78f, 0.26f, 0.95f);
 	[SerializeField] private Color keyColor = new Color(0.96f, 0.75f, 0.13f, 0.98f);
@@ -128,10 +185,13 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private bool flowerPullAnimating;
 	private bool cageOpened;
 	private RectTransform keyOverlay;
+	private RectTransform growthMask;
 	private RectTransform growthOverlay;
-	private RectTransform flowerHeadOverlay;
+	private RectTransform pulledPotOverlay;
 	private Vector2 flowerPullStart;
 	private Vector2 flowerPullTarget;
+	private Vector2 flowerKeyTarget;
+	private Vector2 pulledPlantSize;
 	private float flowerPointerStartY;
 	private float flowerPullProgress;
 	private AudioSource sfxSource;
@@ -229,8 +289,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		panels.Clear();
 		boardRoot = null;
 		keyOverlay = null;
+		growthMask = null;
 		growthOverlay = null;
-		flowerHeadOverlay = null;
+		pulledPotOverlay = null;
 	}
 
 	private void BuildPrototype(Transform parent)
@@ -605,10 +666,6 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		{
 			CreateFlower(panel);
 		}
-		if (role == PanelRole.Cage)
-		{
-			CreateCageOpenMarker(panel);
-		}
 
 		RoomPrototypeLevelThreePanelDrag drag = root.gameObject.AddComponent<RoomPrototypeLevelThreePanelDrag>();
 		drag.Initialize(this, id);
@@ -617,10 +674,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void CreateBird(PanelView panel)
 	{
-		Image bird = CreateImage("Bird", panel.Content, new Color(0.96f, 0.97f, 1f, 0.96f));
-		bird.rectTransform.sizeDelta = new Vector2(86f, 38f);
-		Text label = CreateText("Bird Label", bird.rectTransform, "BIRD", 17, new Color(0.12f, 0.2f, 0.36f, 1f));
-		Stretch(label.rectTransform);
+		Image bird = CreateImage("Bird", panel.Content, Color.white);
+		bird.sprite = skyBirdSprite;
+		bird.preserveAspect = skyBirdSprite != null;
+		bird.rectTransform.sizeDelta = skyBirdSprite == null
+			? new Vector2(86f, 38f)
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(skyBirdSprite.rect.width, skyBirdSprite.rect.height, 92f);
 		panel.SkyBird = bird.rectTransform;
 		bird.gameObject.SetActive(false);
 	}
@@ -642,20 +701,20 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void CreateFlower(PanelView panel)
 	{
-		Image flower = CreateImage("Flower", panel.Content, flowerColor);
-		flower.rectTransform.sizeDelta = new Vector2(88f, 76f);
-		Text label = CreateText("Flower Label", flower.rectTransform, "FLOWER", 15, Color.white);
-		Stretch(label.rectTransform);
-		panel.Flower = flower.rectTransform;
-	}
+		RectTransform plantMask = CreateRectTransform("Plant Mask", panel.Content);
+		plantMask.gameObject.AddComponent<RectMask2D>();
+		Image plant = CreateImage("Plant", plantMask, Color.white);
+		plant.sprite = plantSprite;
+		plant.preserveAspect = true;
+		plant.raycastTarget = false;
+		plant.rectTransform.pivot = new Vector2(0.5f, 0f);
+		panel.PlantMask = plantMask;
+		panel.Plant = plant.rectTransform;
 
-	private void CreateCageOpenMarker(PanelView panel)
-	{
-		Text marker = CreateText("Cage Open Marker", panel.Content, "OPEN", 42, new Color(0.44f, 1f, 0.42f, 1f));
-		marker.fontStyle = FontStyle.Bold;
-		marker.rectTransform.sizeDelta = new Vector2(180f, 70f);
-		marker.gameObject.SetActive(false);
-		panel.CageOpenMarker = marker;
+		Image pot = CreateImage("Flower Pot", panel.Content, Color.white);
+		pot.sprite = flowerPotSprite;
+		pot.preserveAspect = true;
+		panel.Flower = pot.rectTransform;
 	}
 
 	private void CreateTransitionOverlays()
@@ -668,18 +727,24 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		key.gameObject.SetActive(false);
 		keyOverlay = key.rectTransform;
 
-		Image growth = CreateImage("Growing Flower", boardRoot, flowerColor);
-		growth.rectTransform.sizeDelta = new Vector2(32f, 0f);
+		growthMask = CreateRectTransform("Growing Plant Mask", boardRoot);
+		growthMask.gameObject.AddComponent<RectMask2D>();
+		growthMask.gameObject.SetActive(false);
+
+		Image growth = CreateImage("Growing Plant", growthMask, plantSprite != null ? Color.white : flowerColor);
+		growth.sprite = plantSprite;
+		growth.preserveAspect = true;
+		growth.rectTransform.sizeDelta = Vector2.zero;
 		growth.rectTransform.pivot = new Vector2(0.5f, 0f);
 		growth.gameObject.SetActive(false);
 		growthOverlay = growth.rectTransform;
 
-		Image flowerHead = CreateImage("Pulled Flower", boardRoot, flowerColor);
-		flowerHead.rectTransform.sizeDelta = new Vector2(88f, 76f);
-		Text flowerLabel = CreateText("Pulled Flower Label", flowerHead.rectTransform, "FLOWER", 15, Color.white);
-		Stretch(flowerLabel.rectTransform);
-		flowerHead.gameObject.SetActive(false);
-		flowerHeadOverlay = flowerHead.rectTransform;
+		Image pulledPot = CreateImage("Pulled Flower Pot", boardRoot, Color.white);
+		pulledPot.sprite = flowerPotSprite;
+		pulledPot.preserveAspect = true;
+		pulledPot.raycastTarget = false;
+		pulledPot.gameObject.SetActive(false);
+		pulledPotOverlay = pulledPot.rectTransform;
 	}
 
 	private void ApplyViewport(PanelView panel, Viewport viewport)
@@ -716,18 +781,49 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 		if (panel.Flower != null)
 		{
-			PlaceWorldMarker(panel.Flower, panel, viewport, flowerWorldPosition, flowerWorldSize);
+			UpdateFlowerViews(panel, viewport);
 		}
 		if (panel.CaughtKey != null)
 		{
 			PlaceWorldMarker(panel.CaughtKey, panel, viewport, caughtKeyWorldPosition, GetCaughtKeyWorldSize());
 			panel.CaughtKey.gameObject.SetActive(keyCaught && panel.CaughtKey.gameObject.activeSelf);
 		}
-		if (panel.CageOpenMarker != null)
+	}
+
+	private void UpdateFlowerViews(PanelView panel, Viewport viewport)
+	{
+		PlaceWorldMarker(panel.Flower, panel, viewport, flowerWorldPosition, flowerWorldSize);
+		if (panel.PlantMask == null || panel.Plant == null)
 		{
-			panel.CageOpenMarker.gameObject.SetActive(cageOpened && panel.IsZoomed);
-			panel.CageOpenMarker.rectTransform.anchoredPosition = new Vector2(0f, 40f);
+			return;
 		}
+
+		bool visible = plantSprite != null && panel.Flower.gameObject.activeSelf;
+		panel.PlantMask.gameObject.SetActive(visible);
+		if (!visible)
+		{
+			return;
+		}
+
+		Vector2 plantMaskWorldPosition = flowerWorldPosition + new Vector2(
+			0f,
+			-flowerWorldSize.y * 0.5f - plantWorldSize.y * 0.5f
+		) + plantMaskWorldOffset;
+		PlaceWorldMarker(panel.PlantMask, panel, viewport, plantMaskWorldPosition, plantWorldSize);
+		Vector2 maskSize = panel.PlantMask.sizeDelta;
+		float plantAspectRatio = plantSprite == null || plantSprite.rect.height <= 0f
+			? 1f
+			: plantSprite.rect.width / plantSprite.rect.height;
+		panel.Plant.sizeDelta = RoomPrototypeLevelThreePuzzleModel.GetPlantDisplaySize(
+			maskSize,
+			plantAspectRatio,
+			plantScaleMultiplier
+		);
+		panel.Plant.anchoredPosition = new Vector2(
+			0f,
+			-maskSize.y * 0.5f - panel.Plant.sizeDelta.y * (1f - initialPlantVisibleFraction)
+		) + plantLocalOffset;
+		panel.PlantMask.SetSiblingIndex(Mathf.Max(0, panel.Flower.GetSiblingIndex() - 1));
 	}
 
 	private void UpdateRoomFurnitureViews(PanelView panel, Viewport viewport, bool showRoomFurniture)
@@ -787,7 +883,13 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		}
 
 		float width = GetContentSize(window).x;
-		float normalized = Mathf.PingPong(Time.unscaledTime * 0.22f, 1f);
+		float flightTime = Time.unscaledTime * 0.22f;
+		float normalized = Mathf.PingPong(flightTime, 1f);
+		Vector3 birdScale = window.SkyBird.localScale;
+		birdScale.x = RoomPrototypeLevelThreePuzzleModel.GetSkyBirdHorizontalScale(
+			Mathf.Repeat(flightTime, 2f) < 1f
+		);
+		window.SkyBird.localScale = birdScale;
 		window.SkyBird.anchoredPosition = new Vector2(Mathf.Lerp(-width * 0.38f, width * 0.38f, normalized), width * 0.12f + Mathf.Sin(Time.unscaledTime * 2f) * 18f);
 	}
 
@@ -887,8 +989,25 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void BeginFlowerPull(PanelView flower, Vector2 screenPosition)
 	{
 		PanelView cage = FindPanelByRole(PanelRole.Cage);
-		flowerPullStart = GetBoardPositionForWorld(flower, flowerWorldPosition);
-		flowerPullTarget = GetPanelContentBoardPosition(cage, new Vector2(0.5f, 0.66f));
+		Vector2 originalPlantBottom = GetBoardPositionForRectTransform(flower.Plant);
+		pulledPlantSize = flower.Plant.sizeDelta;
+		flowerPullStart = RoomPrototypeLevelThreePuzzleModel.GetPlantPullStartTip(originalPlantBottom, pulledPlantSize);
+		Vector2 tableSurfaceWorldPosition = tableWorldPosition - Vector2.up * tableWorldSize.y * 0.5f;
+		Vector2 tableSurface = GetBoardPositionForWorld(cage, tableSurfaceWorldPosition);
+		flowerPullTarget = new Vector2(
+			flowerPullStart.x,
+			RoomPrototypeLevelThreePuzzleModel.GetPlantTipTargetY(tableSurface.y, plantTipHeightAboveTable)
+		);
+		flowerKeyTarget = tableSurface;
+		Vector2 flowerPotPosition = GetBoardPositionForRectTransform(flower.Flower);
+		Vector2 potThroat = flowerPotPosition + Vector2.up * flower.Flower.sizeDelta.y * potThroatHeightFraction;
+		Rect maskLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullMaskLayout(
+			potThroat,
+			boardRoot.rect.yMax,
+			boardRoot.rect.width
+		);
+		growthMask.anchoredPosition = maskLayout.center;
+		growthMask.sizeDelta = maskLayout.size;
 		if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 pointerPosition))
 		{
 			return;
@@ -898,13 +1017,16 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		flowerPullProgress = 0f;
 		flowerPullActive = true;
 		PlayInteractionSound();
-		growthOverlay.SetAsLastSibling();
-		flowerHeadOverlay.SetAsLastSibling();
+		growthMask.SetAsLastSibling();
+		pulledPotOverlay.SetAsLastSibling();
 		keyOverlay.SetAsLastSibling();
+		growthMask.gameObject.SetActive(true);
 		growthOverlay.gameObject.SetActive(true);
-		flowerHeadOverlay.gameObject.SetActive(true);
+		pulledPotOverlay.anchoredPosition = flowerPotPosition;
+		pulledPotOverlay.sizeDelta = flower.Flower.sizeDelta;
+		pulledPotOverlay.gameObject.SetActive(true);
 		keyOverlay.gameObject.SetActive(true);
-		flower.Flower.gameObject.SetActive(false);
+		flower.PlantMask.gameObject.SetActive(false);
 		flower.CaughtKey.gameObject.SetActive(false);
 		UpdateFlowerPullVisuals(0f);
 	}
@@ -926,13 +1048,17 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void UpdateFlowerPullVisuals(float progress)
 	{
-		float height = Mathf.Max(0f, flowerPullTarget.y - flowerPullStart.y) * Mathf.Clamp01(progress);
-		Vector2 tip = flowerPullStart + Vector2.up * height;
-		growthOverlay.anchoredPosition = flowerPullStart;
+		Rect layout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(
+			flowerPullStart,
+			flowerPullTarget,
+			pulledPlantSize,
+			progress
+		);
+		growthOverlay.anchoredPosition = layout.position - growthMask.anchoredPosition;
 		growthOverlay.localScale = Vector3.one;
-		growthOverlay.sizeDelta = new Vector2(34f, height);
-		flowerHeadOverlay.anchoredPosition = tip;
-		keyOverlay.anchoredPosition = tip + new Vector2(48f, -8f);
+		growthOverlay.sizeDelta = layout.size;
+		Vector2 plantTip = Vector2.Lerp(flowerPullStart, flowerPullTarget, Mathf.Clamp01(progress));
+		keyOverlay.anchoredPosition = RoomPrototypeLevelThreePuzzleModel.GetKeyPositionOnPlant(plantTip, keyPullOffset);
 		keyOverlay.localEulerAngles = Vector3.zero;
 	}
 
@@ -962,13 +1088,15 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		PanelView cage = FindPanelByRole(PanelRole.Cage);
 		if (completed)
 		{
+			keyOverlay.anchoredPosition = flowerKeyTarget;
 			cageOpened = true;
 			RefreshPanelVisuals(cage, cage.Viewport);
 		}
 		else
 		{
+			growthMask.gameObject.SetActive(false);
 			growthOverlay.gameObject.SetActive(false);
-			flowerHeadOverlay.gameObject.SetActive(false);
+			pulledPotOverlay.gameObject.SetActive(false);
 			keyOverlay.gameObject.SetActive(false);
 			RefreshPanelVisuals(flower, flower.Viewport);
 		}
@@ -1144,6 +1272,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		return boardRoot.InverseTransformPoint(panel.Content.TransformPoint(new Vector2(x, y)));
 	}
 
+	private Vector2 GetBoardPositionForRectTransform(RectTransform rectTransform)
+	{
+		return boardRoot.InverseTransformPoint(rectTransform.position);
+	}
+
 	private Vector2 GetPanelContentBoardPosition(PanelView panel, Vector2 normalizedTopLeft)
 	{
 		Vector2 size = GetContentSize(panel);
@@ -1296,8 +1429,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		public Image Cage;
 		public RectTransform SkyBird;
 		public RectTransform Flower;
+		public RectTransform PlantMask;
+		public RectTransform Plant;
 		public RectTransform CaughtKey;
-		public Text CageOpenMarker;
 		public CanvasGroup CanvasGroup;
 		public Viewport Viewport;
 		public Coroutine Animation;
