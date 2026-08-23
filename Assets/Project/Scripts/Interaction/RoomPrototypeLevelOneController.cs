@@ -310,6 +310,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private Sprite tableSprite = null;
+	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -510,10 +512,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private MarkerView CreateMarkerView(RectTransform parent, RoomMarker marker)
 	{
 		Image image = CreateImage(marker.Label, parent, marker.Color);
-		bool usesKeySprite = IsKeyMarker(marker) && keySprite != null;
-		image.sprite = usesKeySprite ? keySprite : marker.Shape == MarkerShape.Circle ? circleSprite : null;
-		image.preserveAspect = usesKeySprite;
-		if (usesKeySprite)
+		Sprite markerSprite = GetMarkerSprite(marker);
+		bool usesMarkerSprite = markerSprite != null;
+		image.sprite = usesMarkerSprite ? markerSprite : marker.Shape == MarkerShape.Circle ? circleSprite : null;
+		image.preserveAspect = usesMarkerSprite;
+		if (usesMarkerSprite)
 		{
 			image.color = Color.white;
 		}
@@ -1268,8 +1271,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, new Vector2(2.76f, 1.29f), new Vector2(0.1f, 0.42f), new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.39f, 1.14f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
-		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.32f, 0.52f), new Color(0.95f, 0.67f, 0.16f, 0.42f)));
-		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, new Vector2(3.56f, 0.58f), new Vector2(0.1f, 0.2f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
+		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, new Vector2(3.32f, 1.35f), new Vector2(0.54f, 0.91f), Color.white));
+		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.32f, 0.55f), new Vector2(0.42f, 0.83f), Color.white));
+		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, new Vector2(3.32f, 0.58f), new Vector2(0.1f, 0.2f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
 	}
 
 	private static string GetArrowText(RoomPrototypePanelDirection direction)
@@ -1394,6 +1398,24 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private static bool IsKeyMarker(RoomMarker marker)
 	{
 		return marker.Label == "KEY" || marker.Label == "CAGE KEY";
+	}
+
+	private Sprite GetMarkerSprite(RoomMarker marker)
+	{
+		if (IsKeyMarker(marker))
+		{
+			return keySprite;
+		}
+
+		switch (marker.Label)
+		{
+			case "TABLE":
+				return tableSprite;
+			case "CAGE":
+				return cageSprite;
+			default:
+				return null;
+		}
 	}
 
 	private Button CreateButton(string name, RectTransform parent, string text, Color background, Color foreground, Vector2 size)

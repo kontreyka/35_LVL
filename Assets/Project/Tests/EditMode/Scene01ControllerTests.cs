@@ -468,6 +468,31 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_TableSpansTheTopAndBottomRightRoomViews()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			RectTransform[] visibleTables = root.GetComponentsInChildren<RectTransform>(true)
+				.Where(rect => rect.name == "TABLE" && rect.gameObject.activeInHierarchy)
+				.ToArray();
+
+			Assert.That(visibleTables, Has.Length.EqualTo(2));
+			Assert.That(visibleTables.Select(GetOwningPanelName), Is.EquivalentTo(new[]
+			{
+				"TopRight Panel",
+				"BottomRight Panel"
+			}));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_CreatesInputSystemEventModuleForPanelClicks()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
@@ -495,6 +520,17 @@ public sealed class RoomPrototypeNavigationTests
 		{
 			UnityEngine.Object.DestroyImmediate(root);
 		}
+	}
+
+	private static string GetOwningPanelName(RectTransform rectTransform)
+	{
+		Transform current = rectTransform.transform;
+		while (current != null && !current.name.EndsWith(" Panel"))
+		{
+			current = current.parent;
+		}
+
+		return current == null ? string.Empty : current.name;
 	}
 
 	[Test]

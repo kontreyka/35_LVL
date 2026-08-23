@@ -302,6 +302,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundSprite: {fileID: 6530238388222242651, guid: 4d32f174b68f0994cab3c3c879aa3e93, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
+  tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
+  cageSprite: {fileID: 7815097645781697202, guid: 93cc96d34f78b554098bb6ba595853f4, type: 3}
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
   panelGap: 8
