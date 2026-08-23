@@ -55,6 +55,10 @@ public class Scene01Controller : MonoBehaviour
 	[Header("Background Transition")]
 	[SerializeField] private SpriteRenderer backgroundRenderer = null;
 	[SerializeField] private Sprite secondBackgroundSprite = null;
+
+	[Tooltip("Порядок отрисовки фона после замены. Должен быть ниже стола и птицы.")]
+	[SerializeField] private int secondBackgroundSortingOrder = 0;
+
 	[SerializeField] private Material vignetteMaterial = null;
 	[SerializeField] private float vignetteDuration = 0.9f;
 	[SerializeField] private float openVignetteRadius = 1.15f;
@@ -244,6 +248,7 @@ public class Scene01Controller : MonoBehaviour
 		}
 
 		backgroundRenderer.sprite = secondBackgroundSprite;
+		backgroundRenderer.sortingOrder = secondBackgroundSortingOrder;
 
 		if (vignetteRenderer != null)
 		{

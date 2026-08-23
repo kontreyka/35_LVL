@@ -419,7 +419,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5800183973191967078, guid: 16f5d4b81a250c4458cd108ce93d6b74, type: 3}
+  m_Sprite: {fileID: 6005505760219104435, guid: e9146854ba167d6468b1933bd1d72b6c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1575,7 +1575,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -217024257643170282, guid: 1136765e0c51ef049bb544373a5d1dee, type: 3}
+  m_Sprite: {fileID: 5816982580476525438, guid: ee9df32e63cf5f8489aedff1663cb167, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1672,6 +1672,7 @@ MonoBehaviour:
   backgroundZoomScaleCompensation: 0.5
   backgroundRenderer: {fileID: 813774252}
   secondBackgroundSprite: {fileID: 21300000, guid: de3c0d6050164c9583c5a7f1746493b2, type: 3}
+  secondBackgroundSortingOrder: 0
   vignetteMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
   vignetteDuration: 1.5
   openVignetteRadius: 1
