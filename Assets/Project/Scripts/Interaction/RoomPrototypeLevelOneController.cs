@@ -660,6 +660,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		Button button = markerView.Image.gameObject.AddComponent<Button>();
 		button.targetGraphic = markerView.Image;
+		button.transition = Selectable.Transition.None;
 		if (markerView.Marker.Label == "KEY")
 		{
 			button.onClick.AddListener(TryDropKeyIntoTruck);

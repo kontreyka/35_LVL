@@ -610,6 +610,27 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_DoesNotTintDisabledTruckSprite()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			Image truck = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "TRUCK" && GetOwningPanelName(image.rectTransform) == "BottomLeft Panel");
+			Button truckButton = truck.GetComponent<Button>();
+
+			Assert.That(truckButton, Is.Not.Null);
+			Assert.That(truckButton.transition, Is.EqualTo(Selectable.Transition.None));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_UsesTruckInsteadOfRopeToMoveItToTheTable()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
