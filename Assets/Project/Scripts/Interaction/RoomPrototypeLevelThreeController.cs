@@ -71,9 +71,20 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return tableSurfaceY + Mathf.Max(0f, heightAboveTable);
 	}
 
-	public static float GetKeyPullY(float startY, float tableSurfaceY, float progress)
+	public static Rect GetPlantPullMaskLayout(Vector2 potThroatPosition, float maskTopY, float maskWidth)
 	{
-		return Mathf.Lerp(startY, tableSurfaceY, Mathf.Clamp01(progress));
+		float top = Mathf.Max(potThroatPosition.y, maskTopY);
+		return Rect.MinMaxRect(
+			potThroatPosition.x - maskWidth * 0.5f,
+			potThroatPosition.y,
+			potThroatPosition.x + maskWidth * 0.5f,
+			top
+		);
+	}
+
+	public static Vector2 GetKeyPositionOnPlant(Vector2 plantTip, Vector2 keyOffset)
+	{
+		return plantTip + keyOffset;
 	}
 
 	private static bool IsDirectlyAbove(int upperSlot, int lowerSlot)
@@ -133,6 +144,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField, Range(0.5f, 1f)] private float flowerPullCompletionThreshold = 0.82f;
 	[SerializeField] private float flowerReturnDuration = 0.28f;
 	[SerializeField] private float plantTipHeightAboveTable = 28f;
+	[SerializeField, Range(0f, 0.5f)] private float potThroatHeightFraction = 0.25f;
+	[SerializeField] private Vector2 keyPullOffset = new Vector2(48f, -8f);
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
 	[SerializeField] private Color flowerColor = new Color(0.36f, 0.78f, 0.26f, 0.95f);
 	[SerializeField] private Color keyColor = new Color(0.96f, 0.75f, 0.13f, 0.98f);
@@ -151,6 +164,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private bool flowerPullAnimating;
 	private bool cageOpened;
 	private RectTransform keyOverlay;
+	private RectTransform growthMask;
 	private RectTransform growthOverlay;
 	private RectTransform pulledPotOverlay;
 	private Vector2 flowerPullStart;
@@ -254,6 +268,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		panels.Clear();
 		boardRoot = null;
 		keyOverlay = null;
+		growthMask = null;
 		growthOverlay = null;
 		pulledPotOverlay = null;
 	}
@@ -689,7 +704,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		key.gameObject.SetActive(false);
 		keyOverlay = key.rectTransform;
 
-		Image growth = CreateImage("Growing Plant", boardRoot, plantSprite != null ? Color.white : flowerColor);
+		growthMask = CreateRectTransform("Growing Plant Mask", boardRoot);
+		growthMask.gameObject.AddComponent<RectMask2D>();
+		growthMask.gameObject.SetActive(false);
+
+		Image growth = CreateImage("Growing Plant", growthMask, plantSprite != null ? Color.white : flowerColor);
 		growth.sprite = plantSprite;
 		growth.preserveAspect = true;
 		growth.rectTransform.sizeDelta = Vector2.zero;
@@ -950,6 +969,14 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			? 0.25f
 			: plantSprite.rect.width / plantSprite.rect.height;
 		pulledPlantSize = new Vector2(plantHeight * aspect, plantHeight);
+		Vector2 potThroat = flowerPullStart + Vector2.up * flower.Flower.sizeDelta.y * potThroatHeightFraction;
+		Rect maskLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullMaskLayout(
+			potThroat,
+			boardRoot.rect.yMax,
+			boardRoot.rect.width
+		);
+		growthMask.anchoredPosition = maskLayout.center;
+		growthMask.sizeDelta = maskLayout.size;
 		if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 pointerPosition))
 		{
 			return;
@@ -959,9 +986,10 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		flowerPullProgress = 0f;
 		flowerPullActive = true;
 		PlayInteractionSound();
-		growthOverlay.SetAsLastSibling();
+		growthMask.SetAsLastSibling();
 		pulledPotOverlay.SetAsLastSibling();
 		keyOverlay.SetAsLastSibling();
+		growthMask.gameObject.SetActive(true);
 		growthOverlay.gameObject.SetActive(true);
 		pulledPotOverlay.anchoredPosition = flowerPullStart;
 		pulledPotOverlay.sizeDelta = flower.Flower.sizeDelta;
@@ -995,13 +1023,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			pulledPlantSize,
 			progress
 		);
-		growthOverlay.anchoredPosition = layout.position;
+		growthOverlay.anchoredPosition = layout.position - growthMask.anchoredPosition;
 		growthOverlay.localScale = Vector3.one;
 		growthOverlay.sizeDelta = layout.size;
-		keyOverlay.anchoredPosition = new Vector2(
-			Mathf.Lerp(flowerPullStart.x, flowerKeyTarget.x, Mathf.Clamp01(progress)),
-			RoomPrototypeLevelThreePuzzleModel.GetKeyPullY(flowerPullStart.y, flowerKeyTarget.y, progress)
-		);
+		Vector2 plantTip = Vector2.Lerp(flowerPullStart, flowerPullTarget, Mathf.Clamp01(progress));
+		keyOverlay.anchoredPosition = RoomPrototypeLevelThreePuzzleModel.GetKeyPositionOnPlant(plantTip, keyPullOffset);
 		keyOverlay.localEulerAngles = Vector3.zero;
 	}
 
@@ -1031,11 +1057,13 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		PanelView cage = FindPanelByRole(PanelRole.Cage);
 		if (completed)
 		{
+			keyOverlay.anchoredPosition = flowerKeyTarget;
 			cageOpened = true;
 			RefreshPanelVisuals(cage, cage.Viewport);
 		}
 		else
 		{
+			growthMask.gameObject.SetActive(false);
 			growthOverlay.gameObject.SetActive(false);
 			pulledPotOverlay.gameObject.SetActive(false);
 			keyOverlay.gameObject.SetActive(false);

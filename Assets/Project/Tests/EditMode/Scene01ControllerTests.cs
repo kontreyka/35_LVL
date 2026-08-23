@@ -346,10 +346,38 @@ public sealed class RoomPrototypeNavigationTests
 	{
 		float tableSurfaceY = 620f;
 		float plantTipY = RoomPrototypeLevelThreePuzzleModel.GetPlantTipTargetY(tableSurfaceY, 28f);
-		float keyY = RoomPrototypeLevelThreePuzzleModel.GetKeyPullY(200f, tableSurfaceY, 1f);
 
 		Assert.That(plantTipY, Is.EqualTo(648f).Within(0.001f));
-		Assert.That(keyY, Is.EqualTo(tableSurfaceY).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_MaskStartsAtThePotThroat()
+	{
+		Rect mask = RoomPrototypeLevelThreePuzzleModel.GetPlantPullMaskLayout(
+			new Vector2(100f, 50f),
+			400f,
+			800f
+		);
+
+		Assert.That(mask.xMin, Is.EqualTo(-300f).Within(0.001f));
+		Assert.That(mask.xMax, Is.EqualTo(500f).Within(0.001f));
+		Assert.That(mask.yMin, Is.EqualTo(50f).Within(0.001f));
+		Assert.That(mask.yMax, Is.EqualTo(400f).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_KeyKeepsItsOffsetFromThePlantTipUntilCompletion()
+	{
+		Vector2 offset = new Vector2(26f, -8f);
+
+		Assert.That(
+			RoomPrototypeLevelThreePuzzleModel.GetKeyPositionOnPlant(new Vector2(100f, 200f), offset),
+			Is.EqualTo(new Vector2(126f, 192f))
+		);
+		Assert.That(
+			RoomPrototypeLevelThreePuzzleModel.GetKeyPositionOnPlant(new Vector2(100f, 700f), offset),
+			Is.EqualTo(new Vector2(126f, 692f))
+		);
 	}
 
 	[Test]
@@ -704,8 +732,10 @@ public sealed class RoomPrototypeNavigationTests
 			Image foregroundPot = root.GetComponentsInChildren<Image>(true)
 				.Single(image => image.name == "Pulled Flower Pot");
 
-			Assert.That(movingPlant.transform.parent, Is.SameAs(foregroundPot.transform.parent));
-			Assert.That(movingPlant.transform.GetSiblingIndex(), Is.LessThan(foregroundPot.transform.GetSiblingIndex()));
+			RectMask2D pullMask = movingPlant.GetComponentInParent<RectMask2D>();
+			Assert.That(pullMask, Is.Not.Null);
+			Assert.That(pullMask.transform.parent, Is.SameAs(foregroundPot.transform.parent));
+			Assert.That(pullMask.transform.GetSiblingIndex(), Is.LessThan(foregroundPot.transform.GetSiblingIndex()));
 		}
 		finally
 		{
