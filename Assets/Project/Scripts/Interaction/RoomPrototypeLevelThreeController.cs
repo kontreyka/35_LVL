@@ -115,6 +115,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[Header("Level 03 Room Object Layout")]
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite birdSprite = null;
+	[SerializeField] private Sprite skyBirdSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
 	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
@@ -658,10 +659,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void CreateBird(PanelView panel)
 	{
-		Image bird = CreateImage("Bird", panel.Content, new Color(0.96f, 0.97f, 1f, 0.96f));
-		bird.rectTransform.sizeDelta = new Vector2(86f, 38f);
-		Text label = CreateText("Bird Label", bird.rectTransform, "BIRD", 17, new Color(0.12f, 0.2f, 0.36f, 1f));
-		Stretch(label.rectTransform);
+		Image bird = CreateImage("Bird", panel.Content, Color.white);
+		bird.sprite = skyBirdSprite;
+		bird.preserveAspect = skyBirdSprite != null;
+		bird.rectTransform.sizeDelta = skyBirdSprite == null
+			? new Vector2(86f, 38f)
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(skyBirdSprite.rect.width, skyBirdSprite.rect.height, 92f);
 		panel.SkyBird = bird.rectTransform;
 		bird.gameObject.SetActive(false);
 	}

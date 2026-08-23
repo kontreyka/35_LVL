@@ -706,6 +706,37 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreePrototype_UsesAssignedSkyBirdSpriteWithoutTextLabel()
+	{
+		GameObject root = new GameObject("Level Three Sky Bird Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelThreeController controller = root.AddComponent<RoomPrototypeLevelThreeController>();
+		System.Reflection.FieldInfo skyBirdSpriteField = typeof(RoomPrototypeLevelThreeController).GetField(
+			"skyBirdSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite birdSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(skyBirdSpriteField, Is.Not.Null, "The sky bird sprite must be assignable in the Inspector.");
+			skyBirdSpriteField.SetValue(controller, birdSprite);
+			root.SetActive(true);
+
+			Image bird = root.GetComponentsInChildren<Image>(true).Single(image => image.name == "Bird");
+			Assert.That(bird.sprite, Is.SameAs(birdSprite));
+			Assert.That(bird.GetComponentsInChildren<Text>(true), Is.Empty);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(birdSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
 	public void LevelThreePrototype_ExposesPlantMaskAndPlantOffsetsInInspector()
 	{
 		string[] requiredFields = { "plantMaskWorldOffset", "plantLocalOffset" };

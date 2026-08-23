@@ -262,6 +262,7 @@ MonoBehaviour:
   plantSprite: {fileID: 21300000, guid: d4821c9738fa4fa6879d52c3228d40c8, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
   birdSprite: {fileID: -7708513443867668911, guid: 9e76d1ea8af2c634cafa4bf4c5ac78f0, type: 3}
+  skyBirdSprite: {fileID: -5064401156898091283, guid: fbe6fb33572cdee409e785804df1e6d1, type: 3}
   cageSprite: {fileID: 8203646131500868436, guid: 0729a37dc34435944a9215c279cf8379, type: 3}
   tableWorldPosition: {x: 3.42, y: 1.5}
   tableWorldSize: {x: 0.55, y: 0.95}
