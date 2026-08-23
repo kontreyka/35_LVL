@@ -757,6 +757,36 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelTwoPrototype_UsesInspectorAssignedClockAtItsExistingWorldPosition()
+	{
+		GameObject root = new GameObject("Level Two Clock Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelTwoController controller = root.AddComponent<RoomPrototypeLevelTwoController>();
+		System.Reflection.FieldInfo clockSpriteField = typeof(RoomPrototypeLevelTwoController).GetField(
+			"clockSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite clockSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(clockSpriteField, Is.Not.Null, "The clock sprite must be assignable in the Inspector.");
+			clockSpriteField.SetValue(controller, clockSprite);
+			root.SetActive(true);
+
+			Image clock = root.GetComponentsInChildren<Image>(true).Single(image => image.name == "Clock");
+			Assert.That(clock.sprite, Is.SameAs(clockSprite));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(clockSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
 	public void LevelThreePrototype_ExposesPlantMaskAndPlantOffsetsInInspector()
 	{
 		string[] requiredFields = { "plantMaskWorldOffset", "plantLocalOffset" };

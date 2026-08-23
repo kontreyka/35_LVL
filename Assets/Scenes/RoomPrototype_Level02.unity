@@ -240,3 +240,4 @@ MonoBehaviour:
   portraitHand1: {fileID: -8501832380729393063, guid: cd6f1c76c05084f4bbc048b02285330e, type: 3}
   portraitHand2: {fileID: 6385180195641060704, guid: 536b6fd6df345464eb6f70a5c2c9775b, type: 3}
   portraitHand3: {fileID: 5533574145997595748, guid: 6847186a14d490d4985b5205b11f440a, type: 3}
+  clockSprite: {fileID: 4128064093266648819, guid: 75dceac395edb504c9b787103f4843ed, type: 3}
