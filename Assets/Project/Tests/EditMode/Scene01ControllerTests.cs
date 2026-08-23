@@ -493,6 +493,39 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_UsesInspectorConfiguredTablePosition()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo tablePosition = typeof(RoomPrototypeLevelOneController).GetField(
+			"tableRoomPosition",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+
+		try
+		{
+			Assert.That(tablePosition, Is.Not.Null, "The table position must be editable in the Inspector.");
+			tablePosition.SetValue(controller, new Vector2(1.3f, 0.5f));
+			root.SetActive(true);
+
+			RectTransform[] visibleTables = root.GetComponentsInChildren<RectTransform>(true)
+				.Where(rect => rect.name == "TABLE" && rect.gameObject.activeInHierarchy)
+				.ToArray();
+
+			Assert.That(visibleTables.Select(GetOwningPanelName), Is.EquivalentTo(new[]
+			{
+				"TopLeft Panel",
+				"BottomLeft Panel"
+			}));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_CreatesInputSystemEventModuleForPanelClicks()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

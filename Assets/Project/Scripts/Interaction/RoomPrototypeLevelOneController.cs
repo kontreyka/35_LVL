@@ -303,15 +303,24 @@ public static class RoomPrototypeLevelOnePanelModel
 	}
 }
 
+[ExecuteAlways]
 public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 {
 	public const string BuiltInFontResourceName = "LegacyRuntime.ttf";
 	private const float PanelFrameThickness = 4f;
+	private const string EditorPreviewRootName = "Level 01 Editor Preview";
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
+	[Header("Level 01 Object Layout")]
+	[Tooltip("Room-grid coordinates. The room is 4 columns wide and 2 rows tall.")]
+	[SerializeField] private Vector2 tableRoomPosition = new Vector2(3.32f, 1.35f);
+	[SerializeField] private Vector2 tableRoomSize = new Vector2(0.54f, 0.91f);
+	[SerializeField] private Vector2 cageRoomPosition = new Vector2(3.32f, 0.55f);
+	[SerializeField] private Vector2 cageRoomSize = new Vector2(0.42f, 0.83f);
+	[Header("Prototype Settings")]
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -343,9 +352,60 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void Awake()
 	{
-		StartLevelMusic();
-		BuildPrototype();
+		if (Application.isPlaying)
+		{
+			ClearEditorPreview();
+			StartLevelMusic();
+			BuildPrototype(transform);
+			return;
+		}
+
+		BuildEditorPreview();
 	}
+
+	#if UNITY_EDITOR
+	private bool editorPreviewRefreshQueued;
+
+	private void OnEnable()
+	{
+		if (!Application.isPlaying)
+		{
+			QueueEditorPreviewRefresh();
+		}
+	}
+
+	private void OnValidate()
+	{
+		if (!Application.isPlaying)
+		{
+			QueueEditorPreviewRefresh();
+		}
+	}
+
+	private void QueueEditorPreviewRefresh()
+	{
+		if (editorPreviewRefreshQueued || !gameObject.scene.IsValid())
+		{
+			return;
+		}
+
+		editorPreviewRefreshQueued = true;
+		UnityEditor.EditorApplication.delayCall += RefreshEditorPreview;
+	}
+
+	private void RefreshEditorPreview()
+	{
+		editorPreviewRefreshQueued = false;
+		if (this == null || Application.isPlaying || !isActiveAndEnabled)
+		{
+			return;
+		}
+
+		BuildEditorPreview();
+		UnityEditor.SceneView.RepaintAll();
+		UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+	}
+	#endif
 
 	public static void ConfigureLevelMusic(AudioSource musicSource, AudioClip musicClip)
 	{
@@ -378,14 +438,48 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		musicSource.Play();
 	}
 
-	private void BuildPrototype()
+	private void BuildEditorPreview()
+	{
+		ClearEditorPreview();
+		GameObject previewRoot = new GameObject(EditorPreviewRootName, typeof(RectTransform));
+		previewRoot.transform.SetParent(transform, false);
+		previewRoot.hideFlags = HideFlags.DontSaveInEditor;
+		BuildPrototype(previewRoot.transform);
+	}
+
+	private void ClearEditorPreview()
+	{
+		Transform previewRoot = transform.Find(EditorPreviewRootName);
+		if (previewRoot == null)
+		{
+			return;
+		}
+
+		if (Application.isPlaying)
+		{
+			Destroy(previewRoot.gameObject);
+		}
+		else
+		{
+			DestroyImmediate(previewRoot.gameObject);
+		}
+
+		panels.Clear();
+		roomMarkers.Clear();
+		canvasRoot = null;
+	}
+
+	private void BuildPrototype(Transform parent)
 	{
 		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
-		circleSprite = CreateCircleSprite();
+		if (circleSprite == null)
+		{
+			circleSprite = CreateCircleSprite();
+		}
 		BuildMarkers();
-		EnsureEventSystem();
+		EnsureEventSystem(parent);
 
-		canvasRoot = CreateCanvas();
+		canvasRoot = CreateCanvas(parent);
 		RectTransform boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
 		Vector2 squareBoardSize = CalculateSquareBoardSize(boardSize);
 		boardRoot.anchorMin = new Vector2(0.5f, 0.5f);
@@ -409,10 +503,10 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		return new Vector2(side, side);
 	}
 
-	private RectTransform CreateCanvas()
+	private RectTransform CreateCanvas(Transform parent)
 	{
 		GameObject canvasObject = new GameObject("Room Prototype Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-		canvasObject.transform.SetParent(transform, false);
+		canvasObject.transform.SetParent(parent, false);
 
 		Canvas canvas = canvasObject.GetComponent<Canvas>();
 		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -1271,9 +1365,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, new Vector2(2.76f, 1.29f), new Vector2(0.1f, 0.42f), new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.39f, 1.14f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
-		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, new Vector2(3.32f, 1.35f), new Vector2(0.54f, 0.91f), Color.white));
-		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, new Vector2(3.32f, 0.55f), new Vector2(0.42f, 0.83f), Color.white));
-		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, new Vector2(3.32f, 0.58f), new Vector2(0.1f, 0.2f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
+		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, tableRoomPosition, tableRoomSize, Color.white));
+		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, cageRoomPosition, cageRoomSize, Color.white));
+		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, cageRoomPosition + new Vector2(0f, 0.03f), new Vector2(0.1f, 0.2f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
 	}
 
 	private static string GetArrowText(RoomPrototypePanelDirection direction)
@@ -1293,13 +1387,13 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		}
 	}
 
-	private void EnsureEventSystem()
+	private void EnsureEventSystem(Transform parent)
 	{
 		EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
 		if (eventSystem == null)
 		{
 			GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-			eventSystemObject.transform.SetParent(transform, false);
+			eventSystemObject.transform.SetParent(parent, false);
 			eventSystem = eventSystemObject.GetComponent<EventSystem>();
 		}
 
