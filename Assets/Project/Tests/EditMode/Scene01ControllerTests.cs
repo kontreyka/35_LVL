@@ -264,6 +264,19 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreeFlow_WiresEyeThreeToTheRoomThenTheFinalScene()
+	{
+		string eyeThreeScene = File.ReadAllText(Path.Combine(Application.dataPath, "Scenes/Eye_3.unity"));
+		string levelThreeScene = File.ReadAllText(Path.Combine(Application.dataPath, "Scenes/RoomPrototype_Level03.unity"));
+		string buildSettings = File.ReadAllText(Path.Combine(Application.dataPath, "../ProjectSettings/EditorBuildSettings.asset"));
+
+		Assert.That(eyeThreeScene, Does.Contain("scenePath: Assets/Scenes/RoomPrototype_Level03.unity"));
+		Assert.That(levelThreeScene, Does.Contain("scenePath: Assets/Scenes/Last_Scene.unity"));
+		Assert.That(buildSettings, Does.Contain("path: Assets/Scenes/RoomPrototype_Level03.unity"));
+		Assert.That(buildSettings, Does.Contain("path: Assets/Scenes/Last_Scene.unity"));
+	}
+
+	[Test]
 	public void LevelThreeBird_DropsKeyOnlyWhenSkyIsDirectlyAboveZoomedFlower()
 	{
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanDropKey(

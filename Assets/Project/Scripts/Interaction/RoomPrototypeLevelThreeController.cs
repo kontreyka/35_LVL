@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum RoomPrototypeLevelThreeWindowState
@@ -155,6 +156,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.7f;
 	[SerializeField] private float interactionClickGainDb = 3f;
 	[SerializeField] private float zoomGainDb = -5f;
+	[Header("Scene Flow")]
+	[SerializeField] private SceneReference nextScene = new SceneReference();
+	[SerializeField, Min(0f)] private float completionTransitionDelay = 0.4f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -184,6 +188,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private bool flowerPullActive;
 	private bool flowerPullAnimating;
 	private bool cageOpened;
+	private bool levelCompleted;
 	private RectTransform keyOverlay;
 	private RectTransform growthMask;
 	private RectTransform growthOverlay;
@@ -231,6 +236,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void OnValidate()
 	{
+		nextScene.SynchronizePath();
+
 		if (!Application.isPlaying)
 		{
 			QueueEditorPreviewRefresh();
@@ -1091,6 +1098,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			keyOverlay.anchoredPosition = flowerKeyTarget;
 			cageOpened = true;
 			RefreshPanelVisuals(cage, cage.Viewport);
+			CompleteLevel();
 		}
 		else
 		{
@@ -1102,7 +1110,35 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		}
 
 		flowerPullAnimating = false;
-		interactionLocked = false;
+		interactionLocked = levelCompleted;
+	}
+
+	private void CompleteLevel()
+	{
+		if (levelCompleted)
+		{
+			return;
+		}
+
+		levelCompleted = true;
+		interactionLocked = true;
+		if (!nextScene.IsAssigned)
+		{
+			Debug.LogWarning($"{nameof(RoomPrototypeLevelThreeController)} requires a next scene.", this);
+			return;
+		}
+
+		StartCoroutine(LoadNextSceneAfterCompletion());
+	}
+
+	private IEnumerator LoadNextSceneAfterCompletion()
+	{
+		if (completionTransitionDelay > 0f)
+		{
+			yield return new WaitForSeconds(completionTransitionDelay);
+		}
+
+		SceneManager.LoadScene(nextScene.Path);
 	}
 
 	private static bool IsFlowerZoomed(PanelView panel)

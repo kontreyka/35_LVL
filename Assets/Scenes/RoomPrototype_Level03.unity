@@ -331,6 +331,10 @@ MonoBehaviour:
   sfxVolume: 0.7
   interactionClickGainDb: 3
   zoomGainDb: -5
+  nextScene:
+    sceneAsset: {fileID: 102900000, guid: 74cc376ab13b7694aaa4ee33349722dd, type: 3}
+    scenePath: Assets/Scenes/Last_Scene.unity
+  completionTransitionDelay: 0.4
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
   panelGap: 8

@@ -65,6 +65,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Eye_3.unity
     guid: 132c13e52306597468a51c349faa1e01
+  - enabled: 1
+    path: Assets/Scenes/RoomPrototype_Level03.unity
+    guid: 82e6c900dde948f9853166cbcdaab0c5
+  - enabled: 1
+    path: Assets/Scenes/Last_Scene.unity
+    guid: 74cc376ab13b7694aaa4ee33349722dd
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
