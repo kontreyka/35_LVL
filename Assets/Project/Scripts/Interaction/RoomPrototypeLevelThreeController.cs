@@ -229,7 +229,10 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void BuildPrototype(Transform parent)
 	{
 		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
-		EnsureEventSystem(parent);
+		if (Application.isPlaying)
+		{
+			EnsureEventSystem(parent);
+		}
 
 		RectTransform canvasRoot = CreateCanvas(parent);
 		boardRoot = CreateRectTransform("Level Three Board", canvasRoot);

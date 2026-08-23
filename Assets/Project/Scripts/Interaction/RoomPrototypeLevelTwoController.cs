@@ -297,7 +297,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	{
 		ResolvePortraitSpritesForEditor();
 		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
-		EnsureEventSystem(parent);
+		if (Application.isPlaying)
+		{
+			EnsureEventSystem(parent);
+		}
 
 		RectTransform canvasRoot = CreateCanvas(parent);
 		boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
