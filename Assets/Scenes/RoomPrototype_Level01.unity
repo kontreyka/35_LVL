@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2459340677f45948c8daf54ffe76aa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backgroundSprite: {fileID: 21300000, guid: d8533941dbc54ef280926c51f43afc53, type: 3}
+  backgroundSprite: {fileID: -5421872573110903762, guid: f5f91fe4a6aa6344392acdb270c5e0fc, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
