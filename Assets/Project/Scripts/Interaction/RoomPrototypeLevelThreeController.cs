@@ -80,9 +80,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Sprite keySprite = null;
 	[Header("Level 03 Room Object Layout")]
 	[SerializeField] private Sprite tableSprite = null;
+	[SerializeField] private Sprite birdSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
 	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
+	[SerializeField] private Vector2 birdWorldPosition = new Vector2(3.38f, 0.71f);
+	[SerializeField] private Vector2 birdWorldSize = new Vector2(17.35f, 0.61f);
 	[SerializeField] private Vector2 cageWorldPosition = new Vector2(3.42f, 0.7f);
 	[SerializeField] private Vector2 cageWorldSize = new Vector2(0.9f, 0.9f);
 	[Header("Level 03 Interactive Object Layout")]
@@ -595,13 +598,14 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		bird.rectTransform.sizeDelta = new Vector2(86f, 38f);
 		Text label = CreateText("Bird Label", bird.rectTransform, "BIRD", 17, new Color(0.12f, 0.2f, 0.36f, 1f));
 		Stretch(label.rectTransform);
-		panel.Bird = bird.rectTransform;
+		panel.SkyBird = bird.rectTransform;
 		bird.gameObject.SetActive(false);
 	}
 
 	private void CreateRoomFurnitureViews(PanelView panel)
 	{
 		panel.Table = CreateRoomFurnitureView("Table", panel.Content, tableSprite);
+		panel.CageBird = CreateRoomFurnitureView("Cage Bird", panel.Content, birdSprite);
 		panel.Cage = CreateRoomFurnitureView("Cage", panel.Content, cageSprite);
 	}
 
@@ -682,9 +686,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		panel.Room.gameObject.SetActive(!isSky);
 		panel.Sky.gameObject.SetActive(isSky);
 		UpdateRoomFurnitureViews(panel, viewport, !isSky);
-		if (panel.Bird != null)
+		if (panel.SkyBird != null)
 		{
-			panel.Bird.gameObject.SetActive(isSky);
+			panel.SkyBird.gameObject.SetActive(isSky);
 		}
 
 		if (panel.Flower != null)
@@ -706,6 +710,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void UpdateRoomFurnitureViews(PanelView panel, Viewport viewport, bool showRoomFurniture)
 	{
 		UpdateRoomFurnitureView(panel.Table, panel, viewport, tableWorldPosition, tableWorldSize, showRoomFurniture);
+		UpdateRoomFurnitureView(panel.CageBird, panel, viewport, birdWorldPosition, birdWorldSize, showRoomFurniture);
 		UpdateRoomFurnitureView(panel.Cage, panel, viewport, cageWorldPosition, cageWorldSize, showRoomFurniture);
 	}
 
@@ -753,14 +758,14 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void Update()
 	{
 		PanelView window = FindPanelByRole(PanelRole.Window);
-		if (window == null || window.Bird == null || window.WindowState != RoomPrototypeLevelThreeWindowState.Sky)
+		if (window == null || window.SkyBird == null || window.WindowState != RoomPrototypeLevelThreeWindowState.Sky)
 		{
 			return;
 		}
 
 		float width = GetContentSize(window).x;
 		float normalized = Mathf.PingPong(Time.unscaledTime * 0.22f, 1f);
-		window.Bird.anchoredPosition = new Vector2(Mathf.Lerp(-width * 0.38f, width * 0.38f, normalized), width * 0.12f + Mathf.Sin(Time.unscaledTime * 2f) * 18f);
+		window.SkyBird.anchoredPosition = new Vector2(Mathf.Lerp(-width * 0.38f, width * 0.38f, normalized), width * 0.12f + Mathf.Sin(Time.unscaledTime * 2f) * 18f);
 	}
 
 	private void CheckPuzzleTransitions()
@@ -1262,8 +1267,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		public RectTransform Room;
 		public Image Sky;
 		public Image Table;
+		public Image CageBird;
 		public Image Cage;
-		public RectTransform Bird;
+		public RectTransform SkyBird;
 		public RectTransform Flower;
 		public RectTransform CaughtKey;
 		public Text CageOpenMarker;

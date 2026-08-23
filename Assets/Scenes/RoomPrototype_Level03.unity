@@ -213,9 +213,12 @@ MonoBehaviour:
   skySprite: {fileID: 3779090305159470298, guid: c1116f1197c57d948b2a45b15e849077, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
+  birdSprite: {fileID: -7708513443867668911, guid: 9e76d1ea8af2c634cafa4bf4c5ac78f0, type: 3}
   cageSprite: {fileID: 8203646131500868436, guid: 0729a37dc34435944a9215c279cf8379, type: 3}
   tableWorldPosition: {x: 3.42, y: 1.5}
   tableWorldSize: {x: 0.55, y: 0.95}
+  birdWorldPosition: {x: 3.38, y: 0.71}
+  birdWorldSize: {x: 17.35, y: 0.61}
   cageWorldPosition: {x: 3.42, y: 0.7}
   cageWorldSize: {x: 0.9, y: 0.9}
   levelMusic: {fileID: 8300000, guid: f5f61a289197cde43ba0e88af502c731, type: 3}

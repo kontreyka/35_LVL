@@ -143,9 +143,12 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Sprite keySprite = null;
 	[Header("Level 02 Room Object Layout")]
 	[SerializeField] private Sprite tableSprite = null;
+	[SerializeField] private Sprite birdSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
 	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
+	[SerializeField] private Vector2 birdWorldPosition = new Vector2(3.38f, 0.71f);
+	[SerializeField] private Vector2 birdWorldSize = new Vector2(17.35f, 0.61f);
 	[SerializeField] private Vector2 cageWorldPosition = new Vector2(3.42f, 0.7f);
 	[SerializeField] private Vector2 cageWorldSize = new Vector2(0.9f, 0.9f);
 	[SerializeField] private AudioClip levelMusic = null;
@@ -649,6 +652,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private void CreateRoomFurnitureViews(PanelView panel)
 	{
 		panel.Table = CreateRoomFurnitureView("Table", panel.Content, tableSprite);
+		panel.CageBird = CreateRoomFurnitureView("Bird", panel.Content, birdSprite);
 		panel.Cage = CreateRoomFurnitureView("Cage", panel.Content, cageSprite);
 	}
 
@@ -665,6 +669,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
 		Vector2 contentSize = GetContentSize(panel);
 		UpdateRoomFurnitureView(panel.Table, tableWorldPosition, tableWorldSize, contentSize, visibleWorldRect);
+		UpdateRoomFurnitureView(panel.CageBird, birdWorldPosition, birdWorldSize, contentSize, visibleWorldRect);
 		UpdateRoomFurnitureView(panel.Cage, cageWorldPosition, cageWorldSize, contentSize, visibleWorldRect);
 	}
 
@@ -1304,6 +1309,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		public RectTransform Content;
 		public RectTransform Background;
 		public Image Table;
+		public Image CageBird;
 		public Image Cage;
 		public RectTransform SharedTruckPlaceholder;
 		public Image PortraitStage;

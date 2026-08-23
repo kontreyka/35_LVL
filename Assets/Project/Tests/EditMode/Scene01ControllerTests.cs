@@ -617,9 +617,12 @@ public sealed class RoomPrototypeNavigationTests
 		string[] requiredFields =
 		{
 			"tableSprite",
+			"birdSprite",
 			"cageSprite",
 			"tableWorldPosition",
 			"tableWorldSize",
+			"birdWorldPosition",
+			"birdWorldSize",
 			"cageWorldPosition",
 			"cageWorldSize"
 		};
