@@ -94,7 +94,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Vector2 flowerWorldPosition = new Vector2(1.55f, 0.42f);
 	[SerializeField] private Vector2 flowerWorldSize = new Vector2(0.34f, 0.24f);
 	[SerializeField] private Vector2 plantWorldSize = new Vector2(0.22f, 0.58f);
-	[SerializeField, Range(0.05f, 1f)] private float initialPlantVisibleFraction = 0.22f;
+	[SerializeField] private Vector2 plantMaskWorldOffset = Vector2.zero;
+	[SerializeField] private Vector2 plantLocalOffset = Vector2.zero;
+	[SerializeField, Range(0.05f, 1f)] private float initialPlantVisibleFraction = 0.1f;
 	[SerializeField] private Vector2 caughtKeyWorldPosition = new Vector2(1.63f, 0.34f);
 	[SerializeField] private float caughtKeyWorldHeight = 0.28f;
 	[SerializeField] private AudioClip levelMusic = null;
@@ -763,14 +765,17 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		Vector2 plantMaskWorldPosition = flowerWorldPosition + new Vector2(
 			0f,
 			-flowerWorldSize.y * 0.5f - plantWorldSize.y * 0.5f
-		);
+		) + plantMaskWorldOffset;
 		PlaceWorldMarker(panel.PlantMask, panel, viewport, plantMaskWorldPosition, plantWorldSize);
 		Vector2 maskSize = panel.PlantMask.sizeDelta;
-		panel.Plant.sizeDelta = maskSize;
+		float plantAspectRatio = plantSprite == null || plantSprite.rect.height <= 0f
+			? 1f
+			: plantSprite.rect.width / plantSprite.rect.height;
+		panel.Plant.sizeDelta = new Vector2(maskSize.y * plantAspectRatio, maskSize.y);
 		panel.Plant.anchoredPosition = new Vector2(
 			0f,
-			-maskSize.y * 0.5f - maskSize.y * (1f - initialPlantVisibleFraction)
-		);
+			-maskSize.y * 0.5f - panel.Plant.sizeDelta.y * (1f - initialPlantVisibleFraction)
+		) + plantLocalOffset;
 		panel.PlantMask.SetSiblingIndex(Mathf.Max(0, panel.Flower.GetSiblingIndex() - 1));
 	}
 

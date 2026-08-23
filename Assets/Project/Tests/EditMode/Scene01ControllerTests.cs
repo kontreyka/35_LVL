@@ -647,6 +647,21 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreePrototype_ExposesPlantMaskAndPlantOffsetsInInspector()
+	{
+		string[] requiredFields = { "plantMaskWorldOffset", "plantLocalOffset" };
+
+		foreach (string fieldName in requiredFields)
+		{
+			System.Reflection.FieldInfo field = typeof(RoomPrototypeLevelThreeController).GetField(
+				fieldName,
+				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+			);
+			Assert.That(field, Is.Not.Null, $"The {fieldName} must be editable in the Inspector.");
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_ShowsAppleInBothRightViewsButOnlyTheBottomRightOneCanBeClicked()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
