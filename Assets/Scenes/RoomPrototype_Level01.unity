@@ -308,6 +308,18 @@ MonoBehaviour:
   tableRoomSize: {x: 0.55, y: 0.95}
   cageRoomPosition: {x: 3.42, y: 0.7}
   cageRoomSize: {x: 0.9, y: 0.9}
+  keyRoomPosition: {x: 0.39, y: 0.62}
+  keyRoomSize: {x: 0.12, y: 0.24}
+  truckStartRoomPosition: {x: 1.44, y: 1.63}
+  truckRoomSize: {x: 0.48, y: 0.22}
+  truckMiddleRoomPosition: {x: 2.44, y: 1.63}
+  truckTableRoomPosition: {x: 3.44, y: 1.63}
+  ropeRoomPosition: {x: 2.76, y: 1.29}
+  ropeRoomSize: {x: 0.1, y: 0.42}
+  appleRoomPosition: {x: 3.39, y: 1.07}
+  appleRoomSize: {x: 0.16, y: 0.16}
+  cageKeyRoomOffset: {x: 0, y: 0.03}
+  cageKeyRoomSize: {x: 0.1, y: 0.2}
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
   panelGap: 8
