@@ -17,7 +17,7 @@ public sealed class Eye3CutsceneSequenceController : MonoBehaviour
 	[SerializeField] private TMP_FontAsset hintFont;
 
 	[Header("Frame Transition")]
-	[SerializeField, Min(0f)] private float framePromptDelay = 5f;
+	[SerializeField, Min(0f)] private float framePromptDelay = 3f;
 	[SerializeField, Min(0.05f)] private float framePromptFadeDuration = 0.3f;
 	[SerializeField, Min(0.05f)] private float whiteFadeDuration = 0.35f;
 
@@ -54,6 +54,7 @@ public sealed class Eye3CutsceneSequenceController : MonoBehaviour
 			yield return FadeWhite(1f, 0f);
 		}
 
+		yield return WaitForFrameAdvance();
 		StartDialogue();
 	}
 

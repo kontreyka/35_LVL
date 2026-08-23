@@ -685,7 +685,7 @@ MonoBehaviour:
   dialogueSystem: {fileID: 0}
   eyeTransition: {fileID: 210300002}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
-  framePromptDelay: 5
+  framePromptDelay: 3
   framePromptFadeDuration: 0.3
   whiteFadeDuration: 0.35
 --- !u!1001 &210310003
