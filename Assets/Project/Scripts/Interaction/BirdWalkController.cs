@@ -46,6 +46,9 @@ public sealed class BirdWalkController : MonoBehaviour
 
 	private void Update()
 	{
+		if (ModalSettingsPanel.IsOpen)
+			return;
+
 		float horizontalInput = GetHorizontalInput();
 
 		if (Mathf.Abs(horizontalInput) <= Mathf.Epsilon)
