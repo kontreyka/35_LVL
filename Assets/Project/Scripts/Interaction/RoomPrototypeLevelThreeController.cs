@@ -76,6 +76,14 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return plantBottom + Vector2.up * plantSize.y;
 	}
 
+	public static Vector2 GetPlantDisplaySize(Vector2 maskSize, float spriteAspectRatio, float widthMultiplier)
+	{
+		return new Vector2(
+			maskSize.y * Mathf.Max(0f, spriteAspectRatio) * Mathf.Max(1f, widthMultiplier),
+			maskSize.y
+		);
+	}
+
 	public static float GetPlantTipTargetY(float tableSurfaceY, float heightAboveTable)
 	{
 		return tableSurfaceY + Mathf.Max(0f, heightAboveTable);
@@ -132,6 +140,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Vector2 flowerWorldPosition = new Vector2(1.55f, 0.42f);
 	[SerializeField] private Vector2 flowerWorldSize = new Vector2(0.34f, 0.24f);
 	[SerializeField] private Vector2 plantWorldSize = new Vector2(0.22f, 0.58f);
+	[SerializeField, Min(1f)] private float plantWidthMultiplier = 3f;
 	[SerializeField] private Vector2 plantMaskWorldOffset = Vector2.zero;
 	[SerializeField] private Vector2 plantLocalOffset = Vector2.zero;
 	[SerializeField, Range(0.05f, 1f)] private float initialPlantVisibleFraction = 0.1f;
@@ -695,7 +704,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		plantMask.gameObject.AddComponent<RectMask2D>();
 		Image plant = CreateImage("Plant", plantMask, Color.white);
 		plant.sprite = plantSprite;
-		plant.preserveAspect = true;
+		plant.preserveAspect = false;
 		plant.raycastTarget = false;
 		plant.rectTransform.pivot = new Vector2(0.5f, 0f);
 		panel.PlantMask = plantMask;
@@ -723,7 +732,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 		Image growth = CreateImage("Growing Plant", growthMask, plantSprite != null ? Color.white : flowerColor);
 		growth.sprite = plantSprite;
-		growth.preserveAspect = true;
+		growth.preserveAspect = false;
 		growth.rectTransform.sizeDelta = Vector2.zero;
 		growth.rectTransform.pivot = new Vector2(0.5f, 0f);
 		growth.gameObject.SetActive(false);
@@ -804,7 +813,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		float plantAspectRatio = plantSprite == null || plantSprite.rect.height <= 0f
 			? 1f
 			: plantSprite.rect.width / plantSprite.rect.height;
-		panel.Plant.sizeDelta = new Vector2(maskSize.y * plantAspectRatio, maskSize.y);
+		panel.Plant.sizeDelta = RoomPrototypeLevelThreePuzzleModel.GetPlantDisplaySize(
+			maskSize,
+			plantAspectRatio,
+			plantWidthMultiplier
+		);
 		panel.Plant.anchoredPosition = new Vector2(
 			0f,
 			-maskSize.y * 0.5f - panel.Plant.sizeDelta.y * (1f - initialPlantVisibleFraction)

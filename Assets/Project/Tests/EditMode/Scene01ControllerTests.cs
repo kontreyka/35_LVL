@@ -350,6 +350,19 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreePlantDisplaySize_WidensTheSpriteWithoutChangingItsHeight()
+	{
+		Vector2 size = RoomPrototypeLevelThreePuzzleModel.GetPlantDisplaySize(
+			new Vector2(80f, 200f),
+			0.14f,
+			3f
+		);
+
+		Assert.That(size.x, Is.EqualTo(84f).Within(0.001f));
+		Assert.That(size.y, Is.EqualTo(200f).Within(0.001f));
+	}
+
+	[Test]
 	public void LevelThreeFlowerPull_PlacesKeyOnTableWhilePlantTipFinishesAboveIt()
 	{
 		float tableSurfaceY = 620f;

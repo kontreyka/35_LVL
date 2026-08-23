@@ -273,6 +273,7 @@ MonoBehaviour:
   flowerWorldPosition: {x: 1.67, y: 0.42}
   flowerWorldSize: {x: 0.8, y: 0.5}
   plantWorldSize: {x: 0.22, y: 0.8}
+  plantWidthMultiplier: 3
   plantMaskWorldOffset: {x: 0, y: 0.16}
   plantLocalOffset: {x: 2.57, y: 0}
   initialPlantVisibleFraction: 0.301
