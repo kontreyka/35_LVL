@@ -21,7 +21,8 @@ public class ClickableHotspot : MonoBehaviour
 
 	private void Update()
 	{
-		if (ModalSettingsPanel.IsOpen)
+		if (ModalSettingsPanel.IsOpen ||
+			(DialogueSystem.Instance != null && DialogueSystem.Instance.IsRunning))
 			return;
 
 #if ENABLE_INPUT_SYSTEM
