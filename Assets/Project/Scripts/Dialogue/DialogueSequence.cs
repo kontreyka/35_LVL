@@ -25,7 +25,7 @@ public sealed class DialogueLine
 	[SerializeField] private string speakerName;
 	[SerializeField, TextArea(2, 6)] private string text;
 	[SerializeField] private Sprite portrait;
-	[SerializeField] private bool centerText;
+	[SerializeField] private bool centerText = true;
 	[SerializeField, Min(0f)] private float fontSizeOverride;
 
 	public string SpeakerName => speakerName;

@@ -16,10 +16,10 @@ MonoBehaviour:
   - speakerName:
     text: "Птица и небо издавна знали друг друга: небо хранило для неё ветер, а птица отвечала ему взмахами крыльев."
     portrait: {fileID: 0}
-    centerText: 0
+    centerText: 1
     fontSizeOverride: 0
   - speakerName:
     text: "Но однажды между ними появились прутья клетки.\nИ с тех пор небо лишь терпеливо ждет, когда птица вспомнит дорогу домой."
     portrait: {fileID: 0}
-    centerText: 0
+    centerText: 1
     fontSizeOverride: 0
