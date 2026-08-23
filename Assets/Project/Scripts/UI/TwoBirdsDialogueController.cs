@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 #if ENABLE_INPUT_SYSTEM
@@ -14,7 +15,7 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 	[SerializeField] private DialogueSystem dialogueSystem;
 	[SerializeField] private TMP_FontAsset hintFont;
 	[SerializeField] private bool loadNextSceneAfterDialogue;
-	[SerializeField] private LevelTransitionManager levelTransitionManager;
+	[SerializeField] private SceneReference targetScene = new SceneReference();
 
 	[Header("Prompt")]
 	[SerializeField] private string promptText = "Нажмите Enter";
@@ -83,9 +84,6 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 	{
 		if (dialogueSystem == null)
 			dialogueSystem = DialogueSystem.Instance ?? FindFirstObjectByType<DialogueSystem>();
-
-		if (levelTransitionManager == null)
-			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
 	}
 
 	private void HandleDialogueFinished(DialogueSequence finishedDialogue)
@@ -96,13 +94,21 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 		transitionStarted = true;
 		dialogueSystem.DialogueFinished -= HandleDialogueFinished;
 
-		if (levelTransitionManager == null)
-			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
+		if (!targetScene.IsAssigned)
+		{
+			Debug.LogWarning($"{nameof(TwoBirdsDialogueController)} requires a target scene.", this);
+			return;
+		}
 
-		if (levelTransitionManager != null)
-			levelTransitionManager.LoadNextScene();
-		else
-			Debug.LogWarning($"{nameof(TwoBirdsDialogueController)} could not find a {nameof(LevelTransitionManager)}.", this);
+		StartCoroutine(LoadTargetSceneAfterDialogueFade());
+	}
+
+	private IEnumerator LoadTargetSceneAfterDialogueFade()
+	{
+		if (dialogueSystem != null && dialogueSystem.HideFadeDuration > 0f)
+			yield return new WaitForSecondsRealtime(dialogueSystem.HideFadeDuration);
+
+		SceneManager.LoadScene(targetScene.Path);
 	}
 
 	private void CreatePrompt()
@@ -170,4 +176,11 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 			Input.GetKeyDown(KeyCode.E);
 #endif
 	}
+
+#if UNITY_EDITOR
+	private void OnValidate()
+	{
+		targetScene.SynchronizePath();
+	}
+#endif
 }
