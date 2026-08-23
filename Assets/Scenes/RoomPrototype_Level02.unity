@@ -285,6 +285,8 @@ MonoBehaviour:
   portraitHand2: {fileID: 911978912189650321, guid: 3004cf308afcb6d42bd14465fd938270, type: 3}
   portraitHand3: {fileID: 1123670801961055402, guid: f32f33eba513fe844b43ff3d8795bd3b, type: 3}
   clockSprite: {fileID: 4128064093266648819, guid: 75dceac395edb504c9b787103f4843ed, type: 3}
+  clockSprite2: {fileID: 1716019512563534978, guid: 009f6d8ad8ea7694bba70ce6ce37a23b, type: 3}
+  clockSprite3: {fileID: 6557499450484394454, guid: 7495e6027839b4646a2d6be1b4c00c70, type: 3}
   clockWorldPosition: {x: 0.55, y: 0.43}
   nextScene:
     sceneAsset: {fileID: 102900000, guid: 110ce70799d52be45b17ba865311cf55, type: 3}

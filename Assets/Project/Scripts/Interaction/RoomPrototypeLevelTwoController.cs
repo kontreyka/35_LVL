@@ -1112,8 +1112,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		switch (portraitStageIndex)
 		{
 			case 0: return clockSprite;
-			case 1: return clockSprite2;
-			default: return clockSprite3;
+			case 1: return clockSprite2 != null ? clockSprite2 : clockSprite;
+			default: return clockSprite3 != null
+				? clockSprite3
+				: clockSprite2 != null ? clockSprite2 : clockSprite;
 		}
 	}
 
