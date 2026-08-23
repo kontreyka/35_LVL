@@ -610,6 +610,41 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_DrawsInspectorAssignedBirdBehindCage()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo birdSpriteField = typeof(RoomPrototypeLevelOneController).GetField(
+			"birdSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite birdSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(birdSpriteField, Is.Not.Null, "The bird sprite must be assignable in the Inspector.");
+			birdSpriteField.SetValue(controller, birdSprite);
+			root.SetActive(true);
+
+			Image bird = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "BIRD" && GetOwningPanelName(image.rectTransform) == "TopRight Panel");
+			Image cage = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "CAGE" && GetOwningPanelName(image.rectTransform) == "TopRight Panel");
+
+			Assert.That(bird.sprite, Is.SameAs(birdSprite));
+			Assert.That(bird.rectTransform.GetSiblingIndex(), Is.LessThan(cage.rectTransform.GetSiblingIndex()));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(birdSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_DoesNotTintDisabledTruckSprite()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

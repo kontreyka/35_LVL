@@ -315,6 +315,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Sprite tableSprite = null;
+	[SerializeField] private Sprite birdSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Sprite carSprite = null;
 	[Header("Level 01 Room Object Layout")]
@@ -323,6 +324,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Vector2 tableRoomSize = new Vector2(0.54f, 0.91f);
 	[SerializeField] private Vector2 cageRoomPosition = new Vector2(3.32f, 0.55f);
 	[SerializeField] private Vector2 cageRoomSize = new Vector2(0.42f, 0.83f);
+	[SerializeField] private Vector2 birdRoomPosition = new Vector2(3.42f, 0.72f);
+	[SerializeField] private Vector2 birdRoomSize = new Vector2(0.27f, 0.4f);
 	[Header("Level 01 Interactive Object Layout")]
 	[SerializeField] private Vector2 keyRoomPosition = new Vector2(0.39f, 0.62f);
 	[SerializeField] private Vector2 keyRoomSize = new Vector2(0.12f, 0.24f);
@@ -1412,6 +1415,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f)));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f)));
 		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, tableRoomPosition, tableRoomSize, Color.white));
+		roomMarkers.Add(new RoomMarker("BIRD", MarkerShape.Rectangle, birdRoomPosition, birdRoomSize, Color.white));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, cageRoomPosition, cageRoomSize, Color.white));
 		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, cageRoomPosition + cageKeyRoomOffset, cageKeyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
 	}
@@ -1560,6 +1564,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		{
 			case "TABLE":
 				return tableSprite;
+			case "BIRD":
+				return birdSprite;
 			case "CAGE":
 				return cageSprite;
 			case "TRUCK":
