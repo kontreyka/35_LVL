@@ -2,6 +2,7 @@ Shader "UI/EyeClosingVignette"
 {
     Properties
     {
+        [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Color", Color) = (0,0,0,1)
         _Progress ("Closing Progress", Range(0,1)) = 0
         _Softness ("Edge Softness", Range(0.001,0.1)) = 0.018

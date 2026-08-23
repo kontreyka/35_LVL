@@ -151,7 +151,7 @@ public sealed class EyeCloseTransitionController : MonoBehaviour
 			"Eye Closing Vignette",
 			typeof(RectTransform),
 			typeof(CanvasRenderer),
-			typeof(Image)
+			typeof(RawImage)
 		);
 		imageObject.transform.SetParent(canvasObject.transform, false);
 
@@ -161,7 +161,8 @@ public sealed class EyeCloseTransitionController : MonoBehaviour
 		rect.offsetMin = Vector2.zero;
 		rect.offsetMax = Vector2.zero;
 
-		Image image = imageObject.GetComponent<Image>();
+		RawImage image = imageObject.GetComponent<RawImage>();
+		image.texture = Texture2D.whiteTexture;
 		image.color = Color.white;
 		image.raycastTarget = true;
 
