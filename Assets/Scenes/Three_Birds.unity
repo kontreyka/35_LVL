@@ -257,10 +257,10 @@ MonoBehaviour:
   dialogue: {fileID: 11400000, guid: fc8d9d3882e846a092a1c7b4b9a1eb57, type: 2}
   dialogueSystem: {fileID: 0}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
-  loadNextSceneAfterDialogue: 0
+  loadNextSceneAfterDialogue: 1
   targetScene:
-    sceneAsset: {fileID: 0}
-    scenePath: 
+    sceneAsset: {fileID: 102900000, guid: 9e0b5999e9b573d4aabef6ca2293fd99, type: 3}
+    scenePath: Assets/Scenes/Hand silver.unity
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}
