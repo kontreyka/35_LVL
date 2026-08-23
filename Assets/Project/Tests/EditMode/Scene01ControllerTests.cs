@@ -325,20 +325,21 @@ public sealed class RoomPrototypeNavigationTests
 	[Test]
 	public void LevelThreeFlowerPull_MovesAConstantSizePlantInsteadOfStretchingIt()
 	{
-		Vector2 start = new Vector2(100f, 200f);
-		Vector2 targetTip = new Vector2(100f, 700f);
-		Vector2 plantSize = new Vector2(120f, 640f);
+		Vector2 originalBottom = new Vector2(83f, -120f);
+		Vector2 plantSize = new Vector2(32f, 160f);
+		Vector2 start = RoomPrototypeLevelThreePuzzleModel.GetPlantPullStartTip(originalBottom, plantSize);
+		Vector2 targetTip = new Vector2(start.x, 700f);
 
 		Rect startLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 0f);
 		Rect halfwayLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 0.5f);
 		Rect completedLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 1f);
 
+		Assert.That(startLayout.position, Is.EqualTo(originalBottom));
 		Assert.That(startLayout.size, Is.EqualTo(plantSize));
 		Assert.That(halfwayLayout.size, Is.EqualTo(plantSize));
 		Assert.That(completedLayout.size, Is.EqualTo(plantSize));
-		Assert.That(startLayout.y, Is.EqualTo(-440f).Within(0.001f));
-		Assert.That(halfwayLayout.y, Is.EqualTo(-190f).Within(0.001f));
-		Assert.That(completedLayout.y, Is.EqualTo(60f).Within(0.001f));
+		Assert.That(halfwayLayout.x, Is.EqualTo(originalBottom.x).Within(0.001f));
+		Assert.That(completedLayout.x, Is.EqualTo(originalBottom.x).Within(0.001f));
 	}
 
 	[Test]

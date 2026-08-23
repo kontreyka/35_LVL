@@ -66,6 +66,11 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return new Rect(tip - Vector2.up * plantSize.y, plantSize);
 	}
 
+	public static Vector2 GetPlantPullStartTip(Vector2 plantBottom, Vector2 plantSize)
+	{
+		return plantBottom + Vector2.up * plantSize.y;
+	}
+
 	public static float GetPlantTipTargetY(float tableSurfaceY, float heightAboveTable)
 	{
 		return tableSurfaceY + Mathf.Max(0f, heightAboveTable);
@@ -956,7 +961,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void BeginFlowerPull(PanelView flower, Vector2 screenPosition)
 	{
 		PanelView cage = FindPanelByRole(PanelRole.Cage);
-		flowerPullStart = GetBoardPositionForWorld(flower, flowerWorldPosition);
+		Vector2 originalPlantBottom = GetBoardPositionForRectTransform(flower.Plant);
+		pulledPlantSize = flower.Plant.sizeDelta;
+		flowerPullStart = RoomPrototypeLevelThreePuzzleModel.GetPlantPullStartTip(originalPlantBottom, pulledPlantSize);
 		Vector2 tableSurfaceWorldPosition = tableWorldPosition - Vector2.up * tableWorldSize.y * 0.5f;
 		Vector2 tableSurface = GetBoardPositionForWorld(cage, tableSurfaceWorldPosition);
 		flowerPullTarget = new Vector2(
@@ -964,12 +971,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			RoomPrototypeLevelThreePuzzleModel.GetPlantTipTargetY(tableSurface.y, plantTipHeightAboveTable)
 		);
 		flowerKeyTarget = tableSurface;
-		float plantHeight = Mathf.Max(1f, flowerPullTarget.y - flowerPullStart.y);
-		float aspect = plantSprite == null || plantSprite.rect.height <= 0f
-			? 0.25f
-			: plantSprite.rect.width / plantSprite.rect.height;
-		pulledPlantSize = new Vector2(plantHeight * aspect, plantHeight);
-		Vector2 potThroat = flowerPullStart + Vector2.up * flower.Flower.sizeDelta.y * potThroatHeightFraction;
+		Vector2 flowerPotPosition = GetBoardPositionForRectTransform(flower.Flower);
+		Vector2 potThroat = flowerPotPosition + Vector2.up * flower.Flower.sizeDelta.y * potThroatHeightFraction;
 		Rect maskLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullMaskLayout(
 			potThroat,
 			boardRoot.rect.yMax,
@@ -991,7 +994,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		keyOverlay.SetAsLastSibling();
 		growthMask.gameObject.SetActive(true);
 		growthOverlay.gameObject.SetActive(true);
-		pulledPotOverlay.anchoredPosition = flowerPullStart;
+		pulledPotOverlay.anchoredPosition = flowerPotPosition;
 		pulledPotOverlay.sizeDelta = flower.Flower.sizeDelta;
 		pulledPotOverlay.gameObject.SetActive(true);
 		keyOverlay.gameObject.SetActive(true);
@@ -1239,6 +1242,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		float x = ((worldPosition.x - viewport.xMin) / viewport.width - 0.5f) * size.x;
 		float y = (0.5f - (worldPosition.y - viewport.yMin) / viewport.height) * size.y;
 		return boardRoot.InverseTransformPoint(panel.Content.TransformPoint(new Vector2(x, y)));
+	}
+
+	private Vector2 GetBoardPositionForRectTransform(RectTransform rectTransform)
+	{
+		return boardRoot.InverseTransformPoint(rectTransform.position);
 	}
 
 	private Vector2 GetPanelContentBoardPosition(PanelView panel, Vector2 normalizedTopLeft)
