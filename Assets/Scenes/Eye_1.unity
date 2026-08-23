@@ -347,8 +347,8 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::EyeCloseTransitionController
   targetScene:
-    sceneAsset: {fileID: 102900000, guid: 5bbcd8be3b354704981c47e035194195, type: 3}
-    scenePath: Assets/Scenes/MainMenu.unity
+    sceneAsset: {fileID: 102900000, guid: a925b37df6fc957408988f98deeb2f7c, type: 3}
+    scenePath: Assets/Scenes/Two_Birds.unity
   eyeVignetteMaterial: {fileID: 2100000, guid: f3bce4d76d8f49c9b0c4dd037ff29382, type: 2}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
