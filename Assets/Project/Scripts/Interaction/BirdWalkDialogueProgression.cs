@@ -1,6 +1,10 @@
 using System.Collections;
 using UnityEngine;
 
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+
 [DisallowMultipleComponent]
 public sealed class BirdWalkDialogueProgression : MonoBehaviour
 {
@@ -16,6 +20,7 @@ public sealed class BirdWalkDialogueProgression : MonoBehaviour
 	private int stepsSinceLastDialogue;
 	private int dialoguesShown;
 	private bool waitsForDialogue;
+	private bool waitsForTransitionInput;
 
 	private void Awake()
 	{
@@ -43,9 +48,22 @@ public sealed class BirdWalkDialogueProgression : MonoBehaviour
 		UnsubscribeFromDialogue();
 	}
 
+	private void Update()
+	{
+		if (!waitsForTransitionInput || ModalSettingsPanel.IsOpen || !WasMovementPressed())
+			return;
+
+		waitsForTransitionInput = false;
+
+		if (birdWalkController != null)
+			birdWalkController.enabled = false;
+
+		LoadNextScene();
+	}
+
 	private void HandleStepMade()
 	{
-		if (waitsForDialogue || ++stepsSinceLastDialogue < stepsPerDialogue)
+		if (waitsForDialogue || waitsForTransitionInput || ++stepsSinceLastDialogue < stepsPerDialogue)
 			return;
 
 		stepsSinceLastDialogue = 0;
@@ -79,10 +97,7 @@ public sealed class BirdWalkDialogueProgression : MonoBehaviour
 
 		if (dialoguesShown >= dialoguesBeforeTransition)
 		{
-			if (levelTransitionManager == null)
-				levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
-
-			StartCoroutine(LoadNextSceneAfterDialogueFade());
+			StartCoroutine(WaitForTransitionInputAfterDialogueFade());
 			return;
 		}
 
@@ -98,23 +113,47 @@ public sealed class BirdWalkDialogueProgression : MonoBehaviour
 			birdWalkController.enabled = true;
 	}
 
-	private IEnumerator LoadNextSceneAfterDialogueFade()
+	private IEnumerator WaitForTransitionInputAfterDialogueFade()
 	{
 		yield return new WaitForSecondsRealtime(dialogueSystem.HideFadeDuration);
+		waitsForDialogue = false;
+		waitsForTransitionInput = true;
+
+		if (birdWalkController != null)
+			birdWalkController.enabled = true;
+	}
+
+	private void LoadNextScene()
+	{
+		if (levelTransitionManager == null)
+			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
 
 		if (levelTransitionManager != null)
-		{
 			levelTransitionManager.LoadNextScene();
-		}
 		else
-		{
 			Debug.LogWarning($"{nameof(BirdWalkDialogueProgression)} could not find a {nameof(LevelTransitionManager)}.", this);
-		}
 	}
 
 	private void UnsubscribeFromDialogue()
 	{
 		if (dialogueSystem != null)
 			dialogueSystem.DialogueFinished -= HandleDialogueFinished;
+	}
+
+	private static bool WasMovementPressed()
+	{
+#if ENABLE_INPUT_SYSTEM
+		Keyboard keyboard = Keyboard.current;
+		return keyboard != null &&
+			(keyboard.aKey.wasPressedThisFrame ||
+			keyboard.dKey.wasPressedThisFrame ||
+			keyboard.leftArrowKey.wasPressedThisFrame ||
+			keyboard.rightArrowKey.wasPressedThisFrame);
+#else
+		return Input.GetKeyDown(KeyCode.A) ||
+			Input.GetKeyDown(KeyCode.D) ||
+			Input.GetKeyDown(KeyCode.LeftArrow) ||
+			Input.GetKeyDown(KeyCode.RightArrow);
+#endif
 	}
 }
