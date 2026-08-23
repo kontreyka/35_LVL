@@ -508,7 +508,8 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		canvas = canvasObject.GetComponent<Canvas>();
 		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-		canvas.sortingOrder = 500;
+		// Dialogue is a modal layer and must remain above gameplay canvases created at runtime.
+		canvas.sortingOrder = 10000;
 
 		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
 		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
