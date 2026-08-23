@@ -330,8 +330,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Vector2 truckRoomSize = new Vector2(0.48f, 0.22f);
 	[SerializeField] private Vector2 truckMiddleRoomPosition = new Vector2(2.44f, 1.63f);
 	[SerializeField] private Vector2 truckTableRoomPosition = new Vector2(3.44f, 1.63f);
-	[SerializeField] private Vector2 ropeRoomPosition = new Vector2(2.76f, 1.29f);
-	[SerializeField] private Vector2 ropeRoomSize = new Vector2(0.1f, 0.42f);
 	[SerializeField] private Vector2 appleRoomPosition = new Vector2(3.39f, 1.14f);
 	[SerializeField] private Vector2 appleRoomSize = new Vector2(0.16f, 0.16f);
 	[Header("Level 01 Result Object Layout")]
@@ -654,7 +652,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private void ConfigureMarkerInteraction(MarkerView markerView)
 	{
 		if (markerView.Marker.Label != "KEY"
-			&& markerView.Marker.Label != "ROPE"
+			&& markerView.Marker.Label != "TRUCK"
 			&& markerView.Marker.Label != "APPLE")
 		{
 			return;
@@ -666,9 +664,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		{
 			button.onClick.AddListener(TryDropKeyIntoTruck);
 		}
-		else if (markerView.Marker.Label == "ROPE")
+		else if (markerView.Marker.Label == "TRUCK")
 		{
-			button.onClick.AddListener(TryPullRopeToTable);
+			button.onClick.AddListener(TryMoveTruckToTable);
 		}
 		else
 		{
@@ -757,23 +755,23 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		}
 	}
 
-	private void RefreshRopeInteraction()
+	private void RefreshTruckInteraction()
 	{
-		bool ropeCanPull = CanPullRopeToTable();
+		bool truckCanMove = CanMoveTruckToTable();
 		foreach (PanelView panel in panels.Values)
 		{
 			foreach (MarkerView markerView in panel.MarkerViews)
 			{
-				if (markerView.Marker.Label != "ROPE" || markerView.Button == null)
+				if (markerView.Marker.Label != "TRUCK" || markerView.Button == null)
 				{
 					continue;
 				}
 
-				bool isActiveRope = ropeCanPull
+				bool isActiveTruck = truckCanMove
 					&& panel.Slot == RoomPrototypePanelSlot.BottomLeft
 					&& markerView.RectTransform.gameObject.activeInHierarchy;
-				markerView.Button.interactable = isActiveRope;
-				markerView.Image.raycastTarget = isActiveRope;
+				markerView.Button.interactable = isActiveTruck;
+				markerView.Image.raycastTarget = isActiveTruck;
 			}
 		}
 	}
@@ -834,19 +832,19 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		return null;
 	}
 
-	private void TryPullRopeToTable()
+	private void TryMoveTruckToTable()
 	{
-		if (!CanPullRopeToTable())
+		if (!CanMoveTruckToTable())
 		{
 			return;
 		}
 
 		truckMoveAnimation = StartCoroutine(AnimateTruckToTable());
 		RefreshInteractionLock();
-		RefreshRopeInteraction();
+		RefreshTruckInteraction();
 	}
 
-	private bool CanPullRopeToTable()
+	private bool CanMoveTruckToTable()
 	{
 		if (IsInteractionLocked() || !truckMovedToNextCell || truckReachedTable
 			|| !panels.TryGetValue(RoomPrototypePanelSlot.BottomLeft, out PanelView truckPanel))
@@ -1132,7 +1130,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		truckMoveAnimation = null;
 		RefreshInteractionLock();
 		RefreshKeyInteraction();
-		RefreshRopeInteraction();
+		RefreshTruckInteraction();
 	}
 
 	private IEnumerator AnimateTruckToTable()
@@ -1187,7 +1185,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		truckMoveAnimation = null;
 		RefreshInteractionLock();
-		RefreshRopeInteraction();
+		RefreshTruckInteraction();
 		RefreshAppleInteraction();
 	}
 
@@ -1207,7 +1205,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			ApplyViewport(panel, ToFrame(state.Viewport));
 			RefreshControls(panel);
 			RefreshKeyInteraction();
-			RefreshRopeInteraction();
+			RefreshTruckInteraction();
 			RefreshAppleInteraction();
 			return;
 		}
@@ -1235,7 +1233,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		panel.Animation = null;
 		RefreshControls(panel);
 		RefreshKeyInteraction();
-		RefreshRopeInteraction();
+		RefreshTruckInteraction();
 		RefreshAppleInteraction();
 	}
 
@@ -1280,7 +1278,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 				&& (marker.Label != "CAGE KEY" || keyDeliveredToCage)
 				&& (marker.Label != "APPLE" || (!appleIsFalling && !appleDelivered))
 				&& (marker.Label != "TRUCK" || (!truckIsDriving && !truckTipped))
-				&& (marker.Label != "ROPE" || (truckMovedToNextCell && !truckReachedTable))
 				&& (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
 				&& MarkerIntersectsViewport(marker, viewport);
 			markerView.RectTransform.gameObject.SetActive(visible);
@@ -1412,7 +1409,6 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Clear();
 		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, keyRoomPosition, keyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f)));
-		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, ropeRoomPosition, ropeRoomSize, new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f)));
 		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, tableRoomPosition, tableRoomSize, Color.white));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, cageRoomPosition, cageRoomSize, Color.white));

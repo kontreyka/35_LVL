@@ -610,6 +610,25 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_UsesTruckInsteadOfRopeToMoveItToTheTable()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			Assert.That(root.GetComponentsInChildren<RectTransform>(true).Any(rect => rect.name == "ROPE"), Is.False);
+			Image truck = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "TRUCK" && GetOwningPanelName(image.rectTransform) == "BottomLeft Panel");
+			Assert.That(truck.GetComponent<Button>(), Is.Not.Null);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_KeepsTableTruckVisibleWhileItTilts()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
