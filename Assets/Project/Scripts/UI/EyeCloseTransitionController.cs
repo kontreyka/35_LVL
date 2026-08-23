@@ -16,6 +16,8 @@ public sealed class EyeCloseTransitionController : MonoBehaviour
 	[SerializeField] private SceneReference targetScene = new SceneReference();
 	[SerializeField] private Material eyeVignetteMaterial;
 	[SerializeField] private TMP_FontAsset hintFont;
+	[SerializeField] private bool waitForExternalTrigger;
+	[SerializeField] private bool allowMouseAndE;
 
 	[Header("Prompt")]
 	[SerializeField] private string promptText = "Нажмите Enter";
@@ -31,17 +33,43 @@ public sealed class EyeCloseTransitionController : MonoBehaviour
 	private CanvasGroup vignetteCanvasGroup;
 	private Material runtimeVignetteMaterial;
 	private bool transitionStarted;
+	private bool canStartTransition;
 
 	private void Awake()
 	{
 		BuildPrompt();
 		BuildVignette();
 		SetEyeProgress(0f);
+
+		canStartTransition = !waitForExternalTrigger;
+
+		if (!canStartTransition && promptLabel != null)
+			promptLabel.gameObject.SetActive(false);
 	}
 
 	private void Update()
 	{
-		if (ModalSettingsPanel.IsOpen || transitionStarted || !WasEnterPressed())
+		if (ModalSettingsPanel.IsOpen || transitionStarted || !canStartTransition ||
+			!WasContinuePressed())
+			return;
+
+		StartTransition();
+	}
+
+	public void ShowPromptAndWait()
+	{
+		if (transitionStarted)
+			return;
+
+		canStartTransition = true;
+
+		if (promptLabel != null)
+			promptLabel.gameObject.SetActive(true);
+	}
+
+	private void StartTransition()
+	{
+		if (transitionStarted)
 			return;
 
 		if (!targetScene.IsAssigned)
@@ -205,6 +233,22 @@ public sealed class EyeCloseTransitionController : MonoBehaviour
 			(keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame);
 #else
 		return Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
+#endif
+	}
+
+	private bool WasContinuePressed()
+	{
+		if (WasEnterPressed())
+			return true;
+
+		if (!allowMouseAndE)
+			return false;
+
+#if ENABLE_INPUT_SYSTEM
+		return (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame) ||
+			(Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
+#else
+		return Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.E);
 #endif
 	}
 

@@ -168,6 +168,8 @@ MonoBehaviour:
     scenePath: Assets/Scenes/MainMenu.unity
   eyeVignetteMaterial: {fileID: 2100000, guid: f3bce4d76d8f49c9b0c4dd037ff29382, type: 2}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
+  waitForExternalTrigger: 1
+  allowMouseAndE: 1
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}
@@ -630,6 +632,73 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &210310000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 210310001}
+  - component: {fileID: 210310002}
+  m_Layer: 0
+  m_Name: Eye3CutsceneSequenceController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &210310001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 210310000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &210310002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 210310000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 827c9e70e2384a098d38611189d802d1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::Eye3CutsceneSequenceController
+  frames:
+  - {fileID: 1557404985}
+  - {fileID: 348111246}
+  - {fileID: 321905942}
+  - {fileID: 554798217}
+  dialogue: {fileID: 11400000, guid: a7a18adfcbf3479395d601f4c28deabe, type: 2}
+  dialogueSystem: {fileID: 0}
+  eyeTransition: {fileID: 210300002}
+  frameHoldDuration: 1.6
+  whiteFadeDuration: 0.35
+--- !u!1001 &210310003
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -640,3 +709,5 @@ SceneRoots:
   - {fileID: 321905944}
   - {fileID: 554798219}
   - {fileID: 210300001}
+  - {fileID: 210310001}
+  - {fileID: 210310003}
