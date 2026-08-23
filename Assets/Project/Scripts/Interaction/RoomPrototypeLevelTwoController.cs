@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -210,6 +211,9 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private float releasedKeyFallDuration = 1.5f;
 	[SerializeField] private Vector2 releasedKeyOverlaySize = new Vector2(78f, 22f);
 	[SerializeField] private float releasedKeyLandingContentY = 0.18f;
+	[Header("Scene Flow")]
+	[SerializeField] private SceneReference nextScene = new SceneReference();
+	[SerializeField, Min(0f)] private float completionTransitionDelay = 0.4f;
 
 	private readonly List<PanelView> panels = new List<PanelView>();
 	private Font interfaceFont;
@@ -228,6 +232,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private int clockPressCount;
 	private bool keyReleased;
 	private bool keyLanded;
+	private bool levelCompleted;
 	private AudioSource sfxSource;
 
 	private void Awake()
@@ -1090,6 +1095,35 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		releasedKeyOverlay.gameObject.SetActive(false);
 		releasedKeyAnimation = null;
 		interactionLocked = false;
+		CompleteLevel();
+	}
+
+	private void CompleteLevel()
+	{
+		if (levelCompleted)
+		{
+			return;
+		}
+
+		levelCompleted = true;
+		interactionLocked = true;
+		if (!nextScene.IsAssigned)
+		{
+			Debug.LogWarning($"{nameof(RoomPrototypeLevelTwoController)} requires a next scene.", this);
+			return;
+		}
+
+		StartCoroutine(LoadNextSceneAfterCompletion());
+	}
+
+	private IEnumerator LoadNextSceneAfterCompletion()
+	{
+		if (completionTransitionDelay > 0f)
+		{
+			yield return new WaitForSeconds(completionTransitionDelay);
+		}
+
+		SceneManager.LoadScene(nextScene.Path);
 	}
 
 	private Vector2 GetBoardPositionForWorld(PanelView panel, Vector2 worldPosition)

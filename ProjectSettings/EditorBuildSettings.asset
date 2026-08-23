@@ -56,6 +56,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/RoomPrototype_Level02.unity
     guid: 11b8003c19f347fcaafc649c5c66994a
+  - enabled: 1
+    path: Assets/Scenes/Wind cutscene After.unity
+    guid: 110ce70799d52be45b17ba865311cf55
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
