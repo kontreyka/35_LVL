@@ -917,6 +917,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	{
 		Image fallingApple = CreateMovingMarker("Falling Apple", tablePanel.Content, appleMarker, appleSize, appleStart);
 		RectTransform fallingAppleRect = fallingApple.rectTransform;
+		Vector2 hoodPosition = truckPosition + new Vector2(truckSize.x * 0.24f, truckSize.y * 0.06f);
 		const float appleDropDuration = 0.38f;
 		float elapsed = 0f;
 		while (elapsed < appleDropDuration)
@@ -924,41 +925,59 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			elapsed += Time.deltaTime;
 			float progress = Mathf.Clamp01(elapsed / appleDropDuration);
 			float eased = progress * progress;
-			fallingAppleRect.anchoredPosition = Vector2.Lerp(appleStart, truckPosition, eased);
+			fallingAppleRect.anchoredPosition = Vector2.Lerp(appleStart, hoodPosition, eased);
 			yield return null;
 		}
 
-		Destroy(fallingApple.gameObject);
-		appleIsFalling = false;
-		appleDelivered = true;
 		truckIsTipping = true;
+		RefreshAllPanelViewports();
 		Image tippedTruck = CreateMovingMarker("Tipped Truck", tablePanel.Content, truckMarker, truckSize, truckPosition);
 		RectTransform tippedTruckRect = tippedTruck.rectTransform;
-		const float tipDuration = 0.26f;
+		tippedTruckRect.pivot = new Vector2(0.22f, 0.2f);
+		const float tipDuration = 0.18f;
 		elapsed = 0f;
 		while (elapsed < tipDuration)
 		{
 			elapsed += Time.deltaTime;
 			float progress = Mathf.Clamp01(elapsed / tipDuration);
 			float eased = progress * progress * (3f - 2f * progress);
-			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, -22f * eased);
+			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, 12f * eased);
 			yield return null;
 		}
 
-		truckIsTipping = false;
-		truckTipped = true;
+		Vector2 appleRestPosition = hoodPosition + new Vector2(truckSize.x * 0.34f, -appleSize.y * 0.2f);
+		const float appleBounceDuration = 0.2f;
+		elapsed = 0f;
+		while (elapsed < appleBounceDuration)
+		{
+			elapsed += Time.deltaTime;
+			float progress = Mathf.Clamp01(elapsed / appleBounceDuration);
+			Vector2 rollingPosition = Vector2.Lerp(hoodPosition, appleRestPosition, progress);
+			rollingPosition.y += Mathf.Sin(progress * Mathf.PI) * appleSize.y * 0.45f;
+			fallingAppleRect.anchoredPosition = rollingPosition;
+			yield return null;
+		}
+		fallingApple.name = "Settled Apple";
 		MarkerView keyMarker = FindMarkerView(RoomPrototypePanelSlot.TopLeft, "KEY");
 		MarkerView cageMarker = FindMarkerView(RoomPrototypePanelSlot.TopRight, "CAGE");
 		if (keyMarker == null || cageMarker == null || !panels.TryGetValue(RoomPrototypePanelSlot.TopRight, out PanelView cagePanel))
 		{
+			Destroy(tippedTruck.gameObject);
+			truckIsTipping = false;
+			truckTipped = false;
+			appleIsFalling = false;
+			appleDelivered = true;
+			RefreshAllPanelViewports();
+			fallingAppleRect.SetAsLastSibling();
 			appleDropAnimation = null;
 			RefreshInteractionLock();
 			yield break;
 		}
 
 		Vector2 keySize = keyMarker.RectTransform.rect.size;
-		Vector2 keyExit = new Vector2(truckPosition.x, tablePanel.Content.rect.height * 0.5f + keySize.y);
-		Image departingKey = CreateMovingMarker("Departing Key", tablePanel.Content, keyMarker.Marker, keySize, truckPosition);
+		Vector2 keyLaunchPosition = truckPosition + new Vector2(-truckSize.x * 0.18f, truckSize.y * 0.08f);
+		Vector2 keyExit = new Vector2(keyLaunchPosition.x, tablePanel.Content.rect.height * 0.5f + keySize.y);
+		Image departingKey = CreateMovingMarker("Departing Key", tablePanel.Content, keyMarker.Marker, keySize, keyLaunchPosition);
 		RectTransform departingKeyRect = departingKey.rectTransform;
 		const float keyFlightDuration = 0.25f;
 		elapsed = 0f;
@@ -967,13 +986,21 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			elapsed += Time.deltaTime;
 			float progress = Mathf.Clamp01(elapsed / keyFlightDuration);
 			float eased = progress * progress;
-			departingKeyRect.anchoredPosition = Vector2.Lerp(truckPosition, keyExit, eased);
+			departingKeyRect.anchoredPosition = Vector2.Lerp(keyLaunchPosition, keyExit, eased);
+			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(12f, 0f, eased));
 			yield return null;
 		}
 
 		Destroy(departingKey.gameObject);
+		Destroy(tippedTruck.gameObject);
+		truckIsTipping = false;
+		truckTipped = false;
+		appleIsFalling = false;
+		appleDelivered = true;
+		RefreshAllPanelViewports();
+		fallingAppleRect.SetAsLastSibling();
 		float alignedEntryX = RoomPrototypeLevelOnePanelModel.GetAlignedHandoffX(
-			truckPosition.x,
+			keyLaunchPosition.x,
 			tablePanel.Content.rect.width,
 			cagePanel.Content.rect.width
 		);
@@ -993,8 +1020,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		Destroy(arrivingKey.gameObject);
 		keyDeliveredToCage = true;
-		ApplyViewport(tablePanel, ToFrame(tablePanel.State.Viewport));
-		ApplyViewport(cagePanel, ToFrame(cagePanel.State.Viewport));
+		RefreshAllPanelViewports();
+		fallingAppleRect.SetAsLastSibling();
 		appleDropAnimation = null;
 		RefreshInteractionLock();
 		RefreshAppleInteraction();
@@ -1203,6 +1230,14 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		RefreshAppleInteraction();
 	}
 
+	private void RefreshAllPanelViewports()
+	{
+		foreach (PanelView panel in panels.Values)
+		{
+			ApplyViewport(panel, ToFrame(panel.State.Viewport));
+		}
+	}
+
 	private void ApplyViewport(PanelView panel, Vector4 viewport)
 	{
 		Vector2 panelSize = panel.Content.rect.size;
@@ -1261,6 +1296,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 				(normalized.x - 0.5f) * panelSize.x,
 				(normalized.y - 0.5f) * panelSize.y
 			);
+
+			if (marker.Label == "TRUCK" && truckReachedTable)
+			{
+				markerView.RectTransform.SetAsLastSibling();
+			}
 		}
 	}
 

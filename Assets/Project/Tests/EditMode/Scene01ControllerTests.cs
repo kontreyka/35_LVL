@@ -610,6 +610,36 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_DrawsTruckAboveTableWhenItHasReachedTheTable()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo truckReachedTable = typeof(RoomPrototypeLevelOneController).GetField(
+			"truckReachedTable",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+
+		try
+		{
+			Assert.That(truckReachedTable, Is.Not.Null);
+			truckReachedTable.SetValue(controller, true);
+			root.SetActive(true);
+
+			RectTransform table = root.GetComponentsInChildren<RectTransform>(true)
+				.Single(rect => rect.name == "TABLE" && GetOwningPanelName(rect) == "BottomRight Panel");
+			RectTransform truck = root.GetComponentsInChildren<RectTransform>(true)
+				.Single(rect => rect.name == "TRUCK" && rect.gameObject.activeInHierarchy && GetOwningPanelName(rect) == "BottomRight Panel");
+
+			Assert.That(truck.GetSiblingIndex(), Is.GreaterThan(table.GetSiblingIndex()));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_UsesInspectorAssignedCarSpriteForTruck()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
