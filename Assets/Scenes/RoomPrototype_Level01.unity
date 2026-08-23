@@ -303,7 +303,11 @@ MonoBehaviour:
   backgroundSprite: {fileID: 6530238388222242651, guid: 4d32f174b68f0994cab3c3c879aa3e93, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
-  cageSprite: {fileID: 7815097645781697202, guid: 93cc96d34f78b554098bb6ba595853f4, type: 3}
+  cageSprite: {fileID: 21300000, guid: 450e18c64c271184897ef5dfe39b07a5, type: 3}
+  tableRoomPosition: {x: 3.42, y: 1.5}
+  tableRoomSize: {x: 0.55, y: 0.95}
+  cageRoomPosition: {x: 3.42, y: 0.7}
+  cageRoomSize: {x: 0.9, y: 0.9}
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
   panelGap: 8
