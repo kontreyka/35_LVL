@@ -183,7 +183,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 11400000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
       propertyPath: bodyTextHorizontalOffset
-      value: 70
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
