@@ -1287,6 +1287,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		canvasObject.transform.SetParent(parent, false);
 		Canvas canvas = canvasObject.GetComponent<Canvas>();
 		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+		canvas.overrideSorting = true;
+		canvas.sortingOrder = 0;
 		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
 		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
 		scaler.referenceResolution = referenceResolution;
