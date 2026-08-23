@@ -183,7 +183,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: a776877105ab37441b22658515a2034f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -257,10 +257,10 @@ MonoBehaviour:
   dialogue: {fileID: 11400000, guid: fc8d9d3882e846a092a1c7b4b9a1eb57, type: 2}
   dialogueSystem: {fileID: 0}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
-  loadNextSceneAfterDialogue: 0
+  loadNextSceneAfterDialogue: 1
   targetScene:
-    sceneAsset: {fileID: 0}
-    scenePath: 
+    sceneAsset: {fileID: 102900000, guid: 9e0b5999e9b573d4aabef6ca2293fd99, type: 3}
+    scenePath: Assets/Scenes/Hand silver.unity
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}
@@ -341,7 +341,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_MaskInteraction: 0
   m_Sprite: {fileID: 6446364048456350702, guid: 6f5fa9203b0f72741b4a0a52989b8512, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -432,7 +432,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6882064044169402868, guid: 765ce49e079070e4cbb937e60503860a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -660,7 +660,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -10
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2574752957084981186, guid: a32186473c12c4c42af7d88920461250, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
