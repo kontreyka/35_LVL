@@ -98,7 +98,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[Header("Prototype SFX")]
 	[SerializeField] private AudioClip interactionClickSound = null;
 	[SerializeField] private AudioClip zoomSound = null;
-	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.85f;
+	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.7f;
+	[SerializeField] private float interactionClickGainDb = 3f;
+	[SerializeField] private float zoomGainDb = -5f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -271,12 +273,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void PlayInteractionSound()
 	{
-		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume);
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(interactionClickGainDb));
 	}
 
 	private void PlayZoomSound()
 	{
-		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume);
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(zoomGainDb));
 	}
 
 	public void OnPanelPointerDown(int panelId, PointerEventData eventData)

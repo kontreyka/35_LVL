@@ -661,7 +661,7 @@ public sealed class RoomPrototypeNavigationTests
 	[TestCase(typeof(RoomPrototypeLevelThreeController))]
 	public void PrototypeControllers_ExposeInteractionAndZoomSoundsInInspector(System.Type controllerType)
 	{
-		string[] requiredFields = { "interactionClickSound", "zoomSound", "sfxVolume" };
+		string[] requiredFields = { "interactionClickSound", "zoomSound", "sfxVolume", "interactionClickGainDb", "zoomGainDb" };
 		foreach (string fieldName in requiredFields)
 		{
 			Assert.That(

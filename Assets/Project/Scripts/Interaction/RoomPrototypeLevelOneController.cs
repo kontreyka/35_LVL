@@ -351,7 +351,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[Header("Prototype SFX")]
 	[SerializeField] private AudioClip interactionClickSound = null;
 	[SerializeField] private AudioClip zoomSound = null;
-	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.85f;
+	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.7f;
+	[SerializeField] private float interactionClickGainDb = 3f;
+	[SerializeField] private float zoomGainDb = -5f;
 
 	private readonly Dictionary<RoomPrototypePanelSlot, PanelView> panels = new Dictionary<RoomPrototypePanelSlot, PanelView>();
 	private readonly List<RoomMarker> roomMarkers = new List<RoomMarker>();
@@ -463,12 +465,12 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void PlayInteractionSound()
 	{
-		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume);
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(interactionClickGainDb));
 	}
 
 	private void PlayZoomSound()
 	{
-		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume);
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(zoomGainDb));
 	}
 
 	private void BuildEditorPreview()

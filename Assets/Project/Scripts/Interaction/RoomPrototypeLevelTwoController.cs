@@ -54,6 +54,11 @@ public static class RoomPrototypeLoopingMusic
 
 		source.PlayOneShot(clip, Mathf.Clamp01(volume));
 	}
+
+	public static float DecibelsToLinear(float decibels)
+	{
+		return Mathf.Pow(10f, decibels / 20f);
+	}
 }
 
 public static class RoomPrototypeLevelTwoLayoutModel
@@ -180,7 +185,9 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[Header("Prototype SFX")]
 	[SerializeField] private AudioClip interactionClickSound = null;
 	[SerializeField] private AudioClip zoomSound = null;
-	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.85f;
+	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.7f;
+	[SerializeField] private float interactionClickGainDb = 3f;
+	[SerializeField] private float zoomGainDb = -5f;
 	[Header("Level 02 Interactive Object Layout")]
 	[SerializeField] private Sprite sharedTruckSprite = null;
 	[SerializeField] private Vector2 sharedTruckWorldPosition = new Vector2(1.33f, 1.86f);
@@ -362,12 +369,12 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	private void PlayInteractionSound()
 	{
-		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume);
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(interactionClickGainDb));
 	}
 
 	private void PlayZoomSound()
 	{
-		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume);
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(zoomGainDb));
 	}
 
 	private void ResolvePortraitSpritesForEditor()

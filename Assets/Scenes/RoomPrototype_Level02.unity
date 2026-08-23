@@ -225,7 +225,9 @@ MonoBehaviour:
   levelMusicVolume: 0.45
   interactionClickSound: {fileID: 8300000, guid: 26088a0dd56e7914cbe06f3aabf6f696, type: 3}
   zoomSound: {fileID: 8300000, guid: 2a4655d8bbde7654a9345d666489147f, type: 3}
-  sfxVolume: 0.85
+  sfxVolume: 0.7
+  interactionClickGainDb: 3
+  zoomGainDb: -5
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
   panelGap: 8
