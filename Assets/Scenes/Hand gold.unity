@@ -341,12 +341,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
       propertyPath: nextScene.scenePath
-      value: Assets/Scenes/Eye_3.unity
+      value: Assets/Scenes/Bird_Walk_Gold.unity
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
       propertyPath: nextScene.sceneAsset
       value: 
-      objectReference: {fileID: 102900000, guid: 132c13e52306597468a51c349faa1e01, type: 3}
+      objectReference: {fileID: 102900000, guid: 23bcff992fa9b6e4ebc0d682a1d935b6, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
