@@ -610,6 +610,52 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	[TestCase(typeof(RoomPrototypeLevelTwoController))]
+	[TestCase(typeof(RoomPrototypeLevelThreeController))]
+	public void RoomPrototypeControllers_ExposeTableAndCageLayoutInInspector(System.Type controllerType)
+	{
+		string[] requiredFields =
+		{
+			"tableSprite",
+			"birdSprite",
+			"cageSprite",
+			"tableWorldPosition",
+			"tableWorldSize",
+			"birdWorldPosition",
+			"birdWorldSize",
+			"cageWorldPosition",
+			"cageWorldSize"
+		};
+
+		foreach (string fieldName in requiredFields)
+		{
+			System.Reflection.FieldInfo field = controllerType.GetField(
+				fieldName,
+				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+			);
+			Assert.That(field, Is.Not.Null, $"{controllerType.Name} must expose {fieldName} in the Inspector.");
+		}
+	}
+
+	[Test]
+	[TestCase(typeof(RoomPrototypeLevelTwoController))]
+	[TestCase(typeof(RoomPrototypeLevelThreeController))]
+	public void RemainingPrototypeControllers_ProvideInspectorPreviewForInteractiveLayout(System.Type controllerType)
+	{
+		Assert.That(
+			controllerType.GetCustomAttributes(typeof(ExecuteAlways), true),
+			Is.Not.Empty,
+			$"{controllerType.Name} must provide the same edit-mode preview as level one."
+		);
+
+		Assert.That(
+			controllerType.GetField("EditorPreviewRootName", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic),
+			Is.Not.Null,
+			$"{controllerType.Name} must keep its generated preview separate from the scene."
+		);
+	}
+
+	[Test]
 	public void BuiltPrototype_DrawsInspectorAssignedBirdBehindCage()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

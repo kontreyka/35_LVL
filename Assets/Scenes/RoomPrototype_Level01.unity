@@ -300,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2459340677f45948c8daf54ffe76aa3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backgroundSprite: {fileID: 6530238388222242651, guid: 4d32f174b68f0994cab3c3c879aa3e93, type: 3}
+  backgroundSprite: {fileID: -561553066458880801, guid: 971768d8e59aaca40a4c4ac21bdb48a1, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
   birdSprite: {fileID: -7708513443867668911, guid: 9e76d1ea8af2c634cafa4bf4c5ac78f0, type: 3}
