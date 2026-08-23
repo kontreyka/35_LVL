@@ -210,7 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22665d7d71e14395987f90a74fb67af7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backgroundSprite: {fileID: -2836001077557059001, guid: da16897b99d3b13498725d17c5a60e77, type: 3}
+  backgroundSprite: {fileID: 6530238388222242651, guid: 4d32f174b68f0994cab3c3c879aa3e93, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
   levelMusic: {fileID: 8300000, guid: 50a286d02464e2f41bfc5046e1bd2748, type: 3}
   levelMusicVolume: 0.45
