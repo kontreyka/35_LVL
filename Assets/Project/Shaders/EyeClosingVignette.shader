@@ -58,15 +58,15 @@ Shader "UI/EyeClosingVignette"
 
             fixed4 frag(v2f input) : SV_Target
             {
-                float2 point = (input.uv - 0.5) * 2.0;
+                float2 eyePosition = (input.uv - 0.5) * 2.0;
                 float easedProgress = smoothstep(0.0, 1.0, _Progress);
                 float halfOpening = lerp(1.08, -0.08, easedProgress);
-                float curvedEdge = _Curvature * easedProgress * point.x * point.x;
+                float curvedEdge = _Curvature * easedProgress * eyePosition.x * eyePosition.x;
                 float openingAtX = halfOpening - curvedEdge;
                 float outsideEye = smoothstep(
                     -_Softness,
                     _Softness,
-                    abs(point.y) - openingAtX
+                    abs(eyePosition.y) - openingAtX
                 );
 
                 fixed4 color = _Color;
