@@ -610,6 +610,51 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_KeepsTableTruckVisibleWhileItTilts()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo truckReachedTable = typeof(RoomPrototypeLevelOneController).GetField(
+			"truckReachedTable",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		System.Reflection.FieldInfo truckIsTipping = typeof(RoomPrototypeLevelOneController).GetField(
+			"truckIsTipping",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+
+		try
+		{
+			Assert.That(truckReachedTable, Is.Not.Null);
+			Assert.That(truckIsTipping, Is.Not.Null);
+			truckReachedTable.SetValue(controller, true);
+			truckIsTipping.SetValue(controller, true);
+			root.SetActive(true);
+
+			RectTransform truck = root.GetComponentsInChildren<RectTransform>(true)
+				.Single(rect => rect.name == "TRUCK" && GetOwningPanelName(rect) == "BottomRight Panel");
+			Assert.That(truck.gameObject.activeInHierarchy, Is.True);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
+	public void TruckTiltAngle_IsClockwise()
+	{
+		System.Reflection.FieldInfo truckTiltAngle = typeof(RoomPrototypeLevelOneController).GetField(
+			"TruckTiltAngle",
+			System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic
+		);
+
+		Assert.That(truckTiltAngle, Is.Not.Null, "The truck tilt direction must be an explicit gameplay setting.");
+		Assert.That((float)truckTiltAngle.GetRawConstantValue(), Is.LessThan(0f));
+	}
+
+	[Test]
 	public void TippedTruckPivot_KeepsItsVisiblePosition()
 	{
 		System.Reflection.MethodInfo getAnchoredPosition = typeof(RoomPrototypeLevelOneController).GetMethod(

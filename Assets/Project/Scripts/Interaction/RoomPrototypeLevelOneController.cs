@@ -306,6 +306,8 @@ public static class RoomPrototypeLevelOnePanelModel
 [ExecuteAlways]
 public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 {
+	private const float TruckTiltAngle = -12f;
+
 	public const string BuiltInFontResourceName = "LegacyRuntime.ttf";
 	private const float PanelFrameThickness = 4f;
 	private const string EditorPreviewRootName = "Level 01 Editor Preview";
@@ -872,12 +874,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		PanelView tablePanel = panels[RoomPrototypePanelSlot.BottomRight];
 		appleMarker.RectTransform.gameObject.SetActive(false);
-		truckMarker.RectTransform.gameObject.SetActive(false);
 		appleIsFalling = true;
 		RefreshAppleInteraction();
 		appleDropAnimation = StartCoroutine(AnimateAppleDropAndLaunchKey(
 			appleMarker.Marker,
-			truckMarker.Marker,
+			truckMarker,
 			tablePanel,
 			appleMarker.RectTransform.anchoredPosition,
 			truckMarker.RectTransform.anchoredPosition,
@@ -907,7 +908,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private IEnumerator AnimateAppleDropAndLaunchKey(
 		RoomMarker appleMarker,
-		RoomMarker truckMarker,
+		MarkerView truckMarker,
 		PanelView tablePanel,
 		Vector2 appleStart,
 		Vector2 truckPosition,
@@ -929,10 +930,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			yield return null;
 		}
 
-		truckIsTipping = true;
-		RefreshAllPanelViewports();
-		Image tippedTruck = CreateMovingMarker("Tipped Truck", tablePanel.Content, truckMarker, truckSize, truckPosition);
-		RectTransform tippedTruckRect = tippedTruck.rectTransform;
+		RectTransform tippedTruckRect = truckMarker.RectTransform;
+		Vector2 truckOriginalPivot = tippedTruckRect.pivot;
+		Vector2 truckOriginalPosition = tippedTruckRect.anchoredPosition;
 		Vector2 truckTiltPivot = new Vector2(0.22f, 0.2f);
 		tippedTruckRect.anchoredPosition = GetAnchoredPositionKeepingVisualPosition(
 			tippedTruckRect.anchoredPosition,
@@ -948,7 +948,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			elapsed += Time.deltaTime;
 			float progress = Mathf.Clamp01(elapsed / tipDuration);
 			float eased = progress * progress * (3f - 2f * progress);
-			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, 12f * eased);
+			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, TruckTiltAngle * eased);
 			yield return null;
 		}
 
@@ -969,8 +969,9 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		MarkerView cageMarker = FindMarkerView(RoomPrototypePanelSlot.TopRight, "CAGE");
 		if (keyMarker == null || cageMarker == null || !panels.TryGetValue(RoomPrototypePanelSlot.TopRight, out PanelView cagePanel))
 		{
-			Destroy(tippedTruck.gameObject);
-			truckIsTipping = false;
+			tippedTruckRect.localRotation = Quaternion.identity;
+			tippedTruckRect.pivot = truckOriginalPivot;
+			tippedTruckRect.anchoredPosition = truckOriginalPosition;
 			truckTipped = false;
 			appleIsFalling = false;
 			appleDelivered = true;
@@ -994,13 +995,14 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			float progress = Mathf.Clamp01(elapsed / keyFlightDuration);
 			float eased = progress * progress;
 			departingKeyRect.anchoredPosition = Vector2.Lerp(keyLaunchPosition, keyExit, eased);
-			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(12f, 0f, eased));
+			tippedTruckRect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(TruckTiltAngle, 0f, eased));
 			yield return null;
 		}
 
 		Destroy(departingKey.gameObject);
-		Destroy(tippedTruck.gameObject);
-		truckIsTipping = false;
+		tippedTruckRect.localRotation = Quaternion.identity;
+		tippedTruckRect.pivot = truckOriginalPivot;
+		tippedTruckRect.anchoredPosition = truckOriginalPosition;
 		truckTipped = false;
 		appleIsFalling = false;
 		appleDelivered = true;
@@ -1277,7 +1279,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			bool visible = (marker.Label != "KEY" || (!keyIsFalling && !keyDeliveredToTruck))
 				&& (marker.Label != "CAGE KEY" || keyDeliveredToCage)
 				&& (marker.Label != "APPLE" || (!appleIsFalling && !appleDelivered))
-				&& (marker.Label != "TRUCK" || (!truckIsDriving && !truckIsTipping && !truckTipped))
+				&& (marker.Label != "TRUCK" || (!truckIsDriving && !truckTipped))
 				&& (marker.Label != "ROPE" || (truckMovedToNextCell && !truckReachedTable))
 				&& (!marker.DisplaySlot.HasValue || marker.DisplaySlot.Value == panel.Slot)
 				&& MarkerIntersectsViewport(marker, viewport);
