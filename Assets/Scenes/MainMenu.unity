@@ -711,7 +711,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   uiSfxSource: {fileID: 518781985}
-  hoverClip: {fileID: 8300000, guid: 424521b65982a344f93afd3e9c8e4bb7, type: 3}
+  hoverClip: {fileID: 8300000, guid: 026edc07f72887241b6f7fdec8e10fd2, type: 3}
   confirmClip: {fileID: 8300000, guid: 8da556a9e113fcb42ad99801172e49fd, type: 3}
 --- !u!1 &628918016
 GameObject:
@@ -2699,7 +2699,7 @@ MonoBehaviour:
   menuButtons: {fileID: 1441673500}
   rightVisual: {fileID: 327887081}
   uiSfxSource: {fileID: 518781985}
-  hoverClip: {fileID: 8300000, guid: 424521b65982a344f93afd3e9c8e4bb7, type: 3}
+  hoverClip: {fileID: 8300000, guid: 026edc07f72887241b6f7fdec8e10fd2, type: 3}
   confirmClip: {fileID: 8300000, guid: 8da556a9e113fcb42ad99801172e49fd, type: 3}
   irisMaterial: {fileID: 2100000, guid: 81e3a8a43a1bb5749a4e3998e675460f, type: 2}
   introOverlay: {fileID: 222935478}
