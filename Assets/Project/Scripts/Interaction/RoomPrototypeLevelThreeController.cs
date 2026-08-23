@@ -67,21 +67,29 @@ public static class RoomPrototypeLevelThreePuzzleModel
 	}
 }
 
+[ExecuteAlways]
 public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 {
 	private const int RoomColumns = 4;
 	private const int RoomRows = 2;
 	private const string BuiltInFontResourceName = "LegacyRuntime.ttf";
+	private const string EditorPreviewRootName = "Level 03 Editor Preview";
 
 	[SerializeField] private Sprite roomSprite = null;
 	[SerializeField] private Sprite skySprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[Header("Level 03 Room Object Layout")]
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
 	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
 	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
 	[SerializeField] private Vector2 cageWorldPosition = new Vector2(3.42f, 0.7f);
 	[SerializeField] private Vector2 cageWorldSize = new Vector2(0.9f, 0.9f);
+	[Header("Level 03 Interactive Object Layout")]
+	[SerializeField] private Vector2 flowerWorldPosition = new Vector2(1.55f, 0.42f);
+	[SerializeField] private Vector2 flowerWorldSize = new Vector2(0.34f, 0.24f);
+	[SerializeField] private Vector2 caughtKeyWorldPosition = new Vector2(1.63f, 0.34f);
+	[SerializeField] private float caughtKeyWorldHeight = 0.28f;
 	[SerializeField] private AudioClip levelMusic = null;
 	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
@@ -120,15 +128,107 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	private void Awake()
 	{
-		StartLevelMusic();
+		if (Application.isPlaying)
+		{
+			ClearEditorPreview();
+			StartLevelMusic();
+			return;
+		}
+
+		BuildEditorPreview();
 	}
 
 	private void Start()
 	{
-		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
-		EnsureEventSystem();
+		if (!Application.isPlaying)
+		{
+			return;
+		}
 
-		RectTransform canvasRoot = CreateCanvas();
+		BuildPrototype(transform);
+	}
+
+	#if UNITY_EDITOR
+	private bool editorPreviewRefreshQueued;
+
+	private void OnEnable()
+	{
+		if (!Application.isPlaying)
+		{
+			QueueEditorPreviewRefresh();
+		}
+	}
+
+	private void OnValidate()
+	{
+		if (!Application.isPlaying)
+		{
+			QueueEditorPreviewRefresh();
+		}
+	}
+
+	private void QueueEditorPreviewRefresh()
+	{
+		if (editorPreviewRefreshQueued || !gameObject.scene.IsValid())
+		{
+			return;
+		}
+
+		editorPreviewRefreshQueued = true;
+		UnityEditor.EditorApplication.delayCall += RefreshEditorPreview;
+	}
+
+	private void RefreshEditorPreview()
+	{
+		editorPreviewRefreshQueued = false;
+		if (this == null || Application.isPlaying || !isActiveAndEnabled)
+		{
+			return;
+		}
+
+		BuildEditorPreview();
+		UnityEditor.SceneView.RepaintAll();
+		UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+	}
+	#endif
+
+	private void BuildEditorPreview()
+	{
+		ClearEditorPreview();
+		GameObject previewRoot = new GameObject(EditorPreviewRootName, typeof(RectTransform));
+		previewRoot.transform.SetParent(transform, false);
+		previewRoot.hideFlags = HideFlags.DontSaveInEditor;
+		BuildPrototype(previewRoot.transform);
+	}
+
+	private void ClearEditorPreview()
+	{
+		Transform previewRoot = transform.Find(EditorPreviewRootName);
+		if (previewRoot != null)
+		{
+			if (Application.isPlaying)
+			{
+				Destroy(previewRoot.gameObject);
+			}
+			else
+			{
+				DestroyImmediate(previewRoot.gameObject);
+			}
+		}
+
+		panels.Clear();
+		boardRoot = null;
+		keyOverlay = null;
+		growthOverlay = null;
+		flowerHeadOverlay = null;
+	}
+
+	private void BuildPrototype(Transform parent)
+	{
+		interfaceFont = Resources.GetBuiltinResource<Font>(BuiltInFontResourceName);
+		EnsureEventSystem(parent);
+
+		RectTransform canvasRoot = CreateCanvas(parent);
 		boardRoot = CreateRectTransform("Level Three Board", canvasRoot);
 		float boardSide = Mathf.Max(0f, Mathf.Min(boardSize.x, boardSize.y));
 		boardRoot.sizeDelta = new Vector2(boardSide, boardSide);
@@ -589,11 +689,11 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 		if (panel.Flower != null)
 		{
-			PlaceWorldMarker(panel.Flower, panel, viewport, new Vector2(1.55f, 0.42f), new Vector2(0.34f, 0.24f));
+			PlaceWorldMarker(panel.Flower, panel, viewport, flowerWorldPosition, flowerWorldSize);
 		}
 		if (panel.CaughtKey != null)
 		{
-			PlaceWorldMarker(panel.CaughtKey, panel, viewport, new Vector2(1.63f, 0.34f), GetCaughtKeyWorldSize());
+			PlaceWorldMarker(panel.CaughtKey, panel, viewport, caughtKeyWorldPosition, GetCaughtKeyWorldSize());
 			panel.CaughtKey.gameObject.SetActive(keyCaught && panel.CaughtKey.gameObject.activeSelf);
 		}
 		if (panel.CageOpenMarker != null)
@@ -634,8 +734,9 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void PlaceWorldMarker(RectTransform marker, PanelView panel, Viewport viewport, Vector2 worldPosition, Vector2 worldSize)
 	{
 		Rect visible = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
-		bool active = worldPosition.x >= visible.xMin && worldPosition.x <= visible.xMax
-			&& worldPosition.y >= visible.yMin && worldPosition.y <= visible.yMax;
+		Rect markerBounds = new Rect(worldPosition - worldSize * 0.5f, worldSize);
+		bool active = markerBounds.xMax >= visible.xMin && markerBounds.xMin <= visible.xMax
+			&& markerBounds.yMax >= visible.yMin && markerBounds.yMin <= visible.yMax;
 		marker.gameObject.SetActive(active);
 		if (!active)
 		{
@@ -682,7 +783,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		interactionLocked = true;
 		keyOverlay.SetAsLastSibling();
-		Vector2 flowerBoardPosition = GetBoardPositionForWorld(flower, new Vector2(1.55f, 0.42f));
+		Vector2 flowerBoardPosition = GetBoardPositionForWorld(flower, flowerWorldPosition);
 		Vector2 start = new Vector2(flowerBoardPosition.x, GetPanelContentBoardPosition(window, new Vector2(0.5f, 0.45f)).y);
 		Vector2 target = flowerBoardPosition;
 		keyOverlay.anchoredPosition = start;
@@ -731,7 +832,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		return keySprite == null
 			? new Vector2(0.24f, 0.07f)
-			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(keySprite.rect.width, keySprite.rect.height, 0.28f);
+			: RoomPrototypeKeySpriteSizing.GetSizeForHeight(keySprite.rect.width, keySprite.rect.height, caughtKeyWorldHeight);
 	}
 
 	private bool CanStartFlowerPull(PanelView flower, Vector2 screenPosition)
@@ -758,7 +859,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private void BeginFlowerPull(PanelView flower, Vector2 screenPosition)
 	{
 		PanelView cage = FindPanelByRole(PanelRole.Cage);
-		flowerPullStart = GetBoardPositionForWorld(flower, new Vector2(1.55f, 0.42f));
+		flowerPullStart = GetBoardPositionForWorld(flower, flowerWorldPosition);
 		flowerPullTarget = GetPanelContentBoardPosition(cage, new Vector2(0.5f, 0.66f));
 		if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(boardRoot, screenPosition, null, out Vector2 pointerPosition))
 		{
@@ -1020,10 +1121,10 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		return boardRoot.InverseTransformPoint(panel.Content.TransformPoint(local));
 	}
 
-	private RectTransform CreateCanvas()
+	private RectTransform CreateCanvas(Transform parent)
 	{
 		GameObject canvasObject = new GameObject("Room Prototype Level Three Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-		canvasObject.transform.SetParent(transform, false);
+		canvasObject.transform.SetParent(parent, false);
 		Canvas canvas = canvasObject.GetComponent<Canvas>();
 		canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 		CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
@@ -1038,13 +1139,13 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		return rect;
 	}
 
-	private void EnsureEventSystem()
+	private void EnsureEventSystem(Transform parent)
 	{
 		EventSystem eventSystem = FindFirstObjectByType<EventSystem>();
 		if (eventSystem == null)
 		{
 			GameObject eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
-			eventSystemObject.transform.SetParent(transform, false);
+			eventSystemObject.transform.SetParent(parent, false);
 			eventSystem = eventSystemObject.GetComponent<EventSystem>();
 		}
 		InputSystemUIInputModule inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
