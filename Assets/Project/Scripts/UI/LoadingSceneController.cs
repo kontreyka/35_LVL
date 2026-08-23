@@ -52,7 +52,23 @@ public class LoadingSceneController : MonoBehaviour
 		SetAlpha(secondImage, 0f);
 		SetAlpha(thirdImage, 0f);
 
+		if (string.IsNullOrWhiteSpace(sceneName) || !Application.CanStreamedLevelBeLoaded(sceneName))
+		{
+			Debug.LogError(
+				$"{nameof(LoadingSceneController)} cannot load '{sceneName}'. Add the scene to the active Build Profile.",
+				this
+			);
+			yield break;
+		}
+
 		AsyncOperation loading = SceneManager.LoadSceneAsync(sceneName);
+
+		if (loading == null)
+		{
+			Debug.LogError($"{nameof(LoadingSceneController)} could not start loading '{sceneName}'.", this);
+			yield break;
+		}
+
 		loading.allowSceneActivation = false;
 
 		bool hasPlayedRequiredCycle = false;
