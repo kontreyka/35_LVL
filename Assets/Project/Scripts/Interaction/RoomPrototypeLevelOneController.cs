@@ -495,7 +495,10 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			circleSprite = CreateCircleSprite();
 		}
 		BuildMarkers();
-		EnsureEventSystem(parent);
+		if (Application.isPlaying)
+		{
+			EnsureEventSystem(parent);
+		}
 
 		canvasRoot = CreateCanvas(parent);
 		RectTransform boardRoot = CreateRectTransform("Puzzle Board", canvasRoot);
