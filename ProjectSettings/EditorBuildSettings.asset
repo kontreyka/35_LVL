@@ -20,6 +20,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LoadingScene.unity
     guid: a6d154307bb60b44cb5c7156b0202ca6
+  - enabled: 1
+    path: Assets/Scenes/Hand silver.unity
+    guid: 9e0b5999e9b573d4aabef6ca2293fd99
+  - enabled: 1
+    path: Assets/Scenes/Hand bronze.unity
+    guid: e5775cea43d0d7f4a826bc0be99d8031
+  - enabled: 1
+    path: Assets/Scenes/Hand gold.unity
+    guid: 145922264378e24459bcb2ed072dbb1f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

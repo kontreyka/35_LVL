@@ -14,6 +14,7 @@ public class Scene01Controller : MonoBehaviour
 		FocusWindow,
 		ChangeBackground,
 		ZoomOut,
+		PlayBirdAndLoad,
 		Done
 	}
 
@@ -34,6 +35,11 @@ public class Scene01Controller : MonoBehaviour
 	[Tooltip("Сколько раз глоу клетки будет кратко гаснуть и снова включаться. 0 полностью отключает это поведение.")]
 	[Min(0)]
 	[SerializeField] private int cageAuraFadeAndReturnCount = 3;
+
+	[Header("Final Cage Click")]
+	[SerializeField] private AudioClip finalBirdSound = null;
+	[SerializeField, Range(0f, 1f)] private float finalBirdVolume = 1f;
+	[SerializeField] private LevelTransitionManager levelTransitionManager = null;
 
 	[Header("Zoom")]
 	[SerializeField] private float zoomDuration = 1.2f;
@@ -119,6 +125,9 @@ public class Scene01Controller : MonoBehaviour
 				break;
 			case ClickStep.ZoomOut:
 				StartCoroutine(ZoomOutRoutine());
+				break;
+			case ClickStep.PlayBirdAndLoad:
+				StartCoroutine(PlayBirdAndLoadRoutine());
 				break;
 		}
 	}
@@ -315,10 +324,42 @@ public class Scene01Controller : MonoBehaviour
 		sceneCamera.transform.position = initialCameraPosition;
 		sceneCamera.orthographicSize = initialCameraSize;
 		UpdateZoomResponsiveBackgroundScale();
-		clickStep = ClickStep.Done;
+		clickStep = ClickStep.PlayBirdAndLoad;
 		isTransitioning = false;
 
 		Debug.Log("Камера отдалилась от окна.");
+	}
+
+	private IEnumerator PlayBirdAndLoadRoutine()
+	{
+		isTransitioning = true;
+		clickStep = ClickStep.Done;
+
+		if (finalBirdSound != null)
+		{
+			Vector3 soundPosition = sceneCamera != null
+				? sceneCamera.transform.position
+				: transform.position;
+
+			AudioSource.PlayClipAtPoint(finalBirdSound, soundPosition, finalBirdVolume);
+			yield return new WaitForSeconds(finalBirdSound.length);
+		}
+		else
+		{
+			Debug.LogWarning("Scene01Controller: не назначен звук для финального клика по клетке.", this);
+		}
+
+		if (levelTransitionManager == null)
+			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
+
+		if (levelTransitionManager != null)
+		{
+			levelTransitionManager.LoadNextScene();
+		}
+		else
+		{
+			Debug.LogWarning("Scene01Controller: не найден LevelTransitionManager для финального перехода.", this);
+		}
 	}
 
 	private IEnumerator AnimateVignette(float fromRadius, float toRadius)

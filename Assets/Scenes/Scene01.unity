@@ -338,9 +338,9 @@ RectTransform:
   - {fileID: 1273722971}
   m_Father: {fileID: 1875188035}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 137.8, y: -110.6}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -170, y: -70}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &534573843
@@ -419,9 +419,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6005505760219104435, guid: e9146854ba167d6468b1933bd1d72b6c, type: 3}
+  m_Sprite: {fileID: 4024167586595947126, guid: 5bb949ea7156b6148bdf988d28052df7, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1496,7 +1496,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -148.41003, y: -110.6}
+  m_AnchoredPosition: {x: -60, y: -70}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1385090533
@@ -1575,9 +1575,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5816982580476525438, guid: ee9df32e63cf5f8489aedff1663cb167, type: 3}
+  m_Sprite: {fileID: 8071043744629680442, guid: 1c8333c1172bfa14b970f395d378434e, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1642,6 +1642,9 @@ MonoBehaviour:
   windowTarget: {fileID: 132172276}
   cageAuraEffect: {fileID: 1350002295}
   cageAuraFadeAndReturnCount: 3
+  finalBirdSound: {fileID: 8300000, guid: a9d092bc62ad4a52b6b0aa88e2c45fe8, type: 3}
+  finalBirdVolume: 1
+  levelTransitionManager: {fileID: 0}
   zoomDuration: 1.2
   targetCameraSize: 2.2
   zoomCurve:
@@ -2485,6 +2488,27 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
+--- !u!1001 &2098470004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.scenePath
+      value: Assets/Scenes/Hand bronze.unity
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.sceneAsset
+      value: 
+      objectReference: {fileID: 102900000, guid: e5775cea43d0d7f4a826bc0be99d8031, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
 --- !u!1 &2140117766
 GameObject:
   m_ObjectHideFlags: 0
@@ -2532,3 +2556,4 @@ SceneRoots:
   - {fileID: 409369430}
   - {fileID: 2098470001}
   - {fileID: 2098470003}
+  - {fileID: 2098470004}
