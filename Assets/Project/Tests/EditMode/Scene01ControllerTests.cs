@@ -586,6 +586,30 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_ShowsCarInBothLeftViews()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			RectTransform[] visibleTrucks = root.GetComponentsInChildren<RectTransform>(true)
+				.Where(rect => rect.name == "TRUCK" && rect.gameObject.activeInHierarchy)
+				.ToArray();
+
+			Assert.That(visibleTrucks.Select(GetOwningPanelName), Is.EquivalentTo(new[]
+			{
+				"TopLeft Panel",
+				"BottomLeft Panel"
+			}));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_UsesInspectorAssignedCarSpriteForTruck()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

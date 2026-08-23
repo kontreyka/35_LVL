@@ -1118,7 +1118,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			yield break;
 		}
 
-		RoomMarker tableTruck = GetCurrentMarker(truckMarker.Marker).WithRoomPosition(truckTableRoomPosition).WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
+		RoomMarker tableTruck = GetCurrentMarker(truckMarker.Marker).WithRoomPosition(truckTableRoomPosition);
 		Vector2 markerSize = truckMarker.RectTransform.rect.size;
 		Vector2 sourceStart = truckMarker.RectTransform.anchoredPosition;
 		Vector2 sourceExit = sourceStart + new Vector2(truckPanel.Content.rect.width, 0f);
@@ -1362,7 +1362,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	{
 		roomMarkers.Clear();
 		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, keyRoomPosition, keyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
-		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
+		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f)));
 		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, ropeRoomPosition, ropeRoomSize, new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f)));
 		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, tableRoomPosition, tableRoomSize, Color.white));
@@ -1425,9 +1425,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		if (truckReachedTable)
 		{
-			return marker
-				.WithRoomPosition(truckTableRoomPosition)
-				.WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
+			return marker.WithRoomPosition(truckTableRoomPosition);
 		}
 
 		if (truckMovedToNextCell)
