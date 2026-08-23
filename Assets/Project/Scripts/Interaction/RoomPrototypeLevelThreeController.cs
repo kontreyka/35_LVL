@@ -60,6 +60,11 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return progress >= Mathf.Clamp01(completionThreshold);
 	}
 
+	public static float GetSkyBirdHorizontalScale(bool flyingRight)
+	{
+		return flyingRight ? -1f : 1f;
+	}
+
 	public static Rect GetPlantPullLayout(Vector2 startTip, Vector2 targetTip, Vector2 plantSize, float progress)
 	{
 		Vector2 tip = Vector2.Lerp(startTip, targetTip, Mathf.Clamp01(progress));
@@ -864,7 +869,13 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		}
 
 		float width = GetContentSize(window).x;
-		float normalized = Mathf.PingPong(Time.unscaledTime * 0.22f, 1f);
+		float flightTime = Time.unscaledTime * 0.22f;
+		float normalized = Mathf.PingPong(flightTime, 1f);
+		Vector3 birdScale = window.SkyBird.localScale;
+		birdScale.x = RoomPrototypeLevelThreePuzzleModel.GetSkyBirdHorizontalScale(
+			Mathf.Repeat(flightTime, 2f) < 1f
+		);
+		window.SkyBird.localScale = birdScale;
 		window.SkyBird.anchoredPosition = new Vector2(Mathf.Lerp(-width * 0.38f, width * 0.38f, normalized), width * 0.12f + Mathf.Sin(Time.unscaledTime * 2f) * 18f);
 	}
 

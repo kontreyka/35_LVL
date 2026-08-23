@@ -290,6 +290,13 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreeBird_MirrorsOnlyWhileFlyingRight()
+	{
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetSkyBirdHorizontalScale(true), Is.EqualTo(-1f));
+		Assert.That(RoomPrototypeLevelThreePuzzleModel.GetSkyBirdHorizontalScale(false), Is.EqualTo(1f));
+	}
+
+	[Test]
 	public void LevelThreeFlower_GrowsOnlyBelowZoomedCageAfterCatchingKey()
 	{
 		Assert.That(RoomPrototypeLevelThreePuzzleModel.CanGrowFlower(
