@@ -57,13 +57,23 @@ public sealed class DialogueSystem : MonoBehaviour
 	[SerializeField] private bool hideWhenFinished = true;
 	[SerializeField] private bool useUnscaledTime;
 
+	[Header("Advance Hint")]
+	[SerializeField] private string advanceHintText = "Нажмите Enter";
+	[SerializeField, Min(0f)] private float advanceHintDelay = 3f;
+	[SerializeField, Min(0f)] private float advanceHintFadeDuration = 0.35f;
+	[SerializeField] private float advanceHintFontSize = 30f;
+	[SerializeField] private Vector2 advanceHintOffset = new Vector2(-84f, 44f);
+
 	private DialogueSequence currentSequence;
 	private Coroutine fadeCoroutine;
 	private Coroutine typewriterCoroutine;
+	private Coroutine advanceHintCoroutine;
 	private int currentLineIndex = -1;
 	private bool isRunning;
 	private bool isTyping;
 	private string fullCurrentText;
+	private TMP_Text advanceHintLabel;
+	private CanvasGroup advanceHintGroup;
 
 	public bool IsRunning => isRunning;
 	public float HideFadeDuration => hideFadeDuration;
@@ -124,6 +134,7 @@ public sealed class DialogueSystem : MonoBehaviour
 		currentLineIndex = -1;
 		isRunning = true;
 
+		HideAdvanceHintInstant();
 		Show();
 		Advance();
 
@@ -165,6 +176,8 @@ public sealed class DialogueSystem : MonoBehaviour
 
 	private void ShowLine(DialogueLine line)
 	{
+		RestartAdvanceHint();
+
 		if (line == null)
 		{
 			fullCurrentText = string.Empty;
@@ -244,6 +257,7 @@ public sealed class DialogueSystem : MonoBehaviour
 			Hide();
 		}
 
+		HideAdvanceHintInstant();
 		DialogueFinished?.Invoke(finishedSequence);
 	}
 
@@ -266,6 +280,7 @@ public sealed class DialogueSystem : MonoBehaviour
 		canvasGroup.alpha = 0f;
 		canvasGroup.interactable = false;
 		canvasGroup.blocksRaycasts = false;
+		HideAdvanceHintInstant();
 		SetCanvasActive(false);
 	}
 
@@ -326,6 +341,64 @@ public sealed class DialogueSystem : MonoBehaviour
 		{
 			bodyText.text = text ?? string.Empty;
 		}
+	}
+
+	private void RestartAdvanceHint()
+	{
+		if (advanceHintGroup == null)
+			return;
+
+		if (advanceHintCoroutine != null)
+			StopCoroutine(advanceHintCoroutine);
+
+		advanceHintCoroutine = StartCoroutine(ShowAdvanceHintAfterDelay());
+	}
+
+	private IEnumerator ShowAdvanceHintAfterDelay()
+	{
+		advanceHintGroup.alpha = 0f;
+
+		if (advanceHintDelay > 0f)
+		{
+			float elapsedDelay = 0f;
+			while (elapsedDelay < advanceHintDelay)
+			{
+				elapsedDelay += GetDeltaTime();
+				yield return null;
+			}
+		}
+
+		if (advanceHintFadeDuration <= 0f)
+		{
+			advanceHintGroup.alpha = 1f;
+		}
+		else
+		{
+			float elapsed = 0f;
+			while (elapsed < advanceHintFadeDuration)
+			{
+				elapsed += GetDeltaTime();
+				float t = Mathf.Clamp01(elapsed / advanceHintFadeDuration);
+				advanceHintGroup.alpha = Mathf.SmoothStep(0f, 1f, t);
+				yield return null;
+			}
+
+			advanceHintGroup.alpha = 1f;
+		}
+
+		advanceHintCoroutine = null;
+	}
+
+	private void HideAdvanceHintInstant()
+	{
+		if (advanceHintCoroutine != null)
+		{
+			StopCoroutine(advanceHintCoroutine);
+			advanceHintCoroutine = null;
+		}
+
+		if (advanceHintGroup != null)
+			advanceHintGroup.alpha = 0f;
 	}
 
 	private void SetSpeaker(string speakerName)
@@ -415,6 +488,9 @@ public sealed class DialogueSystem : MonoBehaviour
 			speakerNameText != null &&
 			bodyText != null)
 		{
+			if (advanceHintGroup == null && backgroundImage != null)
+				CreateAdvanceHint(backgroundImage.rectTransform);
+
 			return;
 		}
 
@@ -497,6 +573,8 @@ public sealed class DialogueSystem : MonoBehaviour
 		bodyText.alignment = TextAlignmentOptions.MidlineLeft;
 		bodyText.textWrappingMode = TextWrappingModes.Normal;
 		bodyText.overflowMode = TextOverflowModes.Overflow;
+
+		CreateAdvanceHint(window);
 	}
 
 	private void ApplyArtSettings()
@@ -513,6 +591,7 @@ public sealed class DialogueSystem : MonoBehaviour
 
 		ApplyTextStyle(speakerNameText, speakerNameColor);
 		ApplyTextStyle(bodyText, bodyTextColor);
+		ApplyAdvanceHintStyle();
 	}
 
 	private void ApplyTextStyle(TMP_Text text, Color color)
@@ -528,6 +607,40 @@ public sealed class DialogueSystem : MonoBehaviour
 		text.color = color;
 		text.raycastTarget = false;
 		text.richText = true;
+	}
+
+	private void CreateAdvanceHint(RectTransform parent)
+	{
+		RectTransform hint = CreateTextRect("Advance Hint", parent);
+		hint.anchorMin = new Vector2(1f, 0f);
+		hint.anchorMax = new Vector2(1f, 0f);
+		hint.pivot = new Vector2(1f, 0f);
+		hint.anchoredPosition = advanceHintOffset;
+		hint.sizeDelta = new Vector2(360f, 48f);
+
+		advanceHintGroup = hint.gameObject.AddComponent<CanvasGroup>();
+		advanceHintGroup.alpha = 0f;
+		advanceHintGroup.interactable = false;
+		advanceHintGroup.blocksRaycasts = false;
+
+		advanceHintLabel = hint.GetComponent<TMP_Text>();
+		advanceHintLabel.alignment = TextAlignmentOptions.BottomRight;
+		advanceHintLabel.fontSize = advanceHintFontSize;
+		advanceHintLabel.fontStyle = FontStyles.Bold;
+		advanceHintLabel.raycastTarget = false;
+		ApplyAdvanceHintStyle();
+	}
+
+	private void ApplyAdvanceHintStyle()
+	{
+		if (advanceHintLabel == null)
+			return;
+
+		if (dialogueFont != null)
+			advanceHintLabel.font = dialogueFont;
+
+		advanceHintLabel.text = advanceHintText;
+		advanceHintLabel.color = new Color(0.23f, 0.16f, 0.1f, 0.88f);
 	}
 
 	private void BindAdvanceButton()
