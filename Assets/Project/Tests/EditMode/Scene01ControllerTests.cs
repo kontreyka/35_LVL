@@ -350,16 +350,16 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
-	public void LevelThreePlantDisplaySize_WidensTheSpriteWithoutChangingItsHeight()
+	public void LevelThreePlantDisplaySize_ScalesTheOriginalSpriteProportionally()
 	{
 		Vector2 size = RoomPrototypeLevelThreePuzzleModel.GetPlantDisplaySize(
 			new Vector2(80f, 200f),
 			0.14f,
-			3f
+			2f
 		);
 
-		Assert.That(size.x, Is.EqualTo(84f).Within(0.001f));
-		Assert.That(size.y, Is.EqualTo(200f).Within(0.001f));
+		Assert.That(size.x, Is.EqualTo(56f).Within(0.001f));
+		Assert.That(size.y, Is.EqualTo(400f).Within(0.001f));
 	}
 
 	[Test]

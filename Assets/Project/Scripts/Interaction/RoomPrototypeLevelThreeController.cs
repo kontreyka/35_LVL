@@ -76,11 +76,12 @@ public static class RoomPrototypeLevelThreePuzzleModel
 		return plantBottom + Vector2.up * plantSize.y;
 	}
 
-	public static Vector2 GetPlantDisplaySize(Vector2 maskSize, float spriteAspectRatio, float widthMultiplier)
+	public static Vector2 GetPlantDisplaySize(Vector2 maskSize, float spriteAspectRatio, float scaleMultiplier)
 	{
+		float scale = Mathf.Max(1f, scaleMultiplier);
 		return new Vector2(
-			maskSize.y * Mathf.Max(0f, spriteAspectRatio) * Mathf.Max(1f, widthMultiplier),
-			maskSize.y
+			maskSize.y * Mathf.Max(0f, spriteAspectRatio) * scale,
+			maskSize.y * scale
 		);
 	}
 
@@ -140,7 +141,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Vector2 flowerWorldPosition = new Vector2(1.55f, 0.42f);
 	[SerializeField] private Vector2 flowerWorldSize = new Vector2(0.34f, 0.24f);
 	[SerializeField] private Vector2 plantWorldSize = new Vector2(0.22f, 0.58f);
-	[SerializeField, Min(1f)] private float plantWidthMultiplier = 3f;
+	[SerializeField, Min(1f)] private float plantScaleMultiplier = 2f;
 	[SerializeField] private Vector2 plantMaskWorldOffset = Vector2.zero;
 	[SerializeField] private Vector2 plantLocalOffset = Vector2.zero;
 	[SerializeField, Range(0.05f, 1f)] private float initialPlantVisibleFraction = 0.1f;
@@ -704,7 +705,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		plantMask.gameObject.AddComponent<RectMask2D>();
 		Image plant = CreateImage("Plant", plantMask, Color.white);
 		plant.sprite = plantSprite;
-		plant.preserveAspect = false;
+		plant.preserveAspect = true;
 		plant.raycastTarget = false;
 		plant.rectTransform.pivot = new Vector2(0.5f, 0f);
 		panel.PlantMask = plantMask;
@@ -732,7 +733,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 		Image growth = CreateImage("Growing Plant", growthMask, plantSprite != null ? Color.white : flowerColor);
 		growth.sprite = plantSprite;
-		growth.preserveAspect = false;
+		growth.preserveAspect = true;
 		growth.rectTransform.sizeDelta = Vector2.zero;
 		growth.rectTransform.pivot = new Vector2(0.5f, 0f);
 		growth.gameObject.SetActive(false);
@@ -816,7 +817,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		panel.Plant.sizeDelta = RoomPrototypeLevelThreePuzzleModel.GetPlantDisplaySize(
 			maskSize,
 			plantAspectRatio,
-			plantWidthMultiplier
+			plantScaleMultiplier
 		);
 		panel.Plant.anchoredPosition = new Vector2(
 			0f,
