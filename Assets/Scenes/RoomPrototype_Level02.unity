@@ -229,6 +229,9 @@ MonoBehaviour:
   animationDuration: 0.28
   dragStartDistance: 14
   frameColor: {r: 1, g: 1, b: 1, a: 1}
+  sharedTruckSprite: {fileID: -7641860706416531140, guid: 286584d93d8eb7744956bb700b6c0a8b, type: 3}
+  sharedTruckWorldPosition: {x: 1.33, y: 1.86}
+  sharedTruckWorldSize: {x: 0.48, y: 0.22}
   portraitHand1: {fileID: -8501832380729393063, guid: cd6f1c76c05084f4bbc048b02285330e, type: 3}
   portraitHand2: {fileID: 6385180195641060704, guid: 536b6fd6df345464eb6f70a5c2c9775b, type: 3}
   portraitHand3: {fileID: 5533574145997595748, guid: 6847186a14d490d4985b5205b11f440a, type: 3}

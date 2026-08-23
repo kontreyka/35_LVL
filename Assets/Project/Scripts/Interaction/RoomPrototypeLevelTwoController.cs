@@ -160,8 +160,9 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private float dragStartDistance = 14f;
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
 	[Header("Level 02 Interactive Object Layout")]
-	[SerializeField] private Vector2 sharedTruckWorldPosition = new Vector2(1.75f, 1.5f);
-	[SerializeField] private Vector2 sharedTruckWorldSize = new Vector2(0.5f, 0.22f);
+	[SerializeField] private Sprite sharedTruckSprite = null;
+	[SerializeField] private Vector2 sharedTruckWorldPosition = new Vector2(1.33f, 1.86f);
+	[SerializeField] private Vector2 sharedTruckWorldSize = new Vector2(0.48f, 0.22f);
 	[SerializeField] private Color sharedTruckPlaceholderColor = new Color(0.08f, 0.42f, 0.92f, 0.92f);
 	[SerializeField] private float sharedTruckMoveDuration = 0.8f;
 	[SerializeField] private Sprite portraitHand1 = null;
@@ -697,7 +698,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	private void CreateSharedTruckView(PanelView panel)
 	{
-		Image placeholder = CreateImage("Shared Truck Placeholder", panel.Content, sharedTruckPlaceholderColor);
+		bool usesTruckSprite = sharedTruckSprite != null;
+		Image placeholder = CreateImage("Shared Truck", panel.Content, usesTruckSprite ? Color.white : sharedTruckPlaceholderColor);
+		placeholder.sprite = sharedTruckSprite;
+		placeholder.preserveAspect = usesTruckSprite;
 		placeholder.raycastTarget = true;
 		Button button = placeholder.gameObject.AddComponent<Button>();
 		button.targetGraphic = placeholder;
