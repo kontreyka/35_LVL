@@ -557,6 +557,66 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_ShowsAppleInBothRightViewsButOnlyTheBottomRightOneCanBeClicked()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			RectTransform[] visibleApples = root.GetComponentsInChildren<RectTransform>(true)
+				.Where(rect => rect.name == "APPLE" && rect.gameObject.activeInHierarchy)
+				.ToArray();
+
+			Assert.That(visibleApples.Select(GetOwningPanelName), Is.EquivalentTo(new[]
+			{
+				"TopRight Panel",
+				"BottomRight Panel"
+			}));
+
+			RectTransform topRightApple = visibleApples.Single(rect => GetOwningPanelName(rect) == "TopRight Panel");
+			Button topRightButton = topRightApple.GetComponent<Button>();
+			Assert.That(topRightButton.interactable, Is.False);
+			Assert.That(topRightApple.GetComponent<Image>().raycastTarget, Is.False);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
+	public void BuiltPrototype_UsesInspectorAssignedCarSpriteForTruck()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo carSpriteField = typeof(RoomPrototypeLevelOneController).GetField(
+			"carSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite carSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(carSpriteField, Is.Not.Null, "The car sprite must be assignable in the Inspector.");
+			carSpriteField.SetValue(controller, carSprite);
+			root.SetActive(true);
+
+			Image truck = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "TRUCK" && image.gameObject.activeInHierarchy);
+			Assert.That(truck.sprite, Is.SameAs(carSprite));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(carSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_CreatesInputSystemEventModuleForPanelClicks()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

@@ -304,6 +304,7 @@ MonoBehaviour:
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
   cageSprite: {fileID: 21300000, guid: 450e18c64c271184897ef5dfe39b07a5, type: 3}
+  carSprite: {fileID: -7641860706416531140, guid: 286584d93d8eb7744956bb700b6c0a8b, type: 3}
   tableRoomPosition: {x: 3.42, y: 1.5}
   tableRoomSize: {x: 0.55, y: 0.95}
   cageRoomPosition: {x: 3.42, y: 0.7}

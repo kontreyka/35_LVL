@@ -314,6 +314,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
+	[SerializeField] private Sprite carSprite = null;
 	[Header("Level 01 Room Object Layout")]
 	[Tooltip("Room-grid coordinates. The room is 4 columns wide and 2 rows tall.")]
 	[SerializeField] private Vector2 tableRoomPosition = new Vector2(3.32f, 1.35f);
@@ -1073,23 +1074,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		truckIsDriving = true;
 		truckMarker.RectTransform.gameObject.SetActive(false);
 
-		Image movingTruck = CreateImage("Moving Truck", truckPanel.Content, truckMarker.Marker.Color);
+		Image movingTruck = CreateMovingMarker("Moving Truck", truckPanel.Content, truckMarker.Marker, markerSize, startPosition);
 		RectTransform movingTruckRect = movingTruck.rectTransform;
-		movingTruckRect.anchorMin = new Vector2(0.5f, 0.5f);
-		movingTruckRect.anchorMax = new Vector2(0.5f, 0.5f);
-		movingTruckRect.pivot = new Vector2(0.5f, 0.5f);
-		movingTruckRect.sizeDelta = markerSize;
-		movingTruckRect.anchoredPosition = startPosition;
-		movingTruckRect.SetAsLastSibling();
-
-		Text label = CreateText("Text", movingTruckRect, truckMarker.Marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
-		label.fontStyle = FontStyle.Bold;
-		label.raycastTarget = false;
-		RectTransform labelRect = label.rectTransform;
-		labelRect.anchorMin = Vector2.zero;
-		labelRect.anchorMax = Vector2.one;
-		labelRect.offsetMin = Vector2.zero;
-		labelRect.offsetMax = Vector2.zero;
 
 		const float duration = 0.5f;
 		float elapsed = 0f;
@@ -1378,7 +1364,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, keyRoomPosition, keyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
 		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
 		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, ropeRoomPosition, ropeRoomSize, new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
-		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
+		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f)));
 		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, tableRoomPosition, tableRoomSize, Color.white));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, cageRoomPosition, cageRoomSize, Color.white));
 		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, cageRoomPosition + cageKeyRoomOffset, cageKeyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
@@ -1474,10 +1460,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private Image CreateMovingMarker(string name, RectTransform parent, RoomMarker marker, Vector2 size, Vector2 position)
 	{
 		Image image = CreateImage(name, parent, marker.Color);
-		bool usesKeySprite = IsKeyMarker(marker) && keySprite != null;
-		image.sprite = usesKeySprite ? keySprite : marker.Shape == MarkerShape.Circle ? circleSprite : null;
-		image.preserveAspect = usesKeySprite;
-		if (usesKeySprite)
+		Sprite markerSprite = GetMarkerSprite(marker);
+		bool usesMarkerSprite = markerSprite != null;
+		image.sprite = usesMarkerSprite ? markerSprite : marker.Shape == MarkerShape.Circle ? circleSprite : null;
+		image.preserveAspect = usesMarkerSprite;
+		if (usesMarkerSprite)
 		{
 			image.color = Color.white;
 		}
@@ -1489,7 +1476,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		rectTransform.anchoredPosition = position;
 		rectTransform.SetAsLastSibling();
 
-		if (!usesKeySprite)
+		if (!usesMarkerSprite)
 		{
 			Text label = CreateText("Text", rectTransform, marker.Label, 14, TextAnchor.MiddleCenter, Color.white);
 			label.fontStyle = FontStyle.Bold;
@@ -1521,6 +1508,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 				return tableSprite;
 			case "CAGE":
 				return cageSprite;
+			case "TRUCK":
+				return carSprite;
 			default:
 				return null;
 		}
