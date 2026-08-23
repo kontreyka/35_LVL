@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -11,6 +12,7 @@ public sealed class BirdWalkDialogueProgression : MonoBehaviour
 	[SerializeField] private BirdWalkController birdWalkController;
 	[SerializeField] private DialogueSystem dialogueSystem;
 	[SerializeField] private LevelTransitionManager levelTransitionManager;
+	[SerializeField] private SceneReference nextScene = new SceneReference();
 	[SerializeField] private DialogueSequence ellipsisDialogue;
 
 	[Header("Progress")]
@@ -125,6 +127,12 @@ public sealed class BirdWalkDialogueProgression : MonoBehaviour
 
 	private void LoadNextScene()
 	{
+		if (nextScene.IsAssigned)
+		{
+			SceneManager.LoadScene(nextScene.Path);
+			return;
+		}
+
 		if (levelTransitionManager == null)
 			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
 

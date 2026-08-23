@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 #if ENABLE_INPUT_SYSTEM
@@ -13,6 +14,7 @@ public sealed class HandSceneDialogueController : MonoBehaviour
 	[SerializeField] private DialogueSequence dialogue;
 	[SerializeField] private DialogueSystem dialogueSystem;
 	[SerializeField] private LevelTransitionManager levelTransitionManager;
+	[SerializeField] private SceneReference nextScene = new SceneReference();
 	[SerializeField] private TMP_FontAsset hintFont;
 
 	[Header("Prompt")]
@@ -76,6 +78,11 @@ public sealed class HandSceneDialogueController : MonoBehaviour
 
 		transitionStarted = true;
 		dialogueSystem.DialogueFinished -= HandleDialogueFinished;
+		if (nextScene.IsAssigned)
+		{
+			SceneManager.LoadScene(nextScene.Path);
+			return;
+		}
 
 		if (levelTransitionManager == null)
 			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();

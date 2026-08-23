@@ -250,6 +250,9 @@ MonoBehaviour:
   birdWalkController: {fileID: 4265350}
   dialogueSystem: {fileID: 0}
   levelTransitionManager: {fileID: 0}
+  nextScene:
+    sceneAsset: {fileID: 102900000, guid: 132c13e52306597468a51c349faa1e01, type: 3}
+    scenePath: Assets/Scenes/Eye_3.unity
   ellipsisDialogue: {fileID: 11400000, guid: 79ddc4fb3c1946e5bfe30b7334370c5b, type: 2}
   stepsPerDialogue: 3
   dialoguesBeforeTransition: 3
