@@ -306,6 +306,7 @@ public static class RoomPrototypeLevelOnePanelModel
 public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 {
 	public const string BuiltInFontResourceName = "LegacyRuntime.ttf";
+	private const float PanelFrameThickness = 4f;
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
@@ -397,6 +398,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.TopRight, new Vector2((panelSize.x + panelGap) * 0.5f, (panelSize.y + panelGap) * 0.5f), panelSize);
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.BottomLeft, new Vector2(-(panelSize.x + panelGap) * 0.5f, -(panelSize.y + panelGap) * 0.5f), panelSize);
 		CreatePanel(boardRoot, RoomPrototypePanelSlot.BottomRight, new Vector2((panelSize.x + panelGap) * 0.5f, -(panelSize.y + panelGap) * 0.5f), panelSize);
+		CreateInternalDividers(boardRoot, squareBoardSize);
 	}
 
 	public static Vector2 CalculateSquareBoardSize(Vector2 configuredSize)
@@ -439,8 +441,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		RectTransform content = CreateRectTransform("Viewport", root);
 		content.anchorMin = Vector2.zero;
 		content.anchorMax = Vector2.one;
-		content.offsetMin = new Vector2(4f, 4f);
-		content.offsetMax = new Vector2(-4f, -4f);
+		content.offsetMin = new Vector2(PanelFrameThickness, PanelFrameThickness);
+		content.offsetMax = new Vector2(-PanelFrameThickness, -PanelFrameThickness);
 		content.gameObject.AddComponent<RectMask2D>();
 
 		Image background = CreateImage("Room Slice", content, Color.white);
@@ -487,6 +489,22 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 		panels[slot] = panel;
 		ApplyState(panel, panel.State, false);
+	}
+
+	private void CreateInternalDividers(RectTransform boardRoot, Vector2 squareBoardSize)
+	{
+		float dividerThickness = Mathf.Max(0f, panelGap) + PanelFrameThickness * 2f;
+		CreateInternalDivider("Internal Vertical Divider", boardRoot, new Vector2(dividerThickness, squareBoardSize.y));
+		CreateInternalDivider("Internal Horizontal Divider", boardRoot, new Vector2(squareBoardSize.x, dividerThickness));
+	}
+
+	private void CreateInternalDivider(string name, RectTransform boardRoot, Vector2 size)
+	{
+		Image divider = CreateImage(name, boardRoot, frameColor);
+		divider.raycastTarget = false;
+		divider.rectTransform.anchoredPosition = Vector2.zero;
+		divider.rectTransform.sizeDelta = size;
+		divider.rectTransform.SetAsLastSibling();
 	}
 
 	private MarkerView CreateMarkerView(RectTransform parent, RoomMarker marker)

@@ -442,6 +442,32 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_CreatesOneStraightNonInteractiveCrossAbovePanels()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.AddComponent<RoomPrototypeLevelOneController>();
+
+		try
+		{
+			RectTransform vertical = root.GetComponentsInChildren<RectTransform>(true)
+				.Single(rect => rect.name == "Internal Vertical Divider");
+			RectTransform horizontal = root.GetComponentsInChildren<RectTransform>(true)
+				.Single(rect => rect.name == "Internal Horizontal Divider");
+
+			Assert.That(vertical.anchoredPosition, Is.EqualTo(Vector2.zero));
+			Assert.That(horizontal.anchoredPosition, Is.EqualTo(Vector2.zero));
+			Assert.That(vertical.sizeDelta, Is.EqualTo(new Vector2(16f, 942f)));
+			Assert.That(horizontal.sizeDelta, Is.EqualTo(new Vector2(942f, 16f)));
+			Assert.That(vertical.GetComponent<Graphic>().raycastTarget, Is.False);
+			Assert.That(horizontal.GetComponent<Graphic>().raycastTarget, Is.False);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_CreatesInputSystemEventModuleForPanelClicks()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
