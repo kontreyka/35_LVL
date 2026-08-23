@@ -965,7 +965,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		PanelView cagePanel = FindPanel(1);
 		return IsZoomedAt(clockPanel, 0f, 0f)
 			&& IsZoomedAt(portraitPanel, 2f, 0f)
-			&& IsZoomedAt(cagePanel, 3f, 1f)
+			&& (IsZoomedAt(cagePanel, 3f, 0f) || IsZoomedAt(cagePanel, 3f, 1f))
 			&& RoomPrototypeLevelTwoClockPuzzleModel.ArePortraitAndCageVerticallyAligned(portraitPanel.Slot, cagePanel.Slot);
 	}
 
