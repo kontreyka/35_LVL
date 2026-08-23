@@ -237,7 +237,8 @@ MonoBehaviour:
   sharedTruckSprite: {fileID: -7641860706416531140, guid: 286584d93d8eb7744956bb700b6c0a8b, type: 3}
   sharedTruckWorldPosition: {x: 1.33, y: 1.86}
   sharedTruckWorldSize: {x: 0.48, y: 0.22}
-  portraitHand1: {fileID: -8501832380729393063, guid: cd6f1c76c05084f4bbc048b02285330e, type: 3}
-  portraitHand2: {fileID: 6385180195641060704, guid: 536b6fd6df345464eb6f70a5c2c9775b, type: 3}
-  portraitHand3: {fileID: 5533574145997595748, guid: 6847186a14d490d4985b5205b11f440a, type: 3}
+  portraitHand1: {fileID: 378622975672203362, guid: eddd49d63531bab4eb7f8dff2163e4ee, type: 3}
+  portraitHand2: {fileID: 911978912189650321, guid: 3004cf308afcb6d42bd14465fd938270, type: 3}
+  portraitHand3: {fileID: 1123670801961055402, guid: f32f33eba513fe844b43ff3d8795bd3b, type: 3}
   clockSprite: {fileID: 4128064093266648819, guid: 75dceac395edb504c9b787103f4843ed, type: 3}
+  clockWorldPosition: {x: 0.55, y: 0.43}

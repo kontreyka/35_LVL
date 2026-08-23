@@ -200,7 +200,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Vector2 portraitWorldPosition = new Vector2(2.53f, 0.47f);
 	[SerializeField] private Vector2 portraitWorldSize = new Vector2(0.68f, 0.9f);
 	[SerializeField] private Sprite clockSprite = null;
-	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.73f, 0.43f);
+	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.55f, 0.43f);
 	[SerializeField] private Vector2 clockWorldSize = new Vector2(0.42f, 0.66f);
 	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.66f, 0.67f);
 	[SerializeField] private Color releasedKeyPlaceholderColor = new Color(0.95f, 0.76f, 0.16f, 0.96f);
