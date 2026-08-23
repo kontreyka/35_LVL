@@ -36,6 +36,24 @@ public static class RoomPrototypeLoopingMusic
 			musicSource.Play();
 		}
 	}
+
+	public static void PlaySfx(MonoBehaviour owner, ref AudioSource source, AudioClip clip, float volume)
+	{
+		if (owner == null || clip == null || !Application.isPlaying)
+		{
+			return;
+		}
+
+		if (source == null)
+		{
+			source = owner.gameObject.AddComponent<AudioSource>();
+			source.playOnAwake = false;
+			source.loop = false;
+			source.spatialBlend = 0f;
+		}
+
+		source.PlayOneShot(clip, Mathf.Clamp01(volume));
+	}
 }
 
 public static class RoomPrototypeLevelTwoLayoutModel
@@ -159,6 +177,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private float animationDuration = 0.28f;
 	[SerializeField] private float dragStartDistance = 14f;
 	[SerializeField] private Color frameColor = new Color(0.035f, 0.033f, 0.03f, 1f);
+	[Header("Prototype SFX")]
+	[SerializeField] private AudioClip interactionClickSound = null;
+	[SerializeField] private AudioClip zoomSound = null;
+	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.85f;
 	[Header("Level 02 Interactive Object Layout")]
 	[SerializeField] private Sprite sharedTruckSprite = null;
 	[SerializeField] private Vector2 sharedTruckWorldPosition = new Vector2(1.33f, 1.86f);
@@ -196,6 +218,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private int clockPressCount;
 	private bool keyReleased;
 	private bool keyLanded;
+	private AudioSource sfxSource;
 
 	private void Awake()
 	{
@@ -337,6 +360,16 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		RoomPrototypeLoopingMusic.ConfigureAndPlay(musicSource, levelMusic, levelMusicVolume);
 	}
 
+	private void PlayInteractionSound()
+	{
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume);
+	}
+
+	private void PlayZoomSound()
+	{
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume);
+	}
+
 	private void ResolvePortraitSpritesForEditor()
 	{
 #if UNITY_EDITOR
@@ -464,6 +497,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			? new Viewport(panel.RegionX, panel.RegionY, 2, 2)
 			: new Viewport(panel.RegionX, panel.RegionY, 1, 1);
 		panel.IsZoomed = !panel.IsZoomed;
+		PlayZoomSound();
 		ClearControls(panel);
 		panel.Animation = StartCoroutine(AnimateViewport(panel, target));
 	}
@@ -901,6 +935,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		}
 
 		clockPressCount++;
+		PlayInteractionSound();
 		portraitStageIndex = Mathf.Min(clockPressCount, 2);
 		RefreshPortraitViews();
 		if (clockPressCount == 2)
@@ -1035,6 +1070,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			return;
 		}
 
+		PlayInteractionSound();
 		Vector2 targetPosition = sharedTruck.Position.x < 2.5f
 			? new Vector2(2.75f, sharedTruck.Position.y)
 			: new Vector2(1.75f, sharedTruck.Position.y);

@@ -348,6 +348,10 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Color controlColor = new Color(0.08f, 0.08f, 0.075f, 0.86f);
 	[SerializeField] private AudioClip levelMusic = null;
 	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
+	[Header("Prototype SFX")]
+	[SerializeField] private AudioClip interactionClickSound = null;
+	[SerializeField] private AudioClip zoomSound = null;
+	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.85f;
 
 	private readonly Dictionary<RoomPrototypePanelSlot, PanelView> panels = new Dictionary<RoomPrototypePanelSlot, PanelView>();
 	private readonly List<RoomMarker> roomMarkers = new List<RoomMarker>();
@@ -367,6 +371,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private bool truckTipped;
 	private bool truckMovedToNextCell;
 	private bool truckReachedTable;
+	private AudioSource sfxSource;
 
 	private void Awake()
 	{
@@ -454,6 +459,16 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		ConfigureLevelMusic(musicSource, levelMusic);
 		musicSource.volume = Mathf.Clamp01(levelMusicVolume);
 		musicSource.Play();
+	}
+
+	private void PlayInteractionSound()
+	{
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume);
+	}
+
+	private void PlayZoomSound()
+	{
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume);
 	}
 
 	private void BuildEditorPreview()
@@ -689,6 +704,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			return;
 		}
 
+		PlayZoomSound();
 		ApplyState(panel, RoomPrototypeLevelOnePanelModel.GetZoomState(panel.Slot), true);
 	}
 
@@ -706,6 +722,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			return;
 		}
 
+		PlayInteractionSound();
 		PanelView keyPanel = panels[RoomPrototypePanelSlot.TopLeft];
 		PanelView truckPanel = panels[RoomPrototypePanelSlot.BottomLeft];
 		Vector2 startPosition = keyMarker.RectTransform.anchoredPosition;
@@ -846,6 +863,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			return;
 		}
 
+		PlayInteractionSound();
 		truckMoveAnimation = StartCoroutine(AnimateTruckToTable());
 		RefreshInteractionLock();
 		RefreshTruckInteraction();
@@ -877,6 +895,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			return;
 		}
 
+		PlayInteractionSound();
 		PanelView tablePanel = panels[RoomPrototypePanelSlot.BottomRight];
 		appleMarker.RectTransform.gameObject.SetActive(false);
 		appleIsFalling = true;
@@ -1338,7 +1357,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		{
 			Button minus = CreateButton("Zoom Out", panel.Root, "-", controlColor, Color.white, new Vector2(46f, 46f));
 			PlaceControl(minus.transform as RectTransform, RoomPrototypePanelDirection.Left, true, panel.Root.sizeDelta);
-			minus.onClick.AddListener(() => ApplyState(panel, RoomPrototypeLevelOnePanelModel.GetInitialState(panel.Slot), true));
+			minus.onClick.AddListener(() =>
+			{
+				PlayZoomSound();
+				ApplyState(panel, RoomPrototypeLevelOnePanelModel.GetInitialState(panel.Slot), true);
+			});
 			panel.ControlObjects.Add(minus.gameObject);
 		}
 

@@ -656,6 +656,23 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	[TestCase(typeof(RoomPrototypeLevelOneController))]
+	[TestCase(typeof(RoomPrototypeLevelTwoController))]
+	[TestCase(typeof(RoomPrototypeLevelThreeController))]
+	public void PrototypeControllers_ExposeInteractionAndZoomSoundsInInspector(System.Type controllerType)
+	{
+		string[] requiredFields = { "interactionClickSound", "zoomSound", "sfxVolume" };
+		foreach (string fieldName in requiredFields)
+		{
+			Assert.That(
+				controllerType.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic),
+				Is.Not.Null,
+				$"{controllerType.Name} must expose {fieldName} for prototype sound design."
+			);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_DrawsInspectorAssignedBirdBehindCage()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
