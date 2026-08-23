@@ -29,6 +29,21 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Hand gold.unity
     guid: 145922264378e24459bcb2ed072dbb1f
+  - enabled: 1
+    path: Assets/Scenes/Bird_Walk_Bronze.unity
+    guid: 1ee0c78cec84ba64c91f354591acad38
+  - enabled: 1
+    path: Assets/Scenes/Eye_1.unity
+    guid: 63de1e96868b10f44b5bf737dbdae6b6
+  - enabled: 1
+    path: Assets/Scenes/Two_Birds.unity
+    guid: a925b37df6fc957408988f98deeb2f7c
+  - enabled: 1
+    path: Assets/Scenes/RoomPrototype_Level01.unity
+    guid: 467cc2dc82424073b65b1116d0a87d2e
+  - enabled: 1
+    path: Assets/Scenes/Three_Birds.unity
+    guid: 9054210d6e1b6c144884794e57bef64a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

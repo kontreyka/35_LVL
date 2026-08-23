@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 #if ENABLE_INPUT_SYSTEM
@@ -13,6 +14,8 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 	[SerializeField] private DialogueSequence dialogue;
 	[SerializeField] private DialogueSystem dialogueSystem;
 	[SerializeField] private TMP_FontAsset hintFont;
+	[SerializeField] private bool loadNextSceneAfterDialogue;
+	[SerializeField] private SceneReference targetScene = new SceneReference();
 
 	[Header("Prompt")]
 	[SerializeField] private string promptText = "Нажмите Enter";
@@ -21,6 +24,7 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 
 	private TMP_Text promptLabel;
 	private bool dialogueStarted;
+	private bool transitionStarted;
 
 	private void Awake()
 	{
@@ -48,7 +52,7 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 	private IEnumerator StartDialogueNextFrame()
 	{
 		yield return null;
-		ResolveDialogueSystem();
+		ResolveDependencies();
 
 		if (dialogueSystem == null || dialogue == null)
 		{
@@ -56,13 +60,55 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 			yield break;
 		}
 
+		if (loadNextSceneAfterDialogue)
+		{
+			dialogueSystem.DialogueFinished -= HandleDialogueFinished;
+			dialogueSystem.DialogueFinished += HandleDialogueFinished;
+		}
+
 		dialogueSystem.StartDialogue(dialogue);
+	}
+
+	private void OnDisable()
+	{
+		if (dialogueSystem != null)
+			dialogueSystem.DialogueFinished -= HandleDialogueFinished;
 	}
 
 	private void ResolveDialogueSystem()
 	{
+		ResolveDependencies();
+	}
+
+	private void ResolveDependencies()
+	{
 		if (dialogueSystem == null)
 			dialogueSystem = DialogueSystem.Instance ?? FindFirstObjectByType<DialogueSystem>();
+	}
+
+	private void HandleDialogueFinished(DialogueSequence finishedDialogue)
+	{
+		if (transitionStarted || finishedDialogue != dialogue)
+			return;
+
+		transitionStarted = true;
+		dialogueSystem.DialogueFinished -= HandleDialogueFinished;
+
+		if (!targetScene.IsAssigned)
+		{
+			Debug.LogWarning($"{nameof(TwoBirdsDialogueController)} requires a target scene.", this);
+			return;
+		}
+
+		StartCoroutine(LoadTargetSceneAfterDialogueFade());
+	}
+
+	private IEnumerator LoadTargetSceneAfterDialogueFade()
+	{
+		if (dialogueSystem != null && dialogueSystem.HideFadeDuration > 0f)
+			yield return new WaitForSecondsRealtime(dialogueSystem.HideFadeDuration);
+
+		SceneManager.LoadScene(targetScene.Path);
 	}
 
 	private void CreatePrompt()
@@ -130,4 +176,11 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 			Input.GetKeyDown(KeyCode.E);
 #endif
 	}
+
+#if UNITY_EDITOR
+	private void OnValidate()
+	{
+		targetScene.SynchronizePath();
+	}
+#endif
 }

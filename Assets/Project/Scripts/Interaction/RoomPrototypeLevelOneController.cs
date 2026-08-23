@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public static class RoomPrototypeKeySpriteSizing
@@ -358,6 +359,11 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.7f;
 	[SerializeField] private float interactionClickGainDb = 3f;
 	[SerializeField] private float zoomGainDb = -5f;
+	[Header("Scene Flow")]
+	[SerializeField] private DialogueSequence introDialogue = null;
+	[SerializeField] private DialogueSystem dialogueSystem = null;
+	[SerializeField] private SceneReference nextScene = new SceneReference();
+	[SerializeField] private float completionTransitionDelay = 0.4f;
 
 	private readonly Dictionary<RoomPrototypePanelSlot, PanelView> panels = new Dictionary<RoomPrototypePanelSlot, PanelView>();
 	private readonly List<RoomMarker> roomMarkers = new List<RoomMarker>();
@@ -378,14 +384,18 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private bool truckMovedToNextCell;
 	private bool truckReachedTable;
 	private AudioSource sfxSource;
+	private bool introDialogueRunning;
+	private bool levelCompleted;
 
 	private void Awake()
 	{
 		if (Application.isPlaying)
 		{
 			ClearEditorPreview();
+			introDialogueRunning = introDialogue != null;
 			StartLevelMusic();
 			BuildPrototype(transform);
+			StartCoroutine(StartIntroDialogueNextFrame());
 			return;
 		}
 
@@ -405,6 +415,8 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private void OnValidate()
 	{
+		nextScene.SynchronizePath();
+
 		if (!Application.isPlaying)
 		{
 			QueueEditorPreviewRefresh();
@@ -475,6 +487,55 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private void PlayZoomSound()
 	{
 		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(zoomGainDb));
+	}
+
+	private IEnumerator StartIntroDialogueNextFrame()
+	{
+		yield return null;
+
+		if (introDialogue == null)
+		{
+			introDialogueRunning = false;
+			RefreshAllInteractions();
+			yield break;
+		}
+
+		ResolveDialogueSystem();
+
+		if (dialogueSystem == null)
+		{
+			introDialogueRunning = false;
+			RefreshAllInteractions();
+			Debug.LogWarning($"{nameof(RoomPrototypeLevelOneController)} could not find a {nameof(DialogueSystem)}.", this);
+			yield break;
+		}
+
+		dialogueSystem.DialogueFinished -= HandleIntroDialogueFinished;
+		dialogueSystem.DialogueFinished += HandleIntroDialogueFinished;
+		dialogueSystem.StartDialogue(introDialogue);
+		RefreshInteractionLock();
+	}
+
+	private void OnDisable()
+	{
+		if (dialogueSystem != null)
+			dialogueSystem.DialogueFinished -= HandleIntroDialogueFinished;
+	}
+
+	private void ResolveDialogueSystem()
+	{
+		if (dialogueSystem == null)
+			dialogueSystem = DialogueSystem.Instance ?? FindFirstObjectByType<DialogueSystem>();
+	}
+
+	private void HandleIntroDialogueFinished(DialogueSequence finishedDialogue)
+	{
+		if (finishedDialogue != introDialogue)
+			return;
+
+		dialogueSystem.DialogueFinished -= HandleIntroDialogueFinished;
+		introDialogueRunning = false;
+		RefreshAllInteractions();
 	}
 
 	private void BuildEditorPreview()
@@ -761,7 +822,41 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 
 	private bool IsInteractionLocked()
 	{
-		return keyIsFalling || keyDropAnimation != null || truckMoveAnimation != null || appleIsFalling || appleDropAnimation != null;
+		return introDialogueRunning || levelCompleted || keyIsFalling || keyDropAnimation != null
+			|| truckMoveAnimation != null || appleIsFalling || appleDropAnimation != null;
+	}
+
+	private void RefreshAllInteractions()
+	{
+		RefreshInteractionLock();
+		RefreshKeyInteraction();
+		RefreshTruckInteraction();
+		RefreshAppleInteraction();
+	}
+
+	private void CompleteLevel()
+	{
+		if (levelCompleted)
+			return;
+
+		levelCompleted = true;
+		RefreshInteractionLock();
+
+		if (!nextScene.IsAssigned)
+		{
+			Debug.LogWarning($"{nameof(RoomPrototypeLevelOneController)} requires a next scene.", this);
+			return;
+		}
+
+		StartCoroutine(LoadNextSceneAfterCompletion());
+	}
+
+	private IEnumerator LoadNextSceneAfterCompletion()
+	{
+		if (completionTransitionDelay > 0f)
+			yield return new WaitForSeconds(completionTransitionDelay);
+
+		SceneManager.LoadScene(nextScene.Path);
 	}
 
 	private void RefreshKeyInteraction()
@@ -1064,6 +1159,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		appleDropAnimation = null;
 		RefreshInteractionLock();
 		RefreshAppleInteraction();
+		CompleteLevel();
 	}
 
 	private IEnumerator AnimateKeyDrop(

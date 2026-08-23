@@ -330,12 +330,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
       propertyPath: nextScene.scenePath
-      value: Assets/Scenes/Hand bronze.unity
+      value: Assets/Scenes/Bird_Walk_Bronze.unity
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
       propertyPath: nextScene.sceneAsset
       value: 
-      objectReference: {fileID: 102900000, guid: e5775cea43d0d7f4a826bc0be99d8031, type: 3}
+      objectReference: {fileID: 102900000, guid: 1ee0c78cec84ba64c91f354591acad38, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

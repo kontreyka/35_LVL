@@ -257,6 +257,10 @@ MonoBehaviour:
   dialogue: {fileID: 11400000, guid: 1530a6975d11452facfa5b985d52f23d, type: 2}
   dialogueSystem: {fileID: 0}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
+  loadNextSceneAfterDialogue: 1
+  targetScene:
+    sceneAsset: {fileID: 102900000, guid: 467cc2dc82424073b65b1116d0a87d2e, type: 3}
+    scenePath: Assets/Scenes/RoomPrototype_Level01.unity
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}

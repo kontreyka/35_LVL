@@ -257,6 +257,10 @@ MonoBehaviour:
   dialogue: {fileID: 11400000, guid: fc8d9d3882e846a092a1c7b4b9a1eb57, type: 2}
   dialogueSystem: {fileID: 0}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
+  loadNextSceneAfterDialogue: 0
+  targetScene:
+    sceneAsset: {fileID: 0}
+    scenePath: 
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}
@@ -688,9 +692,9 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1459960198}
-  - {fileID: 1953939966}
   - {fileID: 189049522}
   - {fileID: 1277198609}
   - {fileID: 210000001}
   - {fileID: 210000003}
   - {fileID: 1159061699}
+  - {fileID: 1953939966}
