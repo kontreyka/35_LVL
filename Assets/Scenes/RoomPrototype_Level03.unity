@@ -212,6 +212,8 @@ MonoBehaviour:
   roomSprite: {fileID: -561553066458880801, guid: 971768d8e59aaca40a4c4ac21bdb48a1, type: 3}
   skySprite: {fileID: 3779090305159470298, guid: c1116f1197c57d948b2a45b15e849077, type: 3}
   keySprite: {fileID: 1694913177206695654, guid: ea242fc3b92cc6546952e90876c0dcc6, type: 3}
+  flowerPotSprite: {fileID: 21300000, guid: 8743205427d4486591602716c359a9b3, type: 3}
+  plantSprite: {fileID: 21300000, guid: 1a04c5b0f5ba44b6ba7a0711aa832c21, type: 3}
   tableSprite: {fileID: 497600754102043572, guid: f3145388697712242a38ca653f9faf96, type: 3}
   birdSprite: {fileID: -7708513443867668911, guid: 9e76d1ea8af2c634cafa4bf4c5ac78f0, type: 3}
   cageSprite: {fileID: 8203646131500868436, guid: 0729a37dc34435944a9215c279cf8379, type: 3}

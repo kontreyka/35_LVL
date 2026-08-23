@@ -600,6 +600,53 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreePrototype_UsesMaskedPlantBehindInspectorAssignedPot()
+	{
+		GameObject root = new GameObject("Level Three Plant Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelThreeController controller = root.AddComponent<RoomPrototypeLevelThreeController>();
+		System.Reflection.FieldInfo potSpriteField = typeof(RoomPrototypeLevelThreeController).GetField(
+			"flowerPotSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		System.Reflection.FieldInfo plantSpriteField = typeof(RoomPrototypeLevelThreeController).GetField(
+			"plantSprite",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+		Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+		Sprite potSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+		Sprite plantSprite = Sprite.Create(texture, new Rect(0f, 0f, 2f, 2f), new Vector2(0.5f, 0.5f));
+
+		try
+		{
+			Assert.That(potSpriteField, Is.Not.Null, "The flower pot sprite must be assignable in the Inspector.");
+			Assert.That(plantSpriteField, Is.Not.Null, "The plant sprite must be assignable in the Inspector.");
+			potSpriteField.SetValue(controller, potSprite);
+			plantSpriteField.SetValue(controller, plantSprite);
+			root.SetActive(true);
+
+			Image pot = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Flower Pot" && image.gameObject.activeInHierarchy);
+			Image plant = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Plant" && image.gameObject.activeInHierarchy);
+
+			Assert.That(pot.sprite, Is.SameAs(potSprite));
+			Assert.That(plant.sprite, Is.SameAs(plantSprite));
+			RectMask2D plantMask = plant.GetComponentInParent<RectMask2D>();
+			Assert.That(plantMask, Is.Not.Null);
+			Assert.That(plantMask.transform.parent, Is.SameAs(pot.transform.parent));
+			Assert.That(plantMask.transform.GetSiblingIndex(), Is.LessThan(pot.transform.GetSiblingIndex()));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+			UnityEngine.Object.DestroyImmediate(potSprite);
+			UnityEngine.Object.DestroyImmediate(plantSprite);
+			UnityEngine.Object.DestroyImmediate(texture);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_ShowsAppleInBothRightViewsButOnlyTheBottomRightOneCanBeClicked()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
