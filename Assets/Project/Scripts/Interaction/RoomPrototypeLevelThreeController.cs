@@ -123,6 +123,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 
 	[SerializeField] private Sprite roomSprite = null;
 	[SerializeField] private Sprite skySprite = null;
+	[SerializeField] private Sprite windowForegroundSprite = null;
+	[Range(0.8f, 1.2f)] [SerializeField] private float windowSkyParallax = 0.94f;
 	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Sprite flowerPotSprite = null;
 	[SerializeField] private Sprite plantSprite = null;
@@ -631,6 +633,21 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		roomRect.anchorMin = new Vector2(0.5f, 0.5f);
 		roomRect.anchorMax = new Vector2(0.5f, 0.5f);
 
+		Image windowSky = null;
+		Image windowForeground = null;
+		if (role == PanelRole.Window)
+		{
+			windowSky = CreateImage("Sky Behind Window", content, Color.white);
+			windowSky.sprite = skySprite;
+			windowSky.preserveAspect = false;
+			windowSky.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+			windowSky.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+
+			windowForeground = CreateImage("Window Foreground", content, Color.white);
+			windowForeground.sprite = windowForegroundSprite;
+			windowForeground.preserveAspect = false;
+		}
+
 		Image sky = CreateImage("Sky", content, Color.white);
 		sky.sprite = skySprite;
 		sky.preserveAspect = false;
@@ -650,6 +667,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			Root = root,
 			Content = content,
 			Room = roomRect,
+			WindowSky = windowSky,
+			WindowForeground = windowForeground,
 			Sky = sky,
 			CanvasGroup = canvasGroup,
 			Viewport = new Viewport(regionX, regionY, 2f, 2f),
@@ -756,6 +775,16 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		Vector2 offset = new Vector2((centerX - 0.5f) * imageSize.x, (0.5f - centerY) * imageSize.y);
 		panel.Room.sizeDelta = imageSize;
 		panel.Room.anchoredPosition = -offset;
+		if (panel.WindowSky != null)
+		{
+			panel.WindowSky.rectTransform.sizeDelta = imageSize;
+			panel.WindowSky.rectTransform.anchoredPosition = -offset * windowSkyParallax;
+		}
+		if (panel.WindowForeground != null)
+		{
+			panel.WindowForeground.rectTransform.sizeDelta = imageSize;
+			panel.WindowForeground.rectTransform.anchoredPosition = -offset;
+		}
 		RefreshPanelVisuals(panel, viewport);
 	}
 
@@ -772,7 +801,27 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		bool isSky = panel.Role == PanelRole.Window && panel.WindowState == RoomPrototypeLevelThreeWindowState.Sky;
 		panel.Room.gameObject.SetActive(!isSky);
-		panel.Sky.gameObject.SetActive(isSky);
+		panel.Sky.gameObject.SetActive(false);
+		if (panel.WindowSky != null)
+		{
+			panel.WindowSky.gameObject.SetActive(true);
+			if (isSky)
+			{
+				panel.WindowSky.rectTransform.anchorMin = Vector2.zero;
+				panel.WindowSky.rectTransform.anchorMax = Vector2.one;
+				panel.WindowSky.rectTransform.offsetMin = Vector2.zero;
+				panel.WindowSky.rectTransform.offsetMax = Vector2.zero;
+			}
+			else
+			{
+				panel.WindowSky.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+				panel.WindowSky.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+			}
+		}
+		if (panel.WindowForeground != null)
+		{
+			panel.WindowForeground.gameObject.SetActive(!isSky);
+		}
 		UpdateRoomFurnitureViews(panel, viewport, !isSky);
 		if (panel.SkyBird != null)
 		{
@@ -1163,7 +1212,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		{
 			panel.WindowState = RoomPrototypeLevelThreeWindowState.Window;
 			PlayZoomSound();
-			RefreshAllVisuals();
+			ApplyViewport(panel, panel.Viewport);
+			RefreshControls(panel);
 		});
 		Text label = CreateText("Label", image.rectTransform, "<", 30, Color.white);
 		Stretch(label.rectTransform);
@@ -1423,6 +1473,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		public RectTransform Root;
 		public RectTransform Content;
 		public RectTransform Room;
+		public Image WindowSky;
+		public Image WindowForeground;
 		public Image Sky;
 		public Image Table;
 		public Image CageBird;
