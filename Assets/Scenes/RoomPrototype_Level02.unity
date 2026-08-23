@@ -223,12 +223,20 @@ MonoBehaviour:
   cageWorldSize: {x: 0.9, y: 0.9}
   levelMusic: {fileID: 8300000, guid: 50a286d02464e2f41bfc5046e1bd2748, type: 3}
   levelMusicVolume: 0.45
+  interactionClickSound: {fileID: 8300000, guid: 26088a0dd56e7914cbe06f3aabf6f696, type: 3}
+  zoomSound: {fileID: 8300000, guid: 2a4655d8bbde7654a9345d666489147f, type: 3}
+  sfxVolume: 0.7
+  interactionClickGainDb: 3
+  zoomGainDb: -5
   referenceResolution: {x: 1674, y: 942}
   boardSize: {x: 1674, y: 942}
   panelGap: 8
   animationDuration: 0.28
   dragStartDistance: 14
   frameColor: {r: 1, g: 1, b: 1, a: 1}
+  sharedTruckSprite: {fileID: -7641860706416531140, guid: 286584d93d8eb7744956bb700b6c0a8b, type: 3}
+  sharedTruckWorldPosition: {x: 1.33, y: 1.86}
+  sharedTruckWorldSize: {x: 0.48, y: 0.22}
   portraitHand1: {fileID: -8501832380729393063, guid: cd6f1c76c05084f4bbc048b02285330e, type: 3}
   portraitHand2: {fileID: 6385180195641060704, guid: 536b6fd6df345464eb6f70a5c2c9775b, type: 3}
   portraitHand3: {fileID: 5533574145997595748, guid: 6847186a14d490d4985b5205b11f440a, type: 3}

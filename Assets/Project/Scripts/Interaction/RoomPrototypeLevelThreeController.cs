@@ -95,6 +95,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private float caughtKeyWorldHeight = 0.28f;
 	[SerializeField] private AudioClip levelMusic = null;
 	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
+	[Header("Prototype SFX")]
+	[SerializeField] private AudioClip interactionClickSound = null;
+	[SerializeField] private AudioClip zoomSound = null;
+	[Range(0f, 1f)] [SerializeField] private float sfxVolume = 0.7f;
+	[SerializeField] private float interactionClickGainDb = 3f;
+	[SerializeField] private float zoomGainDb = -5f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
 	[SerializeField] private float panelGap = 8f;
@@ -128,6 +134,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	private Vector2 flowerPullTarget;
 	private float flowerPointerStartY;
 	private float flowerPullProgress;
+	private AudioSource sfxSource;
 
 	private void Awake()
 	{
@@ -264,6 +271,16 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		RoomPrototypeLoopingMusic.ConfigureAndPlay(musicSource, levelMusic, levelMusicVolume);
 	}
 
+	private void PlayInteractionSound()
+	{
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, interactionClickSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(interactionClickGainDb));
+	}
+
+	private void PlayZoomSound()
+	{
+		RoomPrototypeLoopingMusic.PlaySfx(this, ref sfxSource, zoomSound, sfxVolume * RoomPrototypeLoopingMusic.DecibelsToLinear(zoomGainDb));
+	}
+
 	public void OnPanelPointerDown(int panelId, PointerEventData eventData)
 	{
 		if (interactionLocked || isDragging || flowerPullAnimating || cageOpened)
@@ -373,6 +390,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		Viewport target = panel.IsZoomed ? new Viewport(2f, 0f, 2f, 2f) : new Viewport(3f, 1f, 1f, 1f);
 		panel.IsZoomed = !panel.IsZoomed;
+		PlayZoomSound();
 		StartViewportAnimation(panel, target);
 	}
 
@@ -380,6 +398,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	{
 		Viewport target = panel.IsZoomed ? new Viewport(0f, 0f, 2f, 2f) : new Viewport(1f, 0f, 1f, 1f);
 		panel.IsZoomed = !panel.IsZoomed;
+		PlayZoomSound();
 		StartViewportAnimation(panel, target);
 	}
 
@@ -389,6 +408,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		{
 			panel.WindowState = RoomPrototypeLevelThreeWindowState.Window;
 			panel.IsZoomed = true;
+			PlayZoomSound();
 			StartViewportAnimation(panel, new Viewport(3f, 0f, 1f, 1f));
 			return;
 		}
@@ -877,6 +897,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		flowerPointerStartY = pointerPosition.y;
 		flowerPullProgress = 0f;
 		flowerPullActive = true;
+		PlayInteractionSound();
 		growthOverlay.SetAsLastSibling();
 		flowerHeadOverlay.SetAsLastSibling();
 		keyOverlay.SetAsLastSibling();
@@ -1013,6 +1034,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		button.onClick.AddListener(() =>
 		{
 			panel.WindowState = RoomPrototypeLevelThreeWindowState.Window;
+			PlayZoomSound();
 			RefreshAllVisuals();
 		});
 		Text label = CreateText("Label", image.rectTransform, "<", 30, Color.white);
