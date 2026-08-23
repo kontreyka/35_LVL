@@ -63,6 +63,7 @@ MonoBehaviour:
   textPaddingMin: {x: 185, y: 110}
   textPaddingMax: {x: 120, y: 112}
   bodyTextVerticalOffset: -18
+  bodyTextHorizontalOffset: 0
   speakerFontSize: 46
   bodyFontSize: 42
   usePortraits: 1
