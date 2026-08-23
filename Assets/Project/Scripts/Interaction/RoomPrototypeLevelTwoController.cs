@@ -199,7 +199,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Sprite portraitHand3 = null;
 	[SerializeField] private Vector2 portraitWorldPosition = new Vector2(2.53f, 0.47f);
 	[SerializeField] private Vector2 portraitWorldSize = new Vector2(0.68f, 0.9f);
-	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.73f, 0.43f);
+	[SerializeField] private Sprite clockSprite = null;
+	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.55f, 0.43f);
 	[SerializeField] private Vector2 clockWorldSize = new Vector2(0.42f, 0.66f);
 	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.66f, 0.67f);
 	[SerializeField] private Color releasedKeyPlaceholderColor = new Color(0.95f, 0.76f, 0.16f, 0.96f);
@@ -662,6 +663,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		ApplyViewport(panel, panel.Viewport);
 		CreateSharedTruckView(panel);
 		CreatePortraitView(panel);
+		CreateClockView(panel);
 		CreateLandedKeyView(panel);
 		UpdateWorldViews(panel, panel.Viewport);
 	}
@@ -691,6 +693,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		UpdateRoomFurnitureViews(panel, viewport);
 		UpdateSharedTruckView(panel, viewport);
 		UpdatePortraitView(panel, viewport);
+		UpdateClockView(panel, viewport);
 		UpdateLandedKeyView(panel, viewport);
 	}
 
@@ -834,6 +837,43 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			case 1: return portraitHand2;
 			default: return portraitHand3;
 		}
+	}
+
+	private void CreateClockView(PanelView panel)
+	{
+		Image clock = CreateImage("Clock", panel.Content, Color.white);
+		clock.sprite = clockSprite;
+		clock.preserveAspect = true;
+		panel.Clock = clock;
+	}
+
+	private void UpdateClockView(PanelView panel, Viewport viewport)
+	{
+		if (panel.Clock == null)
+		{
+			return;
+		}
+
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		bool visible = clockSprite != null
+			&& RoomPrototypeLevelTwoWorldProjection.IntersectsViewport(clockWorldPosition, clockWorldSize, visibleWorldRect);
+		panel.Clock.gameObject.SetActive(visible);
+		if (!visible)
+		{
+			return;
+		}
+
+		Vector2 contentSize = GetContentSize(panel);
+		panel.Clock.rectTransform.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(
+			clockWorldSize,
+			contentSize,
+			visibleWorldRect
+		);
+		panel.Clock.rectTransform.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(
+			clockWorldPosition,
+			contentSize,
+			visibleWorldRect
+		);
 	}
 
 	private void CreateReleasedKeyOverlay()
@@ -1363,6 +1403,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		public Image Cage;
 		public RectTransform SharedTruckPlaceholder;
 		public Image PortraitStage;
+		public Image Clock;
 		public RectTransform LandedKey;
 		public CanvasGroup CanvasGroup;
 		public Viewport Viewport;
