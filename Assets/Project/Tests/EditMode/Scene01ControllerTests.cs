@@ -323,6 +323,36 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void LevelThreeFlowerPull_MovesAConstantSizePlantInsteadOfStretchingIt()
+	{
+		Vector2 start = new Vector2(100f, 200f);
+		Vector2 targetTip = new Vector2(100f, 700f);
+		Vector2 plantSize = new Vector2(120f, 640f);
+
+		Rect startLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 0f);
+		Rect halfwayLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 0.5f);
+		Rect completedLayout = RoomPrototypeLevelThreePuzzleModel.GetPlantPullLayout(start, targetTip, plantSize, 1f);
+
+		Assert.That(startLayout.size, Is.EqualTo(plantSize));
+		Assert.That(halfwayLayout.size, Is.EqualTo(plantSize));
+		Assert.That(completedLayout.size, Is.EqualTo(plantSize));
+		Assert.That(startLayout.y, Is.EqualTo(-440f).Within(0.001f));
+		Assert.That(halfwayLayout.y, Is.EqualTo(-190f).Within(0.001f));
+		Assert.That(completedLayout.y, Is.EqualTo(60f).Within(0.001f));
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_PlacesKeyOnTableWhilePlantTipFinishesAboveIt()
+	{
+		float tableSurfaceY = 620f;
+		float plantTipY = RoomPrototypeLevelThreePuzzleModel.GetPlantTipTargetY(tableSurfaceY, 28f);
+		float keyY = RoomPrototypeLevelThreePuzzleModel.GetKeyPullY(200f, tableSurfaceY, 1f);
+
+		Assert.That(plantTipY, Is.EqualTo(648f).Within(0.001f));
+		Assert.That(keyY, Is.EqualTo(tableSurfaceY).Within(0.001f));
+	}
+
+	[Test]
 	public void LevelTwoWorldObject_UsesOneWorldPositionAcrossOverlappingPanels()
 	{
 		Vector2 sharedWorldPosition = new Vector2(1.75f, 1.5f);
@@ -658,6 +688,28 @@ public sealed class RoomPrototypeNavigationTests
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
 			);
 			Assert.That(field, Is.Not.Null, $"The {fieldName} must be editable in the Inspector.");
+		}
+	}
+
+	[Test]
+	public void LevelThreeFlowerPull_KeepsTheMovingPlantBehindThePot()
+	{
+		GameObject root = new GameObject("Level Three Pull Layer Test Root");
+		root.AddComponent<RoomPrototypeLevelThreeController>();
+
+		try
+		{
+			Image movingPlant = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Growing Plant");
+			Image foregroundPot = root.GetComponentsInChildren<Image>(true)
+				.Single(image => image.name == "Pulled Flower Pot");
+
+			Assert.That(movingPlant.transform.parent, Is.SameAs(foregroundPot.transform.parent));
+			Assert.That(movingPlant.transform.GetSiblingIndex(), Is.LessThan(foregroundPot.transform.GetSiblingIndex()));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
 		}
 	}
 
