@@ -37,7 +37,7 @@ public sealed class FirstCutsceneController : MonoBehaviour
 
 	private void Update()
 	{
-		if (dialogueStarted || !WasStartPressed())
+		if (ModalSettingsPanel.IsOpen || dialogueStarted || !WasStartPressed())
 			return;
 
 		dialogueStarted = true;

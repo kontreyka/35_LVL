@@ -21,6 +21,9 @@ public class ClickableHotspot : MonoBehaviour
 
 	private void Update()
 	{
+		if (ModalSettingsPanel.IsOpen)
+			return;
+
 #if ENABLE_INPUT_SYSTEM
 		if (Mouse.current != null &&
 			Mouse.current.leftButton.wasPressedThisFrame)

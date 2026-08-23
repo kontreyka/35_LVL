@@ -98,7 +98,7 @@ public sealed class DialogueSystem : MonoBehaviour
 
 	private void Update()
 	{
-		if (!isRunning || !WasAdvancePressed())
+		if (ModalSettingsPanel.IsOpen || !isRunning || !WasAdvancePressed())
 			return;
 
 		Advance();
