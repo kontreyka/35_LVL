@@ -352,6 +352,10 @@ MonoBehaviour:
   promptText: "\u041d\u0430\u0436\u043c\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}
+  loadNextSceneAfterDialogue: 1
+  targetScene:
+    sceneAsset: {fileID: 102900000, guid: 5bbcd8be3b354704981c47e035194195, type: 3}
+    scenePath: Assets/Scenes/MainMenu.unity
 --- !u!1001 &210000003
 PrefabInstance:
   m_ObjectHideFlags: 0

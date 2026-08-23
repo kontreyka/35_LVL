@@ -20,6 +20,41 @@ public static class RoomPrototypeLevelTwoSlot
 
 public static class RoomPrototypeLoopingMusic
 {
+	private const string PersistentMusicObjectName = "Persistent Prototype Music";
+
+	private static AudioSource persistentMusicSource;
+	private static bool isListeningForSceneLoads;
+
+	public static bool ShouldRestartPersistentMusic(AudioClip currentClip, AudioClip requestedClip)
+	{
+		return currentClip != requestedClip;
+	}
+
+	public static void ConfigurePersistentMusic(AudioClip musicClip, float volume)
+	{
+		if (!Application.isPlaying || musicClip == null)
+		{
+			return;
+		}
+
+		AudioSource source = GetOrCreatePersistentMusicSource();
+		source.loop = true;
+		source.spatialBlend = 0f;
+		source.playOnAwake = false;
+		source.volume = Mathf.Clamp01(volume);
+
+		if (ShouldRestartPersistentMusic(source.clip, musicClip))
+		{
+			source.Stop();
+			source.clip = musicClip;
+			source.Play();
+		}
+		else if (!source.isPlaying)
+		{
+			source.Play();
+		}
+	}
+
 	public static void ConfigureAndPlay(AudioSource musicSource, AudioClip musicClip, float volume)
 	{
 		if (musicSource == null)
@@ -59,6 +94,38 @@ public static class RoomPrototypeLoopingMusic
 	public static float DecibelsToLinear(float decibels)
 	{
 		return Mathf.Pow(10f, decibels / 20f);
+	}
+
+	private static AudioSource GetOrCreatePersistentMusicSource()
+	{
+		if (persistentMusicSource != null)
+		{
+			return persistentMusicSource;
+		}
+
+		GameObject musicObject = new GameObject(PersistentMusicObjectName, typeof(AudioSource));
+		UnityEngine.Object.DontDestroyOnLoad(musicObject);
+		persistentMusicSource = musicObject.GetComponent<AudioSource>();
+
+		if (!isListeningForSceneLoads)
+		{
+			SceneManager.sceneLoaded += HandleSceneLoaded;
+			isListeningForSceneLoads = true;
+		}
+
+		return persistentMusicSource;
+	}
+
+	private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+	{
+		if (scene.name != "MainMenu" || persistentMusicSource == null)
+		{
+			return;
+		}
+
+		persistentMusicSource.Stop();
+		UnityEngine.Object.Destroy(persistentMusicSource.gameObject);
+		persistentMusicSource = null;
 	}
 }
 
@@ -366,13 +433,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			return;
 		}
 
-		AudioSource musicSource = GetComponent<AudioSource>();
-		if (musicSource == null)
-		{
-			musicSource = gameObject.AddComponent<AudioSource>();
-		}
-
-		RoomPrototypeLoopingMusic.ConfigureAndPlay(musicSource, levelMusic, levelMusicVolume);
+		RoomPrototypeLoopingMusic.ConfigurePersistentMusic(levelMusic, levelMusicVolume);
 	}
 
 	private void PlayInteractionSound()

@@ -468,15 +468,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			return;
 		}
 
-		AudioSource musicSource = GetComponent<AudioSource>();
-		if (musicSource == null)
-		{
-			musicSource = gameObject.AddComponent<AudioSource>();
-		}
-
-		ConfigureLevelMusic(musicSource, levelMusic);
-		musicSource.volume = Mathf.Clamp01(levelMusicVolume);
-		musicSource.Play();
+		RoomPrototypeLoopingMusic.ConfigurePersistentMusic(levelMusic, levelMusicVolume);
 	}
 
 	private void PlayInteractionSound()

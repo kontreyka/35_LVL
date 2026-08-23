@@ -244,6 +244,24 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void PersistentPrototypeMusic_DoesNotRestartWhenTheRequestedClipIsAlreadyPlaying()
+	{
+		AudioClip firstTrack = AudioClip.Create("First Track", 128, 1, 44100, false);
+		AudioClip secondTrack = AudioClip.Create("Second Track", 128, 1, 44100, false);
+
+		try
+		{
+			Assert.That(RoomPrototypeLoopingMusic.ShouldRestartPersistentMusic(firstTrack, firstTrack), Is.False);
+			Assert.That(RoomPrototypeLoopingMusic.ShouldRestartPersistentMusic(firstTrack, secondTrack), Is.True);
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(firstTrack);
+			UnityEngine.Object.DestroyImmediate(secondTrack);
+		}
+	}
+
+	[Test]
 	public void KeySpriteSizing_PreservesThePortraitKeyProportions()
 	{
 		Vector2 size = RoomPrototypeKeySpriteSizing.GetSizeForHeight(168f, 643f, 84f);
@@ -274,6 +292,15 @@ public sealed class RoomPrototypeNavigationTests
 		Assert.That(levelThreeScene, Does.Contain("scenePath: Assets/Scenes/Last_Scene.unity"));
 		Assert.That(buildSettings, Does.Contain("path: Assets/Scenes/RoomPrototype_Level03.unity"));
 		Assert.That(buildSettings, Does.Contain("path: Assets/Scenes/Last_Scene.unity"));
+	}
+
+	[Test]
+	public void LastScene_ReturnsToMainMenuAfterItsDialogue()
+	{
+		string lastScene = File.ReadAllText(Path.Combine(Application.dataPath, "Scenes/Last_Scene.unity"));
+
+		Assert.That(lastScene, Does.Contain("loadNextSceneAfterDialogue: 1"));
+		Assert.That(lastScene, Does.Contain("scenePath: Assets/Scenes/MainMenu.unity"));
 	}
 
 	[Test]
