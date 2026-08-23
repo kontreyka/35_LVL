@@ -13,6 +13,8 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 	[SerializeField] private DialogueSequence dialogue;
 	[SerializeField] private DialogueSystem dialogueSystem;
 	[SerializeField] private TMP_FontAsset hintFont;
+	[SerializeField] private bool loadNextSceneAfterDialogue;
+	[SerializeField] private LevelTransitionManager levelTransitionManager;
 
 	[Header("Prompt")]
 	[SerializeField] private string promptText = "Нажмите Enter";
@@ -21,6 +23,7 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 
 	private TMP_Text promptLabel;
 	private bool dialogueStarted;
+	private bool transitionStarted;
 
 	private void Awake()
 	{
@@ -48,7 +51,7 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 	private IEnumerator StartDialogueNextFrame()
 	{
 		yield return null;
-		ResolveDialogueSystem();
+		ResolveDependencies();
 
 		if (dialogueSystem == null || dialogue == null)
 		{
@@ -56,13 +59,50 @@ public sealed class TwoBirdsDialogueController : MonoBehaviour
 			yield break;
 		}
 
+		if (loadNextSceneAfterDialogue)
+		{
+			dialogueSystem.DialogueFinished -= HandleDialogueFinished;
+			dialogueSystem.DialogueFinished += HandleDialogueFinished;
+		}
+
 		dialogueSystem.StartDialogue(dialogue);
+	}
+
+	private void OnDisable()
+	{
+		if (dialogueSystem != null)
+			dialogueSystem.DialogueFinished -= HandleDialogueFinished;
 	}
 
 	private void ResolveDialogueSystem()
 	{
+		ResolveDependencies();
+	}
+
+	private void ResolveDependencies()
+	{
 		if (dialogueSystem == null)
 			dialogueSystem = DialogueSystem.Instance ?? FindFirstObjectByType<DialogueSystem>();
+
+		if (levelTransitionManager == null)
+			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
+	}
+
+	private void HandleDialogueFinished(DialogueSequence finishedDialogue)
+	{
+		if (transitionStarted || finishedDialogue != dialogue)
+			return;
+
+		transitionStarted = true;
+		dialogueSystem.DialogueFinished -= HandleDialogueFinished;
+
+		if (levelTransitionManager == null)
+			levelTransitionManager = FindFirstObjectByType<LevelTransitionManager>();
+
+		if (levelTransitionManager != null)
+			levelTransitionManager.LoadNextScene();
+		else
+			Debug.LogWarning($"{nameof(TwoBirdsDialogueController)} could not find a {nameof(LevelTransitionManager)}.", this);
 	}
 
 	private void CreatePrompt()

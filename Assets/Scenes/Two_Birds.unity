@@ -257,6 +257,8 @@ MonoBehaviour:
   dialogue: {fileID: 11400000, guid: 1530a6975d11452facfa5b985d52f23d, type: 2}
   dialogueSystem: {fileID: 0}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
+  loadNextSceneAfterDialogue: 1
+  levelTransitionManager: {fileID: 0}
   promptText: "\u041D\u0430\u0436\u043C\u0438\u0442\u0435 Enter"
   promptFontSize: 42
   promptOffset: {x: -56, y: 42}
@@ -273,6 +275,27 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
+--- !u!1001 &210000004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.scenePath
+      value: Assets/Scenes/RoomPrototype_Level01.unity
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.sceneAsset
+      value: 
+      objectReference: {fileID: 102900000, guid: 467cc2dc82424073b65b1116d0a87d2e, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
 --- !u!1 &976864264
 GameObject:
   m_ObjectHideFlags: 0
@@ -875,6 +898,7 @@ SceneRoots:
   - {fileID: 1277198609}
   - {fileID: 210000001}
   - {fileID: 210000003}
+  - {fileID: 210000004}
   - {fileID: 1514583245}
   - {fileID: 976864266}
   - {fileID: 1245781959}
