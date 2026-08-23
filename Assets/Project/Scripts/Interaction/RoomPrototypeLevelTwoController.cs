@@ -37,6 +37,11 @@ public static class RoomPrototypeLoopingMusic
 			return;
 		}
 
+		if (AudioManager.TryKeepBackgroundMusicPlaying(musicClip, volume))
+		{
+			return;
+		}
+
 		AudioSource source = GetOrCreatePersistentMusicSource();
 		source.loop = true;
 		source.spatialBlend = 0f;

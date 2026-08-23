@@ -710,6 +710,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a47ee961f07c3ec4d9872662785a992a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  backgroundMusicSource: {fileID: 518781983}
   uiSfxSource: {fileID: 518781985}
   hoverClip: {fileID: 8300000, guid: 026edc07f72887241b6f7fdec8e10fd2, type: 3}
   confirmClip: {fileID: 8300000, guid: 8da556a9e113fcb42ad99801172e49fd, type: 3}

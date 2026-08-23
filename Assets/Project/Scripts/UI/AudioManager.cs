@@ -8,6 +8,7 @@ public class AudioManager : MonoBehaviour
 
 	public static AudioManager Instance { get; private set; }
 
+	[SerializeField] private AudioSource backgroundMusicSource = null;
 	[SerializeField] private AudioSource uiSfxSource = null;
 	[SerializeField] private AudioClip hoverClip = null;
 	[SerializeField] private AudioClip confirmClip = null;
@@ -45,6 +46,30 @@ public class AudioManager : MonoBehaviour
 		audioSource.loop = false;
 		audioSource.playOnAwake = false;
 		audioSource.spatialBlend = 0f;
+	}
+
+	public static bool TryKeepBackgroundMusicPlaying(AudioClip fallbackClip, float fallbackVolume)
+	{
+		if (Instance == null || Instance.backgroundMusicSource == null)
+		{
+			return false;
+		}
+
+		AudioSource source = Instance.backgroundMusicSource;
+		source.loop = true;
+		source.spatialBlend = 0f;
+		if (source.clip == null && fallbackClip != null)
+		{
+			source.clip = fallbackClip;
+			source.volume = Mathf.Clamp01(fallbackVolume);
+		}
+
+		if (!source.isPlaying && source.clip != null)
+		{
+			source.Play();
+		}
+
+		return source.clip != null;
 	}
 
 	public static void ConfigureMainMenuButtonColors(Button button)

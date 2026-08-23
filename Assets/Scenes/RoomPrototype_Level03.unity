@@ -350,9 +350,31 @@ MonoBehaviour:
   frameColor: {r: 1, g: 1, b: 1, a: 1}
   flowerColor: {r: 0.36, g: 0.78, b: 0.26, a: 0.95}
   keyColor: {r: 0.96, g: 0.75, b: 0.13, a: 0.98}
+--- !u!1001 &300000
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 11400000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
+      propertyPath: startSequence
+      value:
+      objectReference: {fileID: 11400000, guid: ac97c4d58a334614ac5369d236aac927, type: 2}
+    - target: {fileID: 11400000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
+      propertyPath: playOnStart
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 100001}
   - {fileID: 200001}
+  - {fileID: 300000}
