@@ -21,10 +21,10 @@ EditorBuildSettings:
     path: Assets/Scenes/LoadingScene.unity
     guid: a6d154307bb60b44cb5c7156b0202ca6
   - enabled: 1
-    path: Assets/Scenes/Hand bronze.unity
+    path: Assets/Scenes/Hand silver.unity
     guid: 9e0b5999e9b573d4aabef6ca2293fd99
   - enabled: 1
-    path: Assets/Scenes/Hand silver.unity
+    path: Assets/Scenes/Hand bronze.unity
     guid: e5775cea43d0d7f4a826bc0be99d8031
   - enabled: 1
     path: Assets/Scenes/Hand gold.unity

@@ -256,7 +256,7 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!1 &1137383178
+--- !u!1 &1173710389
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -264,23 +264,23 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1137383180}
-  - component: {fileID: 1137383179}
+  - component: {fileID: 1173710391}
+  - component: {fileID: 1173710390}
   m_Layer: 0
-  m_Name: IMG_0731_0
+  m_Name: IMG_0732_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!212 &1137383179
+--- !u!212 &1173710390
 SpriteRenderer:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1137383178}
+  m_GameObject: {fileID: 1173710389}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -322,7 +322,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 6686346385265639533, guid: 6f0117be2559298469b7b67cef06ca50, type: 3}
+  m_Sprite: {fileID: -755983202290992800, guid: 4d9562012a2288f47b903422a8e46f67, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -332,13 +332,13 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!4 &1137383180
+--- !u!4 &1173710391
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1137383178}
+  m_GameObject: {fileID: 1173710389}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -391,7 +391,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8430f682a2b4a6b9b43fd60de07c0f2, type: 3}
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::HandSceneDialogueController
-  dialogue: {fileID: 11400000, guid: d4a38d7b3d5d4624879c59e35dcc6e7d, type: 2}
+  dialogue: {fileID: 11400000, guid: 61e4174348b649ef8d95a2d7b8bc1aa9, type: 2}
   dialogueSystem: {fileID: 0}
   levelTransitionManager: {fileID: 0}
   hintFont: {fileID: 11400000, guid: 3a398c4db34814b4abb408f0570eb2cd, type: 2}
@@ -429,7 +429,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 23303988}
-  - {fileID: 1137383180}
+  - {fileID: 1173710391}
   - {fileID: 210000001}
   - {fileID: 210000003}
   - {fileID: 210000004}

@@ -995,7 +995,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5720738469814007182, guid: 7f8416c9a27ea854c8e28f4a39d9a875, type: 3}
       propertyPath: m_Sprite
-      value:
+      value: 
       objectReference: {fileID: 3659579484678920326, guid: c0de6e6568e53444d9758f9d8c114c05, type: 3}
     - target: {fileID: 5720738469814007182, guid: 7f8416c9a27ea854c8e28f4a39d9a875, type: 3}
       propertyPath: m_Color.b
@@ -2488,6 +2488,27 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 67df8081d30b4f12a67ba2a23845b411, type: 3}
+--- !u!1001 &2098470004
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.scenePath
+      value: Assets/Scenes/Hand bronze.unity
+      objectReference: {fileID: 0}
+    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
+      propertyPath: nextScene.sceneAsset
+      value: 
+      objectReference: {fileID: 102900000, guid: e5775cea43d0d7f4a826bc0be99d8031, type: 3}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
 --- !u!1 &2140117766
 GameObject:
   m_ObjectHideFlags: 0
@@ -2519,27 +2540,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2056679092}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &2098470004
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
-      propertyPath: nextScene.scenePath
-      value: Assets/Scenes/Hand bronze.unity
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
-      propertyPath: nextScene.sceneAsset
-      value:
-      objectReference: {fileID: 102900000, guid: 9e0b5999e9b573d4aabef6ca2293fd99, type: 3}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0b18d9bf4bfb4bd2b8fb9448509d5bd7, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
