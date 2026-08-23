@@ -311,10 +311,10 @@ MonoBehaviour:
   cageRoomSize: {x: 0.9, y: 0.9}
   keyRoomPosition: {x: 0.39, y: 0.62}
   keyRoomSize: {x: 0.12, y: 0.24}
-  truckStartRoomPosition: {x: 1.44, y: 1.63}
+  truckStartRoomPosition: {x: 1.33, y: 1.86}
   truckRoomSize: {x: 0.48, y: 0.22}
-  truckMiddleRoomPosition: {x: 2.44, y: 1.63}
-  truckTableRoomPosition: {x: 3.44, y: 1.63}
+  truckMiddleRoomPosition: {x: 2.44, y: 1.86}
+  truckTableRoomPosition: {x: 3.2, y: 1.86}
   ropeRoomPosition: {x: 2.76, y: 1.29}
   ropeRoomSize: {x: 0.1, y: 0.42}
   appleRoomPosition: {x: 3.39, y: 1.07}
