@@ -200,6 +200,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	[SerializeField] private Vector2 portraitWorldPosition = new Vector2(2.53f, 0.47f);
 	[SerializeField] private Vector2 portraitWorldSize = new Vector2(0.68f, 0.9f);
 	[SerializeField] private Sprite clockSprite = null;
+	[SerializeField] private Sprite clockSprite2 = null;
+	[SerializeField] private Sprite clockSprite3 = null;
 	[SerializeField] private Vector2 clockWorldPosition = new Vector2(0.55f, 0.43f);
 	[SerializeField] private Vector2 clockWorldSize = new Vector2(0.42f, 0.66f);
 	[SerializeField] private Vector2 releasedKeyStartWorldPosition = new Vector2(2.66f, 0.67f);
@@ -842,7 +844,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 	private void CreateClockView(PanelView panel)
 	{
 		Image clock = CreateImage("Clock", panel.Content, Color.white);
-		clock.sprite = clockSprite;
+		clock.sprite = GetCurrentClockSprite();
 		clock.preserveAspect = true;
 		panel.Clock = clock;
 	}
@@ -854,8 +856,10 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			return;
 		}
 
+		Sprite currentClockSprite = GetCurrentClockSprite();
 		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
-		bool visible = clockSprite != null
+		panel.Clock.sprite = currentClockSprite;
+		bool visible = currentClockSprite != null
 			&& RoomPrototypeLevelTwoWorldProjection.IntersectsViewport(clockWorldPosition, clockWorldSize, visibleWorldRect);
 		panel.Clock.gameObject.SetActive(visible);
 		if (!visible)
@@ -950,6 +954,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			clockPressCount = 0;
 			portraitStageIndex = 0;
 			RefreshPortraitViews();
+			RefreshClockViews();
 		}
 	}
 
@@ -985,6 +990,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		PlayInteractionSound();
 		portraitStageIndex = Mathf.Min(clockPressCount, 2);
 		RefreshPortraitViews();
+		RefreshClockViews();
 		if (clockPressCount == 2)
 		{
 			keyReleased = true;
@@ -1027,6 +1033,24 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		for (int i = 0; i < panels.Count; i++)
 		{
 			UpdatePortraitView(panels[i], panels[i].Viewport);
+		}
+	}
+
+	private Sprite GetCurrentClockSprite()
+	{
+		switch (portraitStageIndex)
+		{
+			case 0: return clockSprite;
+			case 1: return clockSprite2;
+			default: return clockSprite3;
+		}
+	}
+
+	private void RefreshClockViews()
+	{
+		for (int i = 0; i < panels.Count; i++)
+		{
+			UpdateClockView(panels[i], panels[i].Viewport);
 		}
 	}
 
