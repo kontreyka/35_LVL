@@ -526,6 +526,37 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void BuiltPrototype_UsesInspectorConfiguredApplePosition()
+	{
+		GameObject root = new GameObject("Room Prototype Test Root");
+		root.SetActive(false);
+		RoomPrototypeLevelOneController controller = root.AddComponent<RoomPrototypeLevelOneController>();
+		System.Reflection.FieldInfo applePosition = typeof(RoomPrototypeLevelOneController).GetField(
+			"appleRoomPosition",
+			System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+		);
+
+		try
+		{
+			Assert.That(applePosition, Is.Not.Null, "The apple position must be editable in the Inspector.");
+			applePosition.SetValue(controller, new Vector2(3.25f, 1.25f));
+			root.SetActive(true);
+
+			RectTransform apple = root.GetComponentsInChildren<RectTransform>(true)
+				.Single(rect => rect.name == "APPLE" && rect.gameObject.activeInHierarchy);
+			Vector2 panelSize = apple.parent.GetComponent<RectTransform>().rect.size;
+			Vector2 expectedPosition = new Vector2(-panelSize.x * 0.25f, panelSize.y * 0.25f);
+
+			Assert.That(apple.anchoredPosition.x, Is.EqualTo(expectedPosition.x).Within(0.01f));
+			Assert.That(apple.anchoredPosition.y, Is.EqualTo(expectedPosition.y).Within(0.01f));
+		}
+		finally
+		{
+			UnityEngine.Object.DestroyImmediate(root);
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_CreatesInputSystemEventModuleForPanelClicks()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

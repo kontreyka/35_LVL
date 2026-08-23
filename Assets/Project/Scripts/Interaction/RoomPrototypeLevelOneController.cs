@@ -314,12 +314,26 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	[SerializeField] private Sprite keySprite = null;
 	[SerializeField] private Sprite tableSprite = null;
 	[SerializeField] private Sprite cageSprite = null;
-	[Header("Level 01 Object Layout")]
+	[Header("Level 01 Room Object Layout")]
 	[Tooltip("Room-grid coordinates. The room is 4 columns wide and 2 rows tall.")]
 	[SerializeField] private Vector2 tableRoomPosition = new Vector2(3.32f, 1.35f);
 	[SerializeField] private Vector2 tableRoomSize = new Vector2(0.54f, 0.91f);
 	[SerializeField] private Vector2 cageRoomPosition = new Vector2(3.32f, 0.55f);
 	[SerializeField] private Vector2 cageRoomSize = new Vector2(0.42f, 0.83f);
+	[Header("Level 01 Interactive Object Layout")]
+	[SerializeField] private Vector2 keyRoomPosition = new Vector2(0.39f, 0.62f);
+	[SerializeField] private Vector2 keyRoomSize = new Vector2(0.12f, 0.24f);
+	[SerializeField] private Vector2 truckStartRoomPosition = new Vector2(1.44f, 1.63f);
+	[SerializeField] private Vector2 truckRoomSize = new Vector2(0.48f, 0.22f);
+	[SerializeField] private Vector2 truckMiddleRoomPosition = new Vector2(2.44f, 1.63f);
+	[SerializeField] private Vector2 truckTableRoomPosition = new Vector2(3.44f, 1.63f);
+	[SerializeField] private Vector2 ropeRoomPosition = new Vector2(2.76f, 1.29f);
+	[SerializeField] private Vector2 ropeRoomSize = new Vector2(0.1f, 0.42f);
+	[SerializeField] private Vector2 appleRoomPosition = new Vector2(3.39f, 1.14f);
+	[SerializeField] private Vector2 appleRoomSize = new Vector2(0.16f, 0.16f);
+	[Header("Level 01 Result Object Layout")]
+	[SerializeField] private Vector2 cageKeyRoomOffset = new Vector2(0f, 0.03f);
+	[SerializeField] private Vector2 cageKeyRoomSize = new Vector2(0.1f, 0.2f);
 	[Header("Prototype Settings")]
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
 	[SerializeField] private Vector2 boardSize = new Vector2(1674f, 942f);
@@ -1118,7 +1132,7 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			yield break;
 		}
 
-		RoomMarker tableTruck = GetCurrentMarker(truckMarker.Marker).WithRoomPosition(new Vector2(3.44f, 1.63f)).WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
+		RoomMarker tableTruck = GetCurrentMarker(truckMarker.Marker).WithRoomPosition(truckTableRoomPosition).WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
 		Vector2 markerSize = truckMarker.RectTransform.rect.size;
 		Vector2 sourceStart = truckMarker.RectTransform.anchoredPosition;
 		Vector2 sourceExit = sourceStart + new Vector2(truckPanel.Content.rect.width, 0f);
@@ -1361,13 +1375,13 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 	private void BuildMarkers()
 	{
 		roomMarkers.Clear();
-		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, new Vector2(0.39f, 0.62f), new Vector2(0.12f, 0.24f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
-		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, new Vector2(1.44f, 1.63f), new Vector2(0.48f, 0.22f), new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
-		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, new Vector2(2.76f, 1.29f), new Vector2(0.1f, 0.42f), new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
-		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, new Vector2(3.39f, 1.14f), new Vector2(0.16f, 0.16f), new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
+		roomMarkers.Add(new RoomMarker("KEY", MarkerShape.Rectangle, keyRoomPosition, keyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopLeft));
+		roomMarkers.Add(new RoomMarker("TRUCK", MarkerShape.Rectangle, truckStartRoomPosition, truckRoomSize, new Color(0.1f, 0.38f, 0.78f, 0.9f), RoomPrototypePanelSlot.BottomLeft));
+		roomMarkers.Add(new RoomMarker("ROPE", MarkerShape.Rectangle, ropeRoomPosition, ropeRoomSize, new Color(0.26f, 0.16f, 0.09f, 0.85f), RoomPrototypePanelSlot.BottomLeft));
+		roomMarkers.Add(new RoomMarker("APPLE", MarkerShape.Circle, appleRoomPosition, appleRoomSize, new Color(0.82f, 0.08f, 0.08f, 0.94f), RoomPrototypePanelSlot.BottomRight));
 		roomMarkers.Add(new RoomMarker("TABLE", MarkerShape.Rectangle, tableRoomPosition, tableRoomSize, Color.white));
 		roomMarkers.Add(new RoomMarker("CAGE", MarkerShape.Rectangle, cageRoomPosition, cageRoomSize, Color.white));
-		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, cageRoomPosition + new Vector2(0f, 0.03f), new Vector2(0.1f, 0.2f), new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
+		roomMarkers.Add(new RoomMarker("CAGE KEY", MarkerShape.Rectangle, cageRoomPosition + cageKeyRoomOffset, cageKeyRoomSize, new Color(0.96f, 0.78f, 0.2f, 0.92f), RoomPrototypePanelSlot.TopRight));
 	}
 
 	private static string GetArrowText(RoomPrototypePanelDirection direction)
@@ -1426,13 +1440,13 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		if (truckReachedTable)
 		{
 			return marker
-				.WithRoomPosition(new Vector2(3.44f, 1.63f))
+				.WithRoomPosition(truckTableRoomPosition)
 				.WithDisplaySlot(RoomPrototypePanelSlot.BottomRight);
 		}
 
 		if (truckMovedToNextCell)
 		{
-			return marker.WithRoomPosition(new Vector2(2.44f, 1.63f));
+			return marker.WithRoomPosition(truckMiddleRoomPosition);
 		}
 
 		return marker;
