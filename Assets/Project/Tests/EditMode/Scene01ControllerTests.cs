@@ -610,6 +610,31 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	[TestCase(typeof(RoomPrototypeLevelTwoController))]
+	[TestCase(typeof(RoomPrototypeLevelThreeController))]
+	public void RoomPrototypeControllers_ExposeTableAndCageLayoutInInspector(System.Type controllerType)
+	{
+		string[] requiredFields =
+		{
+			"tableSprite",
+			"cageSprite",
+			"tableWorldPosition",
+			"tableWorldSize",
+			"cageWorldPosition",
+			"cageWorldSize"
+		};
+
+		foreach (string fieldName in requiredFields)
+		{
+			System.Reflection.FieldInfo field = controllerType.GetField(
+				fieldName,
+				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic
+			);
+			Assert.That(field, Is.Not.Null, $"{controllerType.Name} must expose {fieldName} in the Inspector.");
+		}
+	}
+
+	[Test]
 	public void BuiltPrototype_DrawsInspectorAssignedBirdBehindCage()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");

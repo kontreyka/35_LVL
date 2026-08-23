@@ -76,6 +76,12 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 	[SerializeField] private Sprite roomSprite = null;
 	[SerializeField] private Sprite skySprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private Sprite tableSprite = null;
+	[SerializeField] private Sprite cageSprite = null;
+	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
+	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
+	[SerializeField] private Vector2 cageWorldPosition = new Vector2(3.42f, 0.7f);
+	[SerializeField] private Vector2 cageWorldSize = new Vector2(0.9f, 0.9f);
 	[SerializeField] private AudioClip levelMusic = null;
 	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
@@ -463,6 +469,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 			WindowState = RoomPrototypeLevelThreeWindowState.Room
 		};
 		panels.Add(panel);
+		CreateRoomFurnitureViews(panel);
 
 		if (role == PanelRole.Window)
 		{
@@ -490,6 +497,20 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		Stretch(label.rectTransform);
 		panel.Bird = bird.rectTransform;
 		bird.gameObject.SetActive(false);
+	}
+
+	private void CreateRoomFurnitureViews(PanelView panel)
+	{
+		panel.Table = CreateRoomFurnitureView("Table", panel.Content, tableSprite);
+		panel.Cage = CreateRoomFurnitureView("Cage", panel.Content, cageSprite);
+	}
+
+	private static Image CreateRoomFurnitureView(string name, RectTransform parent, Sprite sprite)
+	{
+		Image image = CreateImage(name, parent, Color.white);
+		image.sprite = sprite;
+		image.preserveAspect = true;
+		return image;
 	}
 
 	private void CreateFlower(PanelView panel)
@@ -560,6 +581,7 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		bool isSky = panel.Role == PanelRole.Window && panel.WindowState == RoomPrototypeLevelThreeWindowState.Sky;
 		panel.Room.gameObject.SetActive(!isSky);
 		panel.Sky.gameObject.SetActive(isSky);
+		UpdateRoomFurnitureViews(panel, viewport, !isSky);
 		if (panel.Bird != null)
 		{
 			panel.Bird.gameObject.SetActive(isSky);
@@ -578,6 +600,34 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		{
 			panel.CageOpenMarker.gameObject.SetActive(cageOpened && panel.IsZoomed);
 			panel.CageOpenMarker.rectTransform.anchoredPosition = new Vector2(0f, 40f);
+		}
+	}
+
+	private void UpdateRoomFurnitureViews(PanelView panel, Viewport viewport, bool showRoomFurniture)
+	{
+		UpdateRoomFurnitureView(panel.Table, panel, viewport, tableWorldPosition, tableWorldSize, showRoomFurniture);
+		UpdateRoomFurnitureView(panel.Cage, panel, viewport, cageWorldPosition, cageWorldSize, showRoomFurniture);
+	}
+
+	private void UpdateRoomFurnitureView(
+		Image furniture,
+		PanelView panel,
+		Viewport viewport,
+		Vector2 worldPosition,
+		Vector2 worldSize,
+		bool showRoomFurniture
+	)
+	{
+		if (furniture == null)
+		{
+			return;
+		}
+
+		bool visible = showRoomFurniture && furniture.sprite != null;
+		furniture.gameObject.SetActive(visible);
+		if (visible)
+		{
+			PlaceWorldMarker(furniture.rectTransform, panel, viewport, worldPosition, worldSize);
 		}
 	}
 
@@ -1110,6 +1160,8 @@ public sealed class RoomPrototypeLevelThreeController : MonoBehaviour
 		public RectTransform Content;
 		public RectTransform Room;
 		public Image Sky;
+		public Image Table;
+		public Image Cage;
 		public RectTransform Bird;
 		public RectTransform Flower;
 		public RectTransform CaughtKey;

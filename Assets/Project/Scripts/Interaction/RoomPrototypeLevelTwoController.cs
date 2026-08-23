@@ -130,6 +130,12 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	[SerializeField] private Sprite backgroundSprite = null;
 	[SerializeField] private Sprite keySprite = null;
+	[SerializeField] private Sprite tableSprite = null;
+	[SerializeField] private Sprite cageSprite = null;
+	[SerializeField] private Vector2 tableWorldPosition = new Vector2(3.42f, 1.5f);
+	[SerializeField] private Vector2 tableWorldSize = new Vector2(0.55f, 0.95f);
+	[SerializeField] private Vector2 cageWorldPosition = new Vector2(3.42f, 0.7f);
+	[SerializeField] private Vector2 cageWorldSize = new Vector2(0.9f, 0.9f);
 	[SerializeField] private AudioClip levelMusic = null;
 	[Range(0f, 1f)] [SerializeField] private float levelMusicVolume = 0.45f;
 	[SerializeField] private Vector2 referenceResolution = new Vector2(1674f, 942f);
@@ -496,6 +502,7 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 			Viewport = new Viewport(regionX, regionY, 2, 2)
 		};
 		panels.Add(panel);
+		CreateRoomFurnitureViews(panel);
 
 		RoomPrototypeLevelTwoPanelDrag dragHandler = root.gameObject.AddComponent<RoomPrototypeLevelTwoPanelDrag>();
 		dragHandler.Initialize(this, id);
@@ -528,9 +535,51 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 
 	private void UpdateWorldViews(PanelView panel, Viewport viewport)
 	{
+		UpdateRoomFurnitureViews(panel, viewport);
 		UpdateSharedTruckView(panel, viewport);
 		UpdatePortraitView(panel, viewport);
 		UpdateLandedKeyView(panel, viewport);
+	}
+
+	private void CreateRoomFurnitureViews(PanelView panel)
+	{
+		panel.Table = CreateRoomFurnitureView("Table", panel.Content, tableSprite);
+		panel.Cage = CreateRoomFurnitureView("Cage", panel.Content, cageSprite);
+	}
+
+	private static Image CreateRoomFurnitureView(string name, RectTransform parent, Sprite sprite)
+	{
+		Image image = CreateImage(name, parent, Color.white);
+		image.sprite = sprite;
+		image.preserveAspect = true;
+		return image;
+	}
+
+	private void UpdateRoomFurnitureViews(PanelView panel, Viewport viewport)
+	{
+		Rect visibleWorldRect = new Rect(viewport.X, viewport.Y, viewport.Width, viewport.Height);
+		Vector2 contentSize = GetContentSize(panel);
+		UpdateRoomFurnitureView(panel.Table, tableWorldPosition, tableWorldSize, contentSize, visibleWorldRect);
+		UpdateRoomFurnitureView(panel.Cage, cageWorldPosition, cageWorldSize, contentSize, visibleWorldRect);
+	}
+
+	private static void UpdateRoomFurnitureView(Image furniture, Vector2 worldPosition, Vector2 worldSize, Vector2 contentSize, Rect visibleWorldRect)
+	{
+		if (furniture == null)
+		{
+			return;
+		}
+
+		bool visible = furniture.sprite != null
+			&& RoomPrototypeLevelTwoWorldProjection.IsVisibleInViewport(worldPosition, visibleWorldRect);
+		furniture.gameObject.SetActive(visible);
+		if (!visible)
+		{
+			return;
+		}
+
+		furniture.rectTransform.sizeDelta = RoomPrototypeLevelTwoWorldProjection.GetPanelSize(worldSize, contentSize, visibleWorldRect);
+		furniture.rectTransform.anchoredPosition = RoomPrototypeLevelTwoWorldProjection.GetPanelAnchoredPosition(worldPosition, contentSize, visibleWorldRect);
 	}
 
 	private void CreateSharedTruckView(PanelView panel)
@@ -1149,6 +1198,8 @@ public sealed class RoomPrototypeLevelTwoController : MonoBehaviour
 		public RectTransform Root;
 		public RectTransform Content;
 		public RectTransform Background;
+		public Image Table;
+		public Image Cage;
 		public RectTransform SharedTruckPlaceholder;
 		public Image PortraitStage;
 		public RectTransform LandedKey;
