@@ -933,7 +933,14 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 		RefreshAllPanelViewports();
 		Image tippedTruck = CreateMovingMarker("Tipped Truck", tablePanel.Content, truckMarker, truckSize, truckPosition);
 		RectTransform tippedTruckRect = tippedTruck.rectTransform;
-		tippedTruckRect.pivot = new Vector2(0.22f, 0.2f);
+		Vector2 truckTiltPivot = new Vector2(0.22f, 0.2f);
+		tippedTruckRect.anchoredPosition = GetAnchoredPositionKeepingVisualPosition(
+			tippedTruckRect.anchoredPosition,
+			tippedTruckRect.rect.size,
+			tippedTruckRect.pivot,
+			truckTiltPivot
+		);
+		tippedTruckRect.pivot = truckTiltPivot;
 		const float tipDuration = 0.18f;
 		elapsed = 0f;
 		while (elapsed < tipDuration)
@@ -1493,6 +1500,16 @@ public sealed class RoomPrototypeLevelOneController : MonoBehaviour
 			(normalized.x - 0.5f) * panelSize.x,
 			(normalized.y - 0.5f) * panelSize.y
 		);
+	}
+
+	private static Vector2 GetAnchoredPositionKeepingVisualPosition(
+		Vector2 anchoredPosition,
+		Vector2 size,
+		Vector2 currentPivot,
+		Vector2 targetPivot
+	)
+	{
+		return anchoredPosition + Vector2.Scale(targetPivot - currentPivot, size);
 	}
 
 	private Image CreateMovingMarker(string name, RectTransform parent, RoomMarker marker, Vector2 size, Vector2 position)

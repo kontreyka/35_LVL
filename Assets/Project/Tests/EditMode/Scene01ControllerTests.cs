@@ -610,6 +610,27 @@ public sealed class RoomPrototypeNavigationTests
 	}
 
 	[Test]
+	public void TippedTruckPivot_KeepsItsVisiblePosition()
+	{
+		System.Reflection.MethodInfo getAnchoredPosition = typeof(RoomPrototypeLevelOneController).GetMethod(
+			"GetAnchoredPositionKeepingVisualPosition",
+			System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic
+		);
+
+		Assert.That(getAnchoredPosition, Is.Not.Null, "Changing the truck pivot must preserve its visual position.");
+		Vector2 result = (Vector2)getAnchoredPosition.Invoke(null, new object[]
+		{
+			new Vector2(120f, -35f),
+			new Vector2(200f, 80f),
+			new Vector2(0.5f, 0.5f),
+			new Vector2(0.22f, 0.2f)
+		});
+
+		Assert.That(result.x, Is.EqualTo(64f));
+		Assert.That(result.y, Is.EqualTo(-59f));
+	}
+
+	[Test]
 	public void BuiltPrototype_DrawsTruckAboveTableWhenItHasReachedTheTable()
 	{
 		GameObject root = new GameObject("Room Prototype Test Root");
